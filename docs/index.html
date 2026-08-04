@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Pre-market Swing Scanner</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 40px;
+      background: #f6f7f9;
+      color: #222;
+    }
+
+    .card {
+      background: white;
+      padding: 20px;
+      border-radius: 14px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    }
+
+    .score {
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .high {
+      color: green;
+    }
+
+    .medium {
+      color: orange;
+    }
+
+    .low {
+      color: red;
+    }
+
+    li {
+      margin-bottom: 6px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Pre-market Swing Scanner</h1>
+  <p id="generatedAt"></p>
+  <p><strong>Disclaimer:</strong> Educational scanner only. Not financial advice.</p>
+
+  <h2>Global Cues</h2>
+  <div class="card" id="globalCues"></div>
+
+  <h2>Top 3 Candidates</h2>
+  <div id="topPicks"></div>
+
+  <script>
+    async function loadScannerData() {
+      const response = await fetch("./data/latest.json?ts=" + Date.now());
+      const data = await response.json();
+
+      document.getElementById("generatedAt").innerText =
+        "Generated at IST: " + data.generated_at_ist;
+
+      const global = data.global_cues;
+
+      document.getElementById("globalCues").innerHTML = `
+        <p>NASDAQ: ${global.nasdaq_change_pct ?? "N/A"}%</p>
+        <p>S&P 500: ${global.spx_change_pct ?? "N/A"}%</p>
+        <p>Dow Jones: ${global.dow_change_pct ?? "N/A"}%</p>
+        <p>GIFT Nifty: ${global.gift_nifty_change_pct ?? "N/A"}%</p>
+      `;
+
+      const container = document.getElementById("topPicks");
+      container.innerHTML = "";
+
+      data.top_3.forEach((stock, index) => {
+        let scoreClass = "low";
+
+        if (stock.score >= 75) {
+          scoreClass = "high";
+        } else if (stock.score >= 60) {
+          scoreClass = "medium";
+        }
+
+        const reasons = stock.reasons
+          .map(reason => `<li>${reason}</li>`)
+          .join("");
+
+        container.innerHTML += `
+          <div class="card">
+            <h2>${index + 1}. ${stock.symbol}</h2>
+            <div class="score ${scoreClass}">${stock.score}/100</div>
+            <p><strong>${stock.recommendation}</strong></p>
+            <p>PCR: ${stock.pcr}</p>
+            <h4>Reasons</h4>
+            <ul>${reasons}</ul>
+          </div>
+        `;
+      });
+    }
+
+    loadScannerData();
+  </script>
+</body>
+</html>

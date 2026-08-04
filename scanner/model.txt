@@ -1,0 +1,12 @@
+F&O Structure       40%
+Price Trend         25%
+Volume              10%
+Global Cues         15%
+Risk Filters        10%
+
+final_score =
+  fno_score * 0.40
++ trend_score * 0.25
++ volume_score * 0.10
++ global_score * 0.15
++ risk_score * 0.10
