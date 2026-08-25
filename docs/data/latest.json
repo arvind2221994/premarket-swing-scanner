@@ -1,12 +1,12 @@
 {
-  "generated_at_ist": "2026-08-04 14:03:45",
+  "generated_at_ist": "2026-08-13 12:02:58",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
   "global_cues": {
-    "nasdaq_change_pct": null,
-    "spx_change_pct": null,
-    "dow_change_pct": null,
-    "gift_nifty_change_pct": null
+    "nasdaq_change_pct": 0.54,
+    "spx_change_pct": 0.26,
+    "dow_change_pct": -0.04,
+    "gift_nifty_change_pct": 0.28
   },
   "top_3": [
     {
