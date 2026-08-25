@@ -66,6 +66,7 @@ def score_global_cues(global_data):
 
     nasdaq = global_data.get("nasdaq_change_pct")
     spx = global_data.get("spx_change_pct")
+    dow = global_data.get("dow_change_pct")
     gift = global_data.get("gift_nifty_change_pct")
 
     if nasdaq is not None:
@@ -83,6 +84,14 @@ def score_global_cues(global_data):
         elif spx < -1:
             score -= 10
             reasons.append("S&P 500 negative")
+
+    if dow is not None:
+        if dow > 1:
+            score += 8
+            reasons.append("Dow Jones positive")
+        elif dow < -1:
+            score -= 8
+            reasons.append("Dow Jones negative")
 
     if gift is not None:
         if gift > 0.5:
