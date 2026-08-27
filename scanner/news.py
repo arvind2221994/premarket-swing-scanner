@@ -1,6 +1,6 @@
 import email.utils
 from datetime import datetime, timedelta, timezone
-from urllib.parse import quote_plus
+from urllib.parse import quote_plus, urlparse
 
 import feedparser
 import requests
@@ -38,7 +38,7 @@ def parse_news_feed(content, scope, cutoff):
             continue
         title = entry.get("title", "").strip()
         link = entry.get("link", "").strip()
-        if not title or not link:
+        if not title or urlparse(link).scheme != "https":
             continue
         articles.append({
             "title": title,

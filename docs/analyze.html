@@ -234,6 +234,53 @@
     th { color: var(--muted); font-size: 12px; }
     .formula { margin: 14px 0 0; color: var(--muted); font-family: monospace; overflow-wrap: anywhere; }
 
+    .news-panel { margin-top: 18px; }
+
+    .news-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 4px;
+    }
+
+    .news-list { display: grid; }
+
+    .news-item {
+      display: grid;
+      grid-template-columns: 130px minmax(0, 1fr);
+      gap: 18px;
+      padding: 18px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .news-item:last-child { border-bottom: 0; }
+
+    .news-scope {
+      width: fit-content;
+      height: fit-content;
+      padding: 4px 7px;
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      color: var(--blue);
+      background: #edf5fb;
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .news-title {
+      color: var(--ink);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 17px;
+      font-weight: 600;
+      line-height: 1.35;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 3px;
+    }
+
+    .news-meta { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+    .news-errors { color: var(--red); font-size: 13px; }
+
     .disclaimer {
       padding: 16px 0 0;
       color: var(--muted);
@@ -246,6 +293,8 @@
       .summary { grid-template-columns: 1fr; text-align: center; }
       .two-column, .three-column { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .news-header { align-items: flex-start; flex-direction: column; }
+      .news-item { grid-template-columns: 1fr; gap: 9px; }
       .header-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
       table { font-size: 13px; }
       th, td { padding: 9px 4px; }
@@ -313,14 +362,21 @@
         </section>
       </div>
 
+      <section class="panel news-panel">
+        <div class="news-header">
+          <h2>Recent company news</h2>
+          <span id="newsSource" class="meta"></span>
+        </div>
+        <p id="newsErrors" class="news-errors"></p>
+        <div id="newsList" class="news-list"></div>
+      </section>
+
       <p class="disclaimer">Educational analysis only. Market data can be delayed or unavailable. This is not financial advice; use independent research, position sizing, and a stop-loss.</p>
     </div>
   </main>
 
   <script>
-    const API_BASE = location.hostname.endsWith("github.io")
-      ? "https://premarket-swing-scanner.onrender.com"
-      : "";
+    const API_BASE = "https://premarket-swing-scanner.onrender.com";
 
     const form = document.getElementById("analysisForm");
     const input = document.getElementById("ticker");
@@ -344,6 +400,29 @@
     function list(targetId, entries, emptyText) {
       const values = entries.length ? entries : [emptyText];
       document.getElementById(targetId).innerHTML = values.map(value => `<li>${escapeHtml(value)}</li>`).join("");
+    }
+
+    function renderNews(news) {
+      const articles = news?.articles || [];
+      document.getElementById("newsSource").textContent =
+        `${articles.length} articles · Past ${news?.lookback_days || 7} days · ${news?.sources || "News feeds"}`;
+      document.getElementById("newsErrors").textContent = (news?.errors || []).join(" ");
+      document.getElementById("newsList").innerHTML = articles.length
+        ? articles.map(article => {
+            const published = article.published_at
+              ? new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(article.published_at))
+              : "Publication time unavailable";
+            return `
+              <article class="news-item">
+                <span class="news-scope">${escapeHtml(article.scope)}</span>
+                <div>
+                  <a class="news-title" href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(article.title)}</a>
+                  <p class="news-meta">${escapeHtml(article.publisher)} · ${escapeHtml(published)}</p>
+                </div>
+              </article>
+            `;
+          }).join("")
+        : '<p class="meta">No matching recent articles were found.</p>';
     }
 
     function renderReport(data) {
@@ -417,6 +496,7 @@
       `).join("");
       document.getElementById("formula").textContent = `${number(calculation.weighted_total, 2)} weighted points ÷ ${number(calculation.total_weight, 2)} active weight = ${number(data.score, 1)}/100`;
       list("fundamentalTags", assessment.tags, "No fundamental observations available.");
+      renderNews(data.news);
 
       reportElement.hidden = false;
       reportElement.scrollIntoView({ behavior: "smooth", block: "start" });

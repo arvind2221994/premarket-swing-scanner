@@ -38,11 +38,35 @@
     li {
       margin-bottom: 6px;
     }
+
+    .analyze-button {
+      display: inline-block;
+      padding: 14px 22px;
+      border-radius: 6px;
+      background: #087f5b;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(8, 127, 91, 0.24);
+      transition: background 150ms ease, box-shadow 150ms ease, transform 150ms ease;
+    }
+
+    .analyze-button:hover {
+      background: #066c4d;
+      box-shadow: 0 6px 16px rgba(8, 127, 91, 0.3);
+      transform: translateY(-1px);
+    }
+
+    .analyze-button:focus-visible {
+      outline: 3px solid rgba(8, 127, 91, 0.35);
+      outline-offset: 3px;
+    }
   </style>
 </head>
 <body>
   <h1>Pre-market Swing Scanner</h1>
-  <p><a href="./analyze.html">Analyze a stock ticker</a></p>
+  <p><a class="analyze-button" href="./analyze.html">Analyze a stock ticker</a></p>
   <p id="generatedAt"></p>
   <p><strong>Disclaimer:</strong> Educational scanner only. Not financial advice.</p>
 
