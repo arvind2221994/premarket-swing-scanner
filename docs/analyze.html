@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stock Analysis | Pre-market Swing Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #17211c;
+      --muted: #65716a;
+      --paper: #f3f5ef;
+      --surface: #ffffff;
+      --line: #d9dfd7;
+      --green: #087f5b;
+      --green-soft: #dff4e8;
+      --red: #c24136;
+      --red-soft: #f9e4df;
+      --amber: #a16207;
+      --amber-soft: #f8edcb;
+      --blue: #1769aa;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background:
+        linear-gradient(rgba(23, 33, 28, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(23, 33, 28, 0.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 28px 28px;
+      color: var(--ink);
+      font-family: "IBM Plex Sans", sans-serif;
+    }
+
+    header {
+      border-bottom: 1px solid var(--line);
+      background: rgba(255, 255, 255, 0.92);
+    }
+
+    .header-inner, main {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+    }
+
+    .header-inner {
+      min-height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .brand {
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 700;
+    }
+
+    nav a {
+      color: var(--muted);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    main { padding: 38px 0 64px; }
+
+    h1, h2, h3 {
+      font-family: "Space Grotesk", sans-serif;
+      letter-spacing: 0;
+    }
+
+    h1 { margin: 0 0 8px; font-size: clamp(28px, 5vw, 44px); }
+    h2 { margin: 0; font-size: 21px; }
+    h3 { margin: 0 0 12px; font-size: 16px; }
+
+    .intro { color: var(--muted); margin: 0 0 24px; }
+
+    form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 10px;
+      max-width: 680px;
+    }
+
+    input, button {
+      min-height: 48px;
+      border-radius: 6px;
+      font: inherit;
+    }
+
+    input {
+      width: 100%;
+      border: 1px solid #aeb8b0;
+      padding: 0 16px;
+      background: var(--surface);
+      color: var(--ink);
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    input:focus { outline: 3px solid rgba(23, 105, 170, 0.18); border-color: var(--blue); }
+
+    button {
+      border: 0;
+      padding: 0 22px;
+      background: var(--ink);
+      color: white;
+      cursor: pointer;
+      font-weight: 600;
+    }
+
+    button:disabled { cursor: wait; opacity: 0.65; }
+
+    .status {
+      min-height: 28px;
+      margin: 14px 0 10px;
+      color: var(--muted);
+    }
+
+    .status.error { color: var(--red); font-weight: 600; }
+
+    .loading::before {
+      content: "";
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      margin-right: 9px;
+      border: 2px solid var(--line);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    #report[hidden] { display: none; }
+
+    .summary {
+      display: grid;
+      grid-template-columns: 190px minmax(0, 1fr);
+      gap: 30px;
+      align-items: center;
+      padding: 26px;
+      margin-top: 22px;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .score-ring {
+      width: 150px;
+      aspect-ratio: 1;
+      display: grid;
+      place-content: center;
+      margin: auto;
+      border-radius: 50%;
+      background: conic-gradient(var(--score-color) calc(var(--score) * 1%), #e5e9e4 0);
+      position: relative;
+    }
+
+    .score-ring::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 50%;
+      background: var(--surface);
+    }
+
+    .score-value, .score-label { position: relative; text-align: center; }
+    .score-value { font: 700 38px/1 "Space Grotesk", sans-serif; }
+    .score-label { color: var(--muted); font-size: 13px; }
+
+    .eyebrow {
+      margin: 0 0 5px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .verdict { margin: 8px 0 12px; font-size: 20px; font-weight: 600; }
+
+    .badge {
+      display: inline-flex;
+      padding: 5px 9px;
+      border-radius: 4px;
+      background: var(--badge-bg);
+      color: var(--score-color);
+      font-weight: 700;
+      font-size: 13px;
+    }
+
+    .meta { color: var(--muted); font-size: 14px; }
+
+    .two-column, .three-column {
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .two-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .three-column { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 22px;
+      overflow: hidden;
+    }
+
+    .panel.positive { border-top: 4px solid var(--green); }
+    .panel.negative { border-top: 4px solid var(--red); }
+
+    ul { margin: 0; padding-left: 20px; }
+    li { margin: 8px 0; line-height: 1.45; }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .metric { min-width: 0; }
+    .metric-label { color: var(--muted); font-size: 12px; margin-bottom: 3px; }
+    .metric-value { font: 600 18px/1.25 "Space Grotesk", sans-serif; overflow-wrap: anywhere; }
+
+    table { width: 100%; border-collapse: collapse; margin-top: 14px; }
+    th, td { padding: 11px 8px; text-align: right; border-bottom: 1px solid var(--line); }
+    th:first-child, td:first-child { text-align: left; }
+    th { color: var(--muted); font-size: 12px; }
+    .formula { margin: 14px 0 0; color: var(--muted); font-family: monospace; overflow-wrap: anywhere; }
+
+    .disclaimer {
+      padding: 16px 0 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    @media (max-width: 760px) {
+      main { padding-top: 26px; }
+      form { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: 1fr; text-align: center; }
+      .two-column, .three-column { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .header-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
+      table { font-size: 13px; }
+      th, td { padding: 9px 4px; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="brand">Pre-market Swing Scanner</div>
+      <nav><a href="./index.html">Scanner dashboard</a></nav>
+    </div>
+  </header>
+
+  <main>
+    <h1>Stock analysis</h1>
+    <p class="intro">Run a live NSE cash, derivatives, and fundamentals assessment.</p>
+
+    <form id="analysisForm">
+      <input id="ticker" name="ticker" maxlength="20" pattern="(?:[A-Za-z0-9]|&amp;|-)+" placeholder="Enter NSE ticker, for example TCS" autocomplete="off" required aria-label="NSE ticker symbol">
+      <button id="submitButton" type="submit">Analyze stock</button>
+    </form>
+    <div id="status" class="status" aria-live="polite"></div>
+
+    <div id="report" hidden>
+      <section class="summary">
+        <div id="scoreRing" class="score-ring">
+          <div id="scoreValue" class="score-value"></div>
+          <div class="score-label">out of 100</div>
+        </div>
+        <div>
+          <p id="reportDate" class="eyebrow"></p>
+          <h2 id="reportTitle"></h2>
+          <p id="verdict" class="verdict"></p>
+          <span id="confidence" class="badge"></span>
+          <p id="cacheStatus" class="meta"></p>
+        </div>
+      </section>
+
+      <div class="two-column">
+        <section class="panel positive"><h2>Supporting evidence</h2><ul id="pros"></ul></section>
+        <section class="panel negative"><h2>Risk factors</h2><ul id="cons"></ul></section>
+      </div>
+
+      <div class="three-column">
+        <section class="panel"><h2>Cash trend</h2><div id="cashMetrics" class="metric-grid"></div></section>
+        <section class="panel"><h2>F&amp;O positioning</h2><div id="fnoMetrics" class="metric-grid"></div></section>
+        <section class="panel"><h2>Fundamentals</h2><div id="fundamentalMetrics" class="metric-grid"></div></section>
+      </div>
+
+      <div class="two-column">
+        <section class="panel">
+          <h2>Composite calculation</h2>
+          <table>
+            <thead><tr><th>Component</th><th>Score</th><th>Weight</th><th>Points</th></tr></thead>
+            <tbody id="calculationRows"></tbody>
+          </table>
+          <p id="formula" class="formula"></p>
+        </section>
+        <section class="panel">
+          <h2>Technical levels</h2>
+          <div id="riskMetrics" class="metric-grid"></div>
+          <h3 style="margin-top: 22px">Fundamental observations</h3>
+          <ul id="fundamentalTags"></ul>
+        </section>
+      </div>
+
+      <p class="disclaimer">Educational analysis only. Market data can be delayed or unavailable. This is not financial advice; use independent research, position sizing, and a stop-loss.</p>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = location.hostname.endsWith("github.io")
+      ? "https://premarket-swing-scanner.onrender.com"
+      : "";
+
+    const form = document.getElementById("analysisForm");
+    const input = document.getElementById("ticker");
+    const button = document.getElementById("submitButton");
+    const status = document.getElementById("status");
+    const reportElement = document.getElementById("report");
+
+    const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({
+      "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
+    })[character]);
+    const number = (value, digits = 2) => value == null ? "N/A" : Number(value).toFixed(digits);
+    const signed = (value, suffix = "%") => value == null ? "N/A" : `${value >= 0 ? "+" : ""}${number(value)}${suffix}`;
+    const currency = value => value == null ? "N/A" : `₹${Number(value).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+
+    function metrics(targetId, entries) {
+      document.getElementById(targetId).innerHTML = entries.map(([label, value]) => `
+        <div class="metric"><div class="metric-label">${escapeHtml(label)}</div><div class="metric-value">${escapeHtml(value)}</div></div>
+      `).join("");
+    }
+
+    function list(targetId, entries, emptyText) {
+      const values = entries.length ? entries : [emptyText];
+      document.getElementById(targetId).innerHTML = values.map(value => `<li>${escapeHtml(value)}</li>`).join("");
+    }
+
+    function renderReport(data) {
+      const cash = data.cash;
+      const fno = data.fno;
+      const fundamentals = data.fundamentals;
+      const assessment = data.fundamental_assessment;
+      const calculation = data.calculation;
+      const scoreColor = data.score >= 75 ? "var(--green)" : data.score >= 60 ? "var(--amber)" : "var(--red)";
+      const badgeBackground = data.score >= 75 ? "var(--green-soft)" : data.score >= 60 ? "var(--amber-soft)" : "var(--red-soft)";
+
+      const ring = document.getElementById("scoreRing");
+      ring.style.setProperty("--score", Math.max(0, Math.min(100, data.score)));
+      ring.style.setProperty("--score-color", scoreColor);
+      document.getElementById("scoreValue").textContent = number(data.score, 1);
+      document.getElementById("reportDate").textContent = `Data through ${data.data_through}`;
+      document.getElementById("reportTitle").textContent = `${data.symbol} swing-trade assessment`;
+      document.getElementById("verdict").textContent = data.verdict;
+      const confidence = document.getElementById("confidence");
+      confidence.textContent = `${data.confidence} confidence`;
+      confidence.style.setProperty("--score-color", scoreColor);
+      confidence.style.setProperty("--badge-bg", badgeBackground);
+      document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
+
+      list("pros", data.pros, "No strong supporting evidence detected.");
+      list("cons", data.cons, "No material risk flags detected by this model.");
+
+      metrics("cashMetrics", [
+        ["Close", currency(cash.close)],
+        ["1-day return", signed(cash.return_1d)],
+        ["5-day return", signed(cash.return_5d)],
+        ["20-session average", currency(cash.sma20)],
+        ["50-session average", currency(cash.sma50)],
+        ["Volume / average", `${number(cash.volume_ratio)}x`]
+      ]);
+
+      metrics("fnoMetrics", fno ? [
+        ["Build-up", fno.build_up],
+        ["Futures change", signed(fno.futures_price_change)],
+        ["Open-interest change", signed(fno.oi_change_pct)],
+        ["Near-ATM PCR", number(fno.pcr)],
+        ["PCR trend", fno.pcr_trend],
+        ["Futures basis", signed(fno.basis_pct)]
+      ] : [["Availability", "No listed NSE F&O contract"]]);
+
+      metrics("fundamentalMetrics", [
+        ["P/E", number(fundamentals.pe_ratio)],
+        ["P/B", number(fundamentals.pb_ratio)],
+        ["ROCE", fundamentals.roce == null ? "N/A" : `${number(fundamentals.roce)}%`],
+        ["ROE", fundamentals.roe == null ? "N/A" : `${number(fundamentals.roe)}%`],
+        ["Debt / equity", number(fundamentals.de_ratio)],
+        ["Score", assessment.score == null ? "Excluded" : `${number(assessment.score, 1)}/10`]
+      ]);
+
+      metrics("riskMetrics", [
+        ["ATR (14)", currency(cash.atr14)],
+        ["Recent swing low", currency(cash.recent_swing_low)],
+        ["Prior 20-day high", currency(cash.prior_twenty_day_high)],
+        ["10-day low", currency(cash.ten_day_low)],
+        ["Distance from SMA20", `${signed(cash.distance_from_sma20_atr, "")} ATR`],
+        ["Distance from breakout", `${signed(cash.distance_from_breakout_atr, "")} ATR`]
+      ]);
+
+      const components = [
+        ["Cash trend", calculation.cash_score, calculation.cash_weight],
+        ["F&O", calculation.fno_score, calculation.fno_weight],
+        ["Fundamentals", calculation.fundamental_score_100, calculation.fundamental_weight]
+      ].filter(([, score, weight]) => score != null && weight > 0);
+      document.getElementById("calculationRows").innerHTML = components.map(([label, score, weight]) => `
+        <tr><td>${escapeHtml(label)}</td><td>${number(score, 1)}</td><td>${number(weight * 100, 0)}%</td><td>${number(score * weight, 2)}</td></tr>
+      `).join("");
+      document.getElementById("formula").textContent = `${number(calculation.weighted_total, 2)} weighted points ÷ ${number(calculation.total_weight, 2)} active weight = ${number(data.score, 1)}/100`;
+      list("fundamentalTags", assessment.tags, "No fundamental observations available.");
+
+      reportElement.hidden = false;
+      reportElement.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    async function analyzeTicker(ticker) {
+      button.disabled = true;
+      reportElement.hidden = true;
+      status.className = "status loading";
+      status.textContent = "Downloading NSE sessions and calculating the report. The first run can take up to two minutes.";
+
+      try {
+        const response = await fetch(`${API_BASE}/api/analyze/${encodeURIComponent(ticker)}`);
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Analysis failed");
+        renderReport(data);
+        status.className = "status";
+        status.textContent = "";
+        history.replaceState(null, "", `?ticker=${encodeURIComponent(ticker)}`);
+      } catch (error) {
+        status.className = "status error";
+        status.textContent = error.message.includes("Failed to fetch")
+          ? "The analysis service is unavailable. It may be starting up; wait a minute and try again."
+          : error.message;
+      } finally {
+        button.disabled = false;
+      }
+    }
+
+    form.addEventListener("submit", event => {
+      event.preventDefault();
+      const ticker = input.value.trim().toUpperCase();
+      if (ticker) analyzeTicker(ticker);
+    });
+
+    const initialTicker = new URLSearchParams(location.search).get("ticker");
+    if (initialTicker) {
+      input.value = initialTicker;
+      analyzeTicker(initialTicker.toUpperCase());
+    }
+  </script>
+</body>
+</html>

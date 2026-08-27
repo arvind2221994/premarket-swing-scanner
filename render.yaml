@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: premarket-swing-scanner
+    runtime: python
+    plan: free
+    buildCommand: pip install -r scanner/requirements.txt
+    startCommand: gunicorn --chdir scanner --workers 1 --threads 4 --timeout 180 web_app:app
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: REPORT_CACHE_SECONDS
+        value: 3600

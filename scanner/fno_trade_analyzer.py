@@ -8,6 +8,7 @@ import pandas as pd
 import requests
 
 from fundamentals import calculate_fundamental_score, fetch_screener_data
+from news import fetch_company_news
 
 
 ARCHIVE_URL = (
@@ -430,8 +431,62 @@ def make_assessment(cash, fno, fundamental_score):
     return round(score, 1), verdict
 
 
-def analyze_symbol(symbol):
+def build_pros_cons(cash, fno, fundamental_score):
+    pros = []
+    cons = []
+
+    (pros if cash["close"] > cash["sma20"] else cons).append(
+        "Price is above the 20-session average"
+        if cash["close"] > cash["sma20"]
+        else "Price is below the 20-session average"
+    )
+    if cash["sma50"] is not None:
+        (pros if cash["close"] > cash["sma50"] else cons).append(
+            "Price is above the 50-session average"
+            if cash["close"] > cash["sma50"]
+            else "Price is below the 50-session average"
+        )
+    (pros if cash["return_5d"] > 0 else cons).append(
+        "Five-session momentum is positive"
+        if cash["return_5d"] > 0
+        else "Five-session momentum is negative"
+    )
+    (pros if cash["volume_ratio"] >= 1.2 else cons).append(
+        "Cash volume is at least 1.2x its 20-session average"
+        if cash["volume_ratio"] >= 1.2
+        else "Cash volume lacks a 1.2x expansion confirmation"
+    )
+
+    if fno is None:
+        cons.append("No listed NSE F&O contract; derivatives confirmation is unavailable")
+    else:
+        (pros if fno["build_up"] in {"Long build-up", "Short covering"} else cons).append(
+            f"Futures positioning shows {fno['build_up'].lower()}"
+        )
+        if fno["pcr"] is None:
+            cons.append("Near-ATM put-call ratio is unavailable")
+        elif 0.9 <= fno["pcr"] <= 1.3:
+            pros.append("Near-ATM PCR is in the balanced bullish range of 0.9-1.3")
+        else:
+            cons.append("Near-ATM PCR is outside the balanced bullish range of 0.9-1.3")
+        if fno["ban_status"]["is_banned"] is True:
+            cons.append("The stock is currently in the NSE F&O ban list")
+
+    if fundamental_score is None:
+        cons.append("Fundamental data is incomplete and excluded from the composite")
+    elif fundamental_score >= 6:
+        pros.append("Fundamental score is at least 6/10")
+    elif fundamental_score < 5:
+        cons.append("Fundamental score is below 5/10")
+
+    return pros, cons
+
+
+def build_symbol_report(symbol):
     clean_symbol = symbol.strip().upper()
+    if not re.fullmatch(r"[A-Z0-9&-]{1,20}", clean_symbol):
+        raise ValueError("Enter a valid NSE ticker symbol")
+
     with requests.Session() as session:
         history = load_recent_symbol_history(session, clean_symbol)
         latest_date = pd.to_datetime(history.iloc[-1]["TradDt"]).date()
@@ -444,7 +499,66 @@ def analyze_symbol(symbol):
     fundamental_result = calculate_fundamental_score(fundamentals)
     fundamental_score = fundamental_result["score"]
     fundamental_tags = fundamental_result["tags"]
+    news = fetch_company_news(clean_symbol, fundamentals.get("name"))
     score, verdict = make_assessment(cash, fno, fundamental_score)
+    pros, cons = build_pros_cons(cash, fno, fundamental_score)
+
+    cash_weight = 0.8 if fno is None else 0.5
+    fno_weight = 0.35 if fno is not None else 0
+    fundamental_weight = (
+        0.2 if fno is None and fundamental_score is not None
+        else 0.15 if fundamental_score is not None
+        else 0
+    )
+    weighted_total = (
+        cash["score"] * cash_weight
+        + (fno["score"] * fno_weight if fno is not None else 0)
+        + (fundamental_score * 10 * fundamental_weight if fundamental_score is not None else 0)
+    )
+    total_weight = cash_weight + fno_weight + fundamental_weight
+
+    return {
+        "symbol": clean_symbol,
+        "data_through": latest_date.isoformat(),
+        "score": score,
+        "verdict": verdict,
+        "confidence": "High" if score >= 75 else "Moderate" if score >= 60 else "Low",
+        "cash": cash,
+        "fno": fno,
+        "fundamentals": fundamentals,
+        "fundamental_assessment": fundamental_result,
+        "news": news,
+        "pros": pros,
+        "cons": cons,
+        "calculation": {
+            "cash_score": cash["score"],
+            "cash_weight": cash_weight,
+            "fno_score": fno["score"] if fno is not None else None,
+            "fno_weight": fno_weight,
+            "fundamental_score_100": (
+                fundamental_score * 10 if fundamental_score is not None else None
+            ),
+            "fundamental_weight": fundamental_weight,
+            "weighted_total": weighted_total,
+            "total_weight": total_weight,
+            "formula": "weighted component total / active component weight",
+        },
+        "disclaimer": "Educational analysis only. Not financial advice.",
+    }
+
+
+def analyze_symbol(symbol):
+    report = build_symbol_report(symbol)
+    clean_symbol = report["symbol"]
+    latest_date = report["data_through"]
+    cash = report["cash"]
+    fno = report["fno"]
+    fundamentals = report["fundamentals"]
+    fundamental_result = report["fundamental_assessment"]
+    fundamental_score = fundamental_result["score"]
+    fundamental_tags = fundamental_result["tags"]
+    score = report["score"]
+    verdict = report["verdict"]
 
     print("\n" + "=" * 64)
     print(f" NSE SWING TRADE CHECK: {clean_symbol} | Data through {latest_date}")
