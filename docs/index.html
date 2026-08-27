@@ -1,113 +1,83 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pre-market Swing Scanner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
   <style>
+    :root { --ink:#17211c; --muted:#65716a; --paper:#f3f5ef; --surface:#fff; --line:#d9dfd7; --green:#087f5b; --green-soft:#dff4e8; --red:#c24136; --red-soft:#f9e4df; --amber:#a16207; --blue:#1769aa; }
+    * { box-sizing: border-box; }
     body {
-      font-family: Arial, sans-serif;
-      margin: 40px;
-      background: #f6f7f9;
-      color: #222;
+      margin: 0; color: var(--ink); font-family: "IBM Plex Sans", sans-serif;
+      background: linear-gradient(rgba(23,33,28,.035) 1px,transparent 1px), linear-gradient(90deg,rgba(23,33,28,.035) 1px,transparent 1px), var(--paper);
+      background-size: 28px 28px;
     }
-
-    .card {
-      background: white;
-      padding: 20px;
-      border-radius: 14px;
-      margin-bottom: 20px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.08);
-    }
-
-    .score {
-      font-size: 28px;
-      font-weight: bold;
-    }
-
-    .high {
-      color: green;
-    }
-
-    .medium {
-      color: orange;
-    }
-
-    .low {
-      color: red;
-    }
-
-    .freshness {
-      display: inline-flex;
-      align-items: center;
-      padding: 8px 12px;
-      border-radius: 6px;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-    }
-
-    .freshness-live {
-      background: #087f5b;
-    }
-
-    .freshness-delayed {
-      background: #b45309;
-    }
-
-    .freshness-stale {
-      background: #b42318;
-    }
-
-    .freshness-warning {
-      padding: 16px;
-      border-left: 5px solid #b42318;
-      background: #fff1f0;
-      color: #7a271a;
-      font-weight: bold;
-    }
-
-    li {
-      margin-bottom: 6px;
-    }
-
-    .analyze-button {
-      display: inline-block;
-      padding: 14px 22px;
-      border-radius: 6px;
-      background: #087f5b;
-      color: white;
-      font-size: 18px;
-      font-weight: bold;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(8, 127, 91, 0.24);
-      transition: background 150ms ease, box-shadow 150ms ease, transform 150ms ease;
-    }
-
-    .analyze-button:hover {
-      background: #066c4d;
-      box-shadow: 0 6px 16px rgba(8, 127, 91, 0.3);
-      transform: translateY(-1px);
-    }
-
-    .analyze-button:focus-visible {
-      outline: 3px solid rgba(8, 127, 91, 0.35);
-      outline-offset: 3px;
-    }
+    header { border-bottom:1px solid var(--line); background:rgba(255,255,255,.92); }
+    .header-inner, main { width:min(1180px,calc(100% - 32px)); margin:auto; }
+    .header-inner { min-height:64px; display:flex; align-items:center; justify-content:space-between; gap:20px; }
+    .brand,h1,h2,h3,.score { font-family:"Space Grotesk",sans-serif; letter-spacing:0; }
+    .brand { font-weight:700; } nav a { color:var(--muted); font-weight:600; text-decoration:none; }
+    main { padding:38px 0 64px; } h1 { margin:0 0 8px; font-size:clamp(28px,5vw,44px); } h2,h3 { margin:0; } p { line-height:1.5; }
+    .intro-row,.section-header,.status-bar { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .intro-row { align-items:flex-start; margin-bottom:24px; } .intro,.section-note,.meta { color:var(--muted); }
+    .intro { margin:0; } .section-header { align-items:baseline; margin:30px 0 14px; } .section-note { margin:0; font-size:13px; }
+    .analyze-button { display:inline-flex; align-items:center; min-height:46px; padding:0 18px; border-radius:6px; background:var(--ink); color:#fff; font-weight:600; text-decoration:none; white-space:nowrap; }
+    .analyze-button:hover { background:var(--green); }
+    .status-bar { padding:14px 16px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+    .freshness { padding:6px 10px; border-radius:4px; color:#fff; font-size:13px; font-weight:700; }
+    .freshness-live { background:var(--green); } .freshness-delayed { background:var(--amber); } .freshness-stale { background:var(--red); }
+    #generatedAt { margin:0; font-size:13px; text-align:right; }
+    .cue-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid var(--line); border-radius:8px; background:var(--surface); overflow:hidden; }
+    .cue { padding:18px; border-right:1px solid var(--line); } .cue:last-child { border:0; }
+    .cue-label { color:var(--muted); font-size:12px; } .cue-value { margin-top:5px; font:600 22px "Space Grotesk",sans-serif; }
+    .positive { color:var(--green); } .negative { color:var(--red); }
+    .candidate-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+    .card { position:relative; display:flex; flex-direction:column; min-width:0; padding:22px; border:1px solid var(--line); border-top:4px solid var(--score-color); border-radius:8px; background:var(--surface); transition:transform 150ms,box-shadow 150ms; }
+    .card:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(23,33,28,.11); }
+    .card-link { position:absolute; inset:0; border-radius:8px; } .card-link:focus-visible { outline:3px solid rgba(23,105,170,.35); outline-offset:3px; }
+    .card-content,.card-controls { position:relative; pointer-events:none; } .card-content { flex:1; } .card-controls { z-index:1; pointer-events:auto; }
+    .rank { margin:0 0 5px; color:var(--muted); font-size:12px; font-weight:600; text-transform:uppercase; }
+    .candidate-title { display:flex; align-items:baseline; justify-content:space-between; gap:10px; } .score { color:var(--score-color); font-size:24px; font-weight:700; }
+    .recommendation { min-height:48px; font-weight:600; } .pcr,.reasons { color:var(--muted); font-size:14px; } .reasons { padding-left:18px; } li { margin-bottom:6px; }
+    .card-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
+    button { font:inherit; cursor:pointer; } .watch-button { min-height:36px; padding:0 11px; border:1px solid #aeb8b0; border-radius:5px; background:#fff; font-size:13px; font-weight:600; }
+    .watch-button[aria-pressed="true"] { border-color:var(--green); background:var(--green-soft); color:var(--green); }
+    .compare-label { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:13px; font-weight:600; } .compare-input { width:17px; height:17px; accent-color:var(--green); }
+    .watchlist { display:flex; flex-wrap:wrap; gap:8px; min-height:38px; } .watchlist-empty { margin:0; color:var(--muted); }
+    .watch-chip { display:inline-flex; border:1px solid var(--line); border-radius:6px; background:#fff; overflow:hidden; }
+    .watch-link { display:flex; align-items:center; padding:0 12px; color:var(--ink); font-weight:600; text-decoration:none; }
+    .remove-watch { width:34px; border:0; border-left:1px solid var(--line); background:transparent; color:var(--muted); font-size:20px; }
+    .comparison { padding:20px; border:1px solid var(--line); border-radius:8px; background:#fff; }
+    .comparison-grid { display:grid; grid-template-columns:repeat(var(--count),minmax(0,1fr)); }
+    .comparison-column { min-width:0; padding:0 18px; border-right:1px solid var(--line); } .comparison-column:first-child { padding-left:0; } .comparison-column:last-child { padding-right:0; border:0; }
+    .comparison-row { padding:10px 0; border-top:1px solid var(--line); } .comparison-label { color:var(--muted); font-size:11px; text-transform:uppercase; } .comparison-value { margin-top:3px; font-weight:600; overflow-wrap:anywhere; }
+    .freshness-warning { padding:18px; border-left:5px solid var(--red); border-radius:6px; background:var(--red-soft); color:#7a271a; font-weight:600; }
+    .disclaimer { margin-top:34px; color:var(--muted); font-size:13px; }
+    @media(max-width:820px) { .candidate-grid { grid-template-columns:1fr; } .cue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+    @media(max-width:620px) { main { padding-top:26px; } .header-inner,.intro-row,.status-bar,.section-header { align-items:flex-start; flex-direction:column; } .analyze-button { width:100%; justify-content:center; } #generatedAt { text-align:left; } .comparison { overflow-x:auto; } .comparison-grid { min-width:calc(var(--count) * 210px); } }
   </style>
 </head>
 <body>
-  <h1>Pre-market Swing Scanner</h1>
-  <p><a class="analyze-button" href="./analyze.html">Analyze a stock ticker</a></p>
-  <p><span id="freshness" class="freshness freshness-stale">Checking freshness</span></p>
-  <p id="generatedAt"></p>
-  <p><strong>Disclaimer:</strong> Educational scanner only. Not financial advice.</p>
-
-  <h2>Global Cues</h2>
-  <div class="card" id="globalCues"></div>
-
-  <h2>Top 3 Candidates</h2>
-  <div id="topPicks"></div>
+  <header><div class="header-inner"><div class="brand">Pre-market Swing Scanner</div><nav><a href="./analyze.html">Stock analysis</a></nav></div></header>
+  <main>
+    <div class="intro-row"><div><h1>Market dashboard</h1><p class="intro">Pre-market context and ranked NSE swing candidates.</p></div><a class="analyze-button" href="./analyze.html">Analyze another stock</a></div>
+    <div class="status-bar"><span id="freshness" class="freshness freshness-stale">Checking freshness</span><p id="generatedAt" class="meta"></p></div>
+    <section><div class="section-header"><h2>Global cues</h2><p class="section-note">Latest available market moves</p></div><div class="cue-grid" id="globalCues"></div></section>
+    <section><div class="section-header"><h2>Watchlist</h2><p class="section-note">Stored on this device</p></div><div id="watchlist" class="watchlist"></div></section>
+    <section><div class="section-header"><h2>Top candidates</h2><p class="section-note">Select two or three to compare</p></div><div id="topPicks" class="candidate-grid"></div></section>
+    <section><div class="section-header"><h2>Side-by-side comparison</h2><p id="comparisonCount" class="section-note">0 of 3 selected</p></div><div id="comparison" class="comparison"><p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p></div></section>
+    <p class="disclaimer">Educational scanner only. Market data can be delayed or unavailable. This is not financial advice.</p>
+  </main>
 
   <script>
+    const watchlistKey = "swing-scanner-watchlist";
+    let scannerData = null;
+    let selectedSymbols = [];
+    const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[character]);
+
     function parseScannerDate(value) {
       if (!value) return null;
       const timestamp = /^\d{4}-\d{2}-\d{2}$/.test(value)
@@ -155,6 +125,67 @@
       return { label: "Stale", className: "freshness-stale", stale: true };
     }
 
+    function getWatchlist() {
+      try {
+        const values = JSON.parse(localStorage.getItem(watchlistKey) || "[]");
+        return Array.isArray(values) ? [...new Set(values.filter(value => /^[A-Z0-9&-]{1,20}$/.test(value)))].slice(0, 20) : [];
+      } catch { return []; }
+    }
+
+    function setWatchlist(values) {
+      try { localStorage.setItem(watchlistKey, JSON.stringify(values)); } catch { return; }
+      renderWatchlist();
+      syncWatchButtons();
+    }
+
+    function renderWatchlist() {
+      const values = getWatchlist();
+      document.getElementById("watchlist").innerHTML = values.length ? values.map(symbol => `
+        <span class="watch-chip"><a class="watch-link" href="./analyze.html?ticker=${encodeURIComponent(symbol)}">${escapeHtml(symbol)}</a><button class="remove-watch" type="button" data-remove="${escapeHtml(symbol)}" aria-label="Remove ${escapeHtml(symbol)} from watchlist" title="Remove">&times;</button></span>
+      `).join("") : '<p class="watchlist-empty">No stocks saved yet. Add a candidate below.</p>';
+    }
+
+    function syncWatchButtons() {
+      const watched = new Set(getWatchlist());
+      document.querySelectorAll("[data-watch]").forEach(button => {
+        const active = watched.has(button.dataset.watch);
+        button.setAttribute("aria-pressed", String(active));
+        button.textContent = active ? "Watching" : "Watch";
+      });
+    }
+
+    const scoreColor = score => score >= 75 ? "var(--green)" : score >= 60 ? "var(--amber)" : "var(--red)";
+    function cue(label, value) {
+      const number = Number(value);
+      const formatted = value == null ? "N/A" : `${number >= 0 ? "+" : ""}${number.toFixed(2)}%`;
+      return `<div class="cue"><div class="cue-label">${escapeHtml(label)}</div><div class="cue-value ${value == null ? "" : number >= 0 ? "positive" : "negative"}">${formatted}</div></div>`;
+    }
+
+    function renderCandidates(stocks) {
+      document.getElementById("topPicks").innerHTML = stocks.map((stock, index) => `
+        <article class="card" style="--score-color:${scoreColor(stock.score)}">
+          <a class="card-link" href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}" aria-label="Open detailed analysis for ${escapeHtml(stock.symbol)}"></a>
+          <div class="card-content"><p class="rank">Rank ${index + 1}</p><div class="candidate-title"><h3>${escapeHtml(stock.symbol)}</h3><span class="score">${Number(stock.score).toFixed(1)}</span></div><p class="recommendation">${escapeHtml(stock.recommendation)}</p><p class="pcr">Put-call ratio: ${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</p><ul class="reasons">${(stock.reasons || []).map(reason => `<li>${escapeHtml(reason)}</li>`).join("")}</ul></div>
+          <div class="card-controls"><button class="watch-button" type="button" data-watch="${escapeHtml(stock.symbol)}" aria-pressed="false">Watch</button><label class="compare-label"><input class="compare-input" type="checkbox" data-compare="${escapeHtml(stock.symbol)}">Compare</label></div>
+        </article>`).join("");
+      syncWatchButtons();
+    }
+
+    function renderComparison() {
+      document.getElementById("comparisonCount").textContent = `${selectedSymbols.length} of 3 selected`;
+      const target = document.getElementById("comparison");
+      if (selectedSymbols.length < 2) { target.innerHTML = '<p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p>'; return; }
+      const stocks = selectedSymbols.map(symbol => scannerData.top_3.find(stock => stock.symbol === symbol)).filter(Boolean);
+      target.innerHTML = `<div class="comparison-grid" style="--count:${stocks.length}">${stocks.map(stock => `
+        <div class="comparison-column"><h3>${escapeHtml(stock.symbol)}</h3>
+          <div class="comparison-row"><div class="comparison-label">Score</div><div class="comparison-value" style="color:${scoreColor(stock.score)}">${Number(stock.score).toFixed(1)}/100</div></div>
+          <div class="comparison-row"><div class="comparison-label">Recommendation</div><div class="comparison-value">${escapeHtml(stock.recommendation)}</div></div>
+          <div class="comparison-row"><div class="comparison-label">Put-call ratio</div><div class="comparison-value">${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</div></div>
+          <div class="comparison-row"><div class="comparison-label">Signals</div><div class="comparison-value">${(stock.reasons || []).map(escapeHtml).join(" · ") || "N/A"}</div></div>
+          <div class="comparison-row"><a href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}">Detailed analysis</a></div>
+        </div>`).join("")}</div>`;
+    }
+
     async function loadScannerData() {
       const freshnessBadge = document.getElementById("freshness");
       const container = document.getElementById("topPicks");
@@ -162,62 +193,53 @@
       try {
         const response = await fetch("./data/latest.json?ts=" + Date.now(), { cache: "no-store" });
         if (!response.ok) throw new Error(`Scanner data request failed: ${response.status}`);
-        const data = await response.json();
-        const freshness = getFreshness(data);
+        scannerData = await response.json();
+        const freshness = getFreshness(scannerData);
 
         freshnessBadge.innerText = freshness.label;
         freshnessBadge.className = `freshness ${freshness.className}`;
 
         document.getElementById("generatedAt").innerText =
-          `Generated at IST: ${data.generated_at_ist} | Market data as of: ${data.data_as_of || "Unknown"}`;
+          `Generated ${scannerData.generated_at_ist} IST · Market data ${scannerData.data_as_of || "unknown"}`;
 
-        const global = data.global_cues;
+        const global = scannerData.global_cues || {};
 
-        document.getElementById("globalCues").innerHTML = `
-          <p>NASDAQ: ${global.nasdaq_change_pct ?? "N/A"}%</p>
-          <p>S&P 500: ${global.spx_change_pct ?? "N/A"}%</p>
-          <p>Dow Jones: ${global.dow_change_pct ?? "N/A"}%</p>
-          <p>GIFT Nifty: ${global.gift_nifty_change_pct ?? "N/A"}%</p>
-        `;
+        document.getElementById("globalCues").innerHTML = [cue("NASDAQ",global.nasdaq_change_pct),cue("S&P 500",global.spx_change_pct),cue("Dow Jones",global.dow_change_pct),cue("GIFT Nifty",global.gift_nifty_change_pct)].join("");
 
         if (freshness.stale) {
           container.innerHTML = '<div class="freshness-warning">Recommendations are hidden because the scanner data is more than one trading session old.</div>';
+          document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable while recommendations are stale.</p>';
           return;
         }
 
-        container.innerHTML = "";
-        data.top_3.forEach((stock, index) => {
-          let scoreClass = "low";
-
-          if (stock.score >= 75) {
-            scoreClass = "high";
-          } else if (stock.score >= 60) {
-            scoreClass = "medium";
-          }
-
-          const reasons = stock.reasons
-            .map(reason => `<li>${reason}</li>`)
-            .join("");
-
-          container.innerHTML += `
-            <div class="card">
-              <h2>${index + 1}. ${stock.symbol}</h2>
-              <div class="score ${scoreClass}">${stock.score}/100</div>
-              <p><strong>${stock.recommendation}</strong></p>
-              <p>PCR: ${stock.pcr}</p>
-              <h4>Reasons</h4>
-              <ul>${reasons}</ul>
-            </div>
-          `;
-        });
+        renderCandidates(scannerData.top_3 || []);
       } catch (error) {
         freshnessBadge.innerText = "Stale";
         freshnessBadge.className = "freshness freshness-stale";
         container.innerHTML = '<div class="freshness-warning">Recommendations are unavailable because current scanner data could not be verified.</div>';
+        document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable.</p>';
         console.error(error);
       }
     }
 
+    document.getElementById("watchlist").addEventListener("click", event => {
+      const button = event.target.closest("[data-remove]");
+      if (button) setWatchlist(getWatchlist().filter(symbol => symbol !== button.dataset.remove));
+    });
+    document.getElementById("topPicks").addEventListener("click", event => {
+      const watch = event.target.closest("[data-watch]");
+      if (watch) {
+        const values = getWatchlist();
+        setWatchlist(values.includes(watch.dataset.watch) ? values.filter(value => value !== watch.dataset.watch) : [...values, watch.dataset.watch].slice(-20));
+        return;
+      }
+      const input = event.target.closest("[data-compare]");
+      if (!input) return;
+      if (input.checked && selectedSymbols.length >= 3) { input.checked = false; return; }
+      selectedSymbols = input.checked ? [...selectedSymbols, input.dataset.compare] : selectedSymbols.filter(value => value !== input.dataset.compare);
+      renderComparison();
+    });
+    renderWatchlist();
     loadScannerData();
   </script>
 </body>
