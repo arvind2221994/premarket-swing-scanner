@@ -81,9 +81,12 @@
     form {
       display: grid;
       grid-template-columns: minmax(0, 1fr) auto;
+      align-items: start;
       gap: 10px;
       max-width: 680px;
     }
+
+    .ticker-field { position: relative; }
 
     input, button {
       min-height: 48px;
@@ -97,7 +100,6 @@
       padding: 0 16px;
       background: var(--surface);
       color: var(--ink);
-      text-transform: uppercase;
       font-weight: 600;
     }
 
@@ -113,6 +115,51 @@
     }
 
     button:disabled { cursor: wait; opacity: 0.65; }
+
+    .suggestions {
+      z-index: 10;
+      width: 100%;
+      margin: 6px 0 0;
+      padding: 6px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: var(--surface);
+      box-shadow: 0 12px 28px rgba(23, 33, 28, 0.16);
+      list-style: none;
+    }
+
+    .suggestions:empty { display: none; }
+
+    .suggestion-button {
+      display: grid;
+      grid-template-columns: 100px minmax(0, 1fr);
+      gap: 12px;
+      width: 100%;
+      min-height: 44px;
+      padding: 9px 10px;
+      background: transparent;
+      color: var(--ink);
+      text-align: left;
+    }
+
+    .suggestion-button:hover, .suggestion-button:focus { background: var(--green-soft); }
+    .suggestion-symbol { font-family: "Space Grotesk", sans-serif; font-weight: 700; }
+    .suggestion-name { color: var(--muted); overflow-wrap: anywhere; }
+
+    .recent { max-width: 680px; margin-top: 16px; }
+    .recent[hidden] { display: none; }
+    .recent-label { margin: 0 0 8px; color: var(--muted); font-size: 13px; font-weight: 600; }
+    .recent-list { display: flex; flex-wrap: wrap; gap: 8px; }
+    .recent-button {
+      min-height: 34px;
+      padding: 0 11px;
+      border: 1px solid #aeb8b0;
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 13px;
+    }
+
+    .recent-button:hover, .recent-button:focus { border-color: var(--green); color: var(--green); }
 
     .status {
       min-height: 28px;
@@ -314,9 +361,16 @@
     <p class="intro">Run a live NSE cash, derivatives, and fundamentals assessment.</p>
 
     <form id="analysisForm">
-      <input id="ticker" name="ticker" maxlength="20" pattern="(?:[A-Za-z0-9]|&amp;|-)+" placeholder="Enter NSE ticker, for example TCS" autocomplete="off" required aria-label="NSE ticker symbol">
+      <div class="ticker-field">
+        <input id="ticker" name="ticker" maxlength="80" placeholder="Ticker or company name, for example TCS" autocomplete="off" required aria-label="NSE ticker or company name" role="combobox" aria-autocomplete="list" aria-controls="tickerSuggestions" aria-expanded="false">
+        <ul id="tickerSuggestions" class="suggestions" role="listbox"></ul>
+      </div>
       <button id="submitButton" type="submit">Analyze stock</button>
     </form>
+    <section id="recentStocks" class="recent" hidden aria-labelledby="recentLabel">
+      <p id="recentLabel" class="recent-label">Recently viewed</p>
+      <div id="recentList" class="recent-list"></div>
+    </section>
     <div id="status" class="status" aria-live="polite"></div>
 
     <div id="report" hidden>
@@ -383,6 +437,13 @@
     const button = document.getElementById("submitButton");
     const status = document.getElementById("status");
     const reportElement = document.getElementById("report");
+    const suggestionsElement = document.getElementById("tickerSuggestions");
+    const recentElement = document.getElementById("recentStocks");
+    const recentList = document.getElementById("recentList");
+    const recentStorageKey = "swing-scanner-recent-tickers";
+    let confirmedTicker = null;
+    let suggestionTimer = null;
+    let suggestionRequest = null;
 
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
@@ -390,6 +451,67 @@
     const number = (value, digits = 2) => value == null ? "N/A" : Number(value).toFixed(digits);
     const signed = (value, suffix = "%") => value == null ? "N/A" : `${value >= 0 ? "+" : ""}${number(value)}${suffix}`;
     const currency = value => value == null ? "N/A" : `₹${Number(value).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+
+    function getRecentTickers() {
+      try {
+        const values = JSON.parse(localStorage.getItem(recentStorageKey) || "[]");
+        return Array.isArray(values) ? values.filter(value => /^[A-Z0-9&-]{1,20}$/.test(value)).slice(0, 6) : [];
+      } catch {
+        return [];
+      }
+    }
+
+    function renderRecentTickers() {
+      const tickers = getRecentTickers();
+      recentElement.hidden = tickers.length === 0;
+      recentList.innerHTML = tickers.map(ticker =>
+        `<button class="recent-button" type="button" data-ticker="${escapeHtml(ticker)}">${escapeHtml(ticker)}</button>`
+      ).join("");
+    }
+
+    function rememberTicker(ticker) {
+      const tickers = [ticker, ...getRecentTickers().filter(value => value !== ticker)].slice(0, 6);
+      try {
+        localStorage.setItem(recentStorageKey, JSON.stringify(tickers));
+      } catch {
+        return;
+      }
+      renderRecentTickers();
+    }
+
+    function closeSuggestions() {
+      suggestionsElement.innerHTML = "";
+      input.setAttribute("aria-expanded", "false");
+    }
+
+    function renderSuggestions(suggestions) {
+      suggestionsElement.innerHTML = suggestions.map(({ symbol, name }) => `
+        <li role="option">
+          <button class="suggestion-button" type="button" data-symbol="${escapeHtml(symbol)}" data-name="${escapeHtml(name)}">
+            <span class="suggestion-symbol">${escapeHtml(symbol)}</span>
+            <span class="suggestion-name">${escapeHtml(name)}</span>
+          </button>
+        </li>
+      `).join("");
+      input.setAttribute("aria-expanded", suggestions.length ? "true" : "false");
+    }
+
+    async function loadSuggestions(query) {
+      suggestionRequest?.abort();
+      suggestionRequest = new AbortController();
+      try {
+        const response = await fetch(`${API_BASE}/api/tickers?q=${encodeURIComponent(query)}`, {
+          signal: suggestionRequest.signal
+        });
+        if (!response.ok) throw new Error("Ticker search failed");
+        const data = await response.json();
+        if (input.value.trim() === query) renderSuggestions(data.suggestions || []);
+        return data.suggestions || [];
+      } catch (error) {
+        if (error.name !== "AbortError") closeSuggestions();
+        return [];
+      }
+    }
 
     function metrics(targetId, entries) {
       document.getElementById(targetId).innerHTML = entries.map(([label, value]) => `
@@ -513,6 +635,7 @@
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Analysis failed");
         renderReport(data);
+        rememberTicker(data.symbol);
         status.className = "status";
         status.textContent = "";
         history.replaceState(null, "", `?ticker=${encodeURIComponent(ticker)}`);
@@ -528,14 +651,72 @@
 
     form.addEventListener("submit", event => {
       event.preventDefault();
-      const ticker = input.value.trim().toUpperCase();
-      if (ticker) analyzeTicker(ticker);
+      const query = input.value.trim();
+      const directTicker = /^[A-Za-z0-9&-]{1,20}$/.test(query) ? query.toUpperCase() : null;
+      const ticker = confirmedTicker?.symbol || directTicker;
+      if (ticker) {
+        closeSuggestions();
+        analyzeTicker(ticker);
+        return;
+      }
+
+      loadSuggestions(query).then(suggestions => {
+        status.className = suggestions.length ? "status" : "status error";
+        status.textContent = suggestions.length
+          ? "Select the matching company to confirm its NSE ticker before analysis."
+          : "No matching NSE ticker was found. Try the listed ticker symbol.";
+      });
     });
+
+    input.addEventListener("input", () => {
+      confirmedTicker = null;
+      status.textContent = "";
+      status.className = "status";
+      clearTimeout(suggestionTimer);
+      const query = input.value.trim();
+      if (query.length < 2) {
+        closeSuggestions();
+        return;
+      }
+      suggestionTimer = setTimeout(() => loadSuggestions(query), 250);
+    });
+
+    suggestionsElement.addEventListener("click", event => {
+      const option = event.target.closest("button[data-symbol]");
+      if (!option) return;
+      confirmedTicker = { symbol: option.dataset.symbol, name: option.dataset.name };
+      input.value = confirmedTicker.symbol;
+      closeSuggestions();
+      status.className = "status";
+      status.textContent = `${confirmedTicker.name} maps to ${confirmedTicker.symbol}. Select Analyze stock to proceed.`;
+      button.focus();
+    });
+
+    recentList.addEventListener("click", event => {
+      const recentButton = event.target.closest("button[data-ticker]");
+      if (!recentButton) return;
+      input.value = recentButton.dataset.ticker;
+      confirmedTicker = { symbol: recentButton.dataset.ticker, name: recentButton.dataset.ticker };
+      closeSuggestions();
+      analyzeTicker(recentButton.dataset.ticker);
+    });
+
+    document.addEventListener("click", event => {
+      if (!event.target.closest(".ticker-field")) closeSuggestions();
+    });
+
+    input.addEventListener("keydown", event => {
+      if (event.key === "Escape") closeSuggestions();
+    });
+
+    renderRecentTickers();
 
     const initialTicker = new URLSearchParams(location.search).get("ticker");
     if (initialTicker) {
       input.value = initialTicker;
-      analyzeTicker(initialTicker.toUpperCase());
+      if (/^[A-Za-z0-9&-]{1,20}$/.test(initialTicker)) {
+        analyzeTicker(initialTicker.toUpperCase());
+      }
     }
   </script>
 </body>

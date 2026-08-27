@@ -4,6 +4,7 @@ import time
 from datetime import datetime, timezone
 from pathlib import Path
 
+import requests
 from flask import Flask, jsonify, request
 
 from fno_trade_analyzer import build_symbol_report
@@ -11,6 +12,11 @@ from fno_trade_analyzer import build_symbol_report
 
 DOCS_DIR = Path(__file__).resolve().parent.parent / "docs"
 CACHE_SECONDS = int(os.getenv("REPORT_CACHE_SECONDS", "3600"))
+TICKER_SEARCH_CACHE_SECONDS = 86400
+YAHOO_SEARCH_URL = "https://query1.finance.yahoo.com/v1/finance/search"
+CURATED_TICKERS = (
+    {"symbol": "ARVSMART", "name": "Arvind SmartSpaces Limited"},
+)
 ALLOWED_ORIGINS = {
     "https://arvind2221994.github.io",
     "http://127.0.0.1:5000",
@@ -19,6 +25,7 @@ ALLOWED_ORIGINS = {
 
 app = Flask(__name__, static_folder=str(DOCS_DIR), static_url_path="")
 report_cache = {}
+ticker_search_cache = {}
 analysis_lock = threading.Lock()
 health_lock = threading.Lock()
 dependency_health = {
@@ -76,6 +83,50 @@ def record_analysis_failure(error):
         record_dependency("nse", "unhealthy", message)
 
 
+def normalize_search_text(value):
+    return "".join(character for character in value.casefold() if character.isalnum())
+
+
+def search_tickers(query):
+    normalized_query = normalize_search_text(query)
+    local_matches = [
+        ticker for ticker in CURATED_TICKERS
+        if normalized_query in normalize_search_text(ticker["symbol"])
+        or normalized_query in normalize_search_text(ticker["name"])
+    ]
+
+    try:
+        response = requests.get(
+            YAHOO_SEARCH_URL,
+            params={"q": query, "quotesCount": 10, "newsCount": 0},
+            headers={"User-Agent": "Mozilla/5.0"},
+            timeout=8,
+        )
+        response.raise_for_status()
+        remote_matches = []
+        for quote in response.json().get("quotes", []):
+            yahoo_symbol = quote.get("symbol", "")
+            if quote.get("exchange") != "NSI" and not yahoo_symbol.endswith(".NS"):
+                continue
+            symbol = yahoo_symbol.removesuffix(".NS").upper()
+            if not symbol:
+                continue
+            remote_matches.append({
+                "symbol": symbol,
+                "name": quote.get("longname") or quote.get("shortname") or symbol,
+            })
+    except (requests.RequestException, ValueError):
+        remote_matches = []
+
+    matches = []
+    seen = set()
+    for ticker in [*local_matches, *remote_matches]:
+        if ticker["symbol"] not in seen:
+            seen.add(ticker["symbol"])
+            matches.append(ticker)
+    return matches[:8]
+
+
 @app.after_request
 def add_cors_headers(response):
     origin = request.headers.get("Origin")
@@ -103,6 +154,26 @@ def health():
         "last_success_at": dependencies["analysis"]["last_success_at"],
         "dependencies": dependencies,
     })
+
+
+@app.get("/api/tickers")
+def ticker_suggestions():
+    query = request.args.get("q", "").strip()
+    if len(query) < 2 or len(query) > 80:
+        return jsonify({"suggestions": []})
+
+    cache_key = query.casefold()
+    cached = ticker_search_cache.get(cache_key)
+    now = time.time()
+    if cached and now - cached["created_at"] < TICKER_SEARCH_CACHE_SECONDS:
+        return jsonify({"suggestions": cached["suggestions"]})
+
+    suggestions = search_tickers(query)
+    ticker_search_cache[cache_key] = {
+        "created_at": now,
+        "suggestions": suggestions,
+    }
+    return jsonify({"suggestions": suggestions})
 
 
 @app.get("/api/analyze/<symbol>")
