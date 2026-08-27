@@ -15,6 +15,8 @@ from fno_trade_analyzer import (
 )
 from scoring import calculate_stock_score
 from global_cues import fetch_global_cues
+from market_context import build_market_context
+from backtest_score_buckets import run_backtest
 
 
 DEFAULT_SYMBOLS = ("RELIANCE", "ICICIBANK", "TCS")
@@ -114,6 +116,7 @@ def main():
 
     global_cues = fetch_global_cues()
     stocks, data_as_of = load_stock_universe()
+    market_context = build_market_context(global_cues)
 
     scored = []
 
@@ -123,12 +126,29 @@ def main():
 
     ranked = sorted(scored, key=lambda x: x["score"], reverse=True)
 
+    backtest_symbols = [stock["symbol"] for stock in stocks]
+    try:
+        backtest = run_backtest(
+            backtest_symbols,
+            os.getenv("BACKTEST_START", "2021-01-01"),
+            (data_as_of + timedelta(days=1)).isoformat(),
+            int(os.getenv("BACKTEST_HORIZON_SESSIONS", "10")),
+        )
+    except Exception as error:
+        backtest = {
+            "error": str(error),
+            "symbols": backtest_symbols,
+            "score_scope": "cash_technical_heuristic_only",
+        }
+
     output = {
         "generated_at_ist": now.strftime("%Y-%m-%d %H:%M:%S"),
         "data_as_of": data_as_of.isoformat(),
         "scanner_type": "pre_market_swing_scanner",
         "disclaimer": "Educational scanner only. Not financial advice.",
         "global_cues": global_cues,
+        "market_context": market_context,
+        "backtest": backtest,
         "top_3": ranked[:3],
         "all_results": ranked
     }

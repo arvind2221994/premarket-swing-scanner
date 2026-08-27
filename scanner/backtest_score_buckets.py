@@ -139,6 +139,15 @@ def build_summary(observations):
     }
 
 
+def build_regime_summary(observations):
+    return {
+        regime: summarize_group(
+            [row for row in observations if row["regime"] == regime]
+        )
+        for regime in REGIMES
+    }
+
+
 def run_backtest(symbols, start, end, horizon):
     nifty = download_history("^NSEI", start, end)
     observations = []
@@ -179,6 +188,8 @@ def run_backtest(symbols, start, end, horizon):
         ],
         "observation_count": len(observations),
         "errors": errors,
+        "overall": summarize_group(observations),
+        "by_regime": build_regime_summary(observations),
         "score_buckets_by_regime": build_summary(observations),
     }
 

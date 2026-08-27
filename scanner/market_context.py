@@ -140,18 +140,86 @@ def fetch_market_breadth():
         }
 
 
-def build_market_context():
-    global_cues = fetch_global_cues()
-    global_score, global_reasons = score_global_cues(global_cues)
+def assess_long_swing_environment(nifty, vix, breadth, sectors, global_score):
+    score = 0
+    reasons = []
+
+    if nifty.get("trend") == "bullish":
+        score += 2
+        reasons.append("Nifty is in a bullish trend")
+    elif nifty.get("trend") == "bearish":
+        score -= 2
+        reasons.append("Nifty is in a bearish trend")
+
+    vix_close = vix.get("close")
+    if vix_close is not None and vix_close < 15:
+        score += 1
+        reasons.append("India VIX is below 15")
+    elif vix_close is not None and vix_close > 20:
+        score -= 1
+        reasons.append("India VIX is above 20")
+
+    advance_pct = breadth.get("advance_pct")
+    if advance_pct is not None and advance_pct >= 55:
+        score += 1
+        reasons.append("Market breadth is broadly positive")
+    elif advance_pct is not None and advance_pct <= 45:
+        score -= 1
+        reasons.append("Market breadth is weak")
+
+    sector_trends = [sector.get("trend") for sector in sectors.values()]
+    bullish_sectors = sector_trends.count("bullish")
+    bearish_sectors = sector_trends.count("bearish")
+    if bullish_sectors > bearish_sectors:
+        score += 1
+        reasons.append("More tracked sectors are bullish than bearish")
+    elif bearish_sectors > bullish_sectors:
+        score -= 1
+        reasons.append("More tracked sectors are bearish than bullish")
+
+    if global_score >= 60:
+        score += 1
+        reasons.append("Global sentiment is supportive")
+    elif global_score <= 40:
+        score -= 1
+        reasons.append("Global sentiment is adverse")
+
+    if score >= 2:
+        condition = "supportive"
+        summary = "Conditions support selective long swing trades."
+    elif score <= -2:
+        condition = "adverse"
+        summary = "Conditions do not support new long swing trades."
+    else:
+        condition = "mixed"
+        summary = "Conditions are mixed; require stronger stock-specific confirmation."
     return {
+        "condition": condition,
+        "score": score,
+        "summary": summary,
+        "reasons": reasons,
+        "bullish_sector_count": bullish_sectors,
+        "bearish_sector_count": bearish_sectors,
+        "tracked_sector_count": len(sector_trends),
+    }
+
+
+def build_market_context(global_cues=None):
+    global_cues = global_cues or fetch_global_cues()
+    global_score, global_reasons = score_global_cues(global_cues)
+    nifty = fetch_yahoo_trend("^NSEI")
+    vix = fetch_yahoo_trend("^INDIAVIX")
+    breadth = fetch_market_breadth()
+    sectors = {
+        name: fetch_yahoo_trend(ticker)
+        for name, ticker in SECTOR_TICKERS.items()
+    }
+    context = {
         "generated_at": datetime.now(timezone.utc).isoformat(),
-        "nifty_50": fetch_yahoo_trend("^NSEI"),
-        "india_vix": fetch_yahoo_trend("^INDIAVIX"),
-        "market_breadth": fetch_market_breadth(),
-        "sector_indices": {
-            name: fetch_yahoo_trend(ticker)
-            for name, ticker in SECTOR_TICKERS.items()
-        },
+        "nifty_50": nifty,
+        "india_vix": vix,
+        "market_breadth": breadth,
+        "sector_indices": sectors,
         "macro": {
             "usd_inr": fetch_yahoo_trend("INR=X"),
             "wti_crude": fetch_yahoo_trend("CL=F"),
@@ -166,6 +234,10 @@ def build_market_context():
             "sector has material currency, import-cost, or commodity-price exposure."
         ),
     }
+    context["long_swing_environment"] = assess_long_swing_environment(
+        nifty, vix, breadth, sectors, global_score
+    )
+    return context
 
 
 def main():
