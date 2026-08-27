@@ -268,6 +268,31 @@
     .change-kind.positive-change { color: var(--green); }
     .change-kind.negative-change { color: var(--red); }
 
+    .trade-plan {
+      margin-top: 18px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .trade-plan[hidden] { display: none; }
+    .plan-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
+    .plan-status { padding: 6px 10px; border-radius: 4px; font-size: 13px; font-weight: 700; }
+    .plan-status.valid { background: var(--green-soft); color: var(--green); }
+    .plan-status.wait { background: var(--amber-soft); color: var(--amber); }
+    .plan-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+    .plan-item { min-width: 0; padding: 14px; border-left: 3px solid var(--line); background: var(--paper); }
+    .plan-label { color: var(--muted); font-size: 12px; }
+    .plan-value { margin-top: 4px; font: 600 18px/1.3 "Space Grotesk", sans-serif; overflow-wrap: anywhere; }
+    .invalidation { margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
+    .position-calculator { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
+    .calculator-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)) minmax(0, 1fr); gap: 14px; align-items: end; margin-top: 14px; }
+    .calculator-field { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 600; }
+    .calculator-field input { min-height: 42px; padding: 0 12px; }
+    .position-result { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .position-result > .meta { grid-column: 1 / -1; }
+
     .two-column, .three-column {
       display: grid;
       gap: 18px;
@@ -367,6 +392,10 @@
       .two-column, .three-column { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .change-header { align-items: flex-start; flex-direction: column; }
+      .plan-header { align-items: flex-start; flex-direction: column; }
+      .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .calculator-grid { grid-template-columns: 1fr; }
+      .position-result { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .news-header { align-items: flex-start; flex-direction: column; }
       .news-item { grid-template-columns: 1fr; gap: 9px; }
       .header-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
@@ -426,6 +455,23 @@
         <div id="signalChanges" class="change-list"></div>
       </section>
 
+      <section id="tradePlan" class="trade-plan" aria-labelledby="tradePlanTitle" hidden>
+        <div class="plan-header">
+          <h2 id="tradePlanTitle">Trade plan</h2>
+          <span id="planStatus" class="plan-status"></span>
+        </div>
+        <div id="planLevels" class="plan-grid"></div>
+        <p id="invalidation" class="invalidation"></p>
+        <div class="position-calculator">
+          <h3>Position size calculator</h3>
+          <div class="calculator-grid">
+            <label class="calculator-field">Trading capital (₹)<input id="accountCapital" type="number" min="1" step="1000" value="100000"></label>
+            <label class="calculator-field">Risk per trade (%)<input id="riskPercent" type="number" min="0.1" max="5" step="0.1" value="1"></label>
+            <div id="positionResult" class="position-result" aria-live="polite"></div>
+          </div>
+        </div>
+      </section>
+
       <div class="two-column">
         <section class="panel positive"><h2>Supporting evidence</h2><ul id="pros"></ul></section>
         <section class="panel negative"><h2>Risk factors</h2><ul id="cons"></ul></section>
@@ -482,6 +528,7 @@
     let confirmedTicker = null;
     let suggestionTimer = null;
     let suggestionRequest = null;
+    let currentTradePlan = null;
 
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
@@ -610,6 +657,95 @@
         : '<p class="change-item meta">No score-driving signal changes since the previous trading session.</p>';
     }
 
+    function calculatePositionSize() {
+      const capital = Number(document.getElementById("accountCapital").value);
+      const riskPercent = Number(document.getElementById("riskPercent").value);
+      const result = document.getElementById("positionResult");
+      if (
+        !currentTradePlan
+        || !Number.isFinite(capital)
+        || !Number.isFinite(riskPercent)
+        || !Number.isFinite(currentTradePlan.entry_reference)
+        || !Number.isFinite(currentTradePlan.risk_per_share)
+        || capital <= 0
+        || riskPercent <= 0
+        || riskPercent > 5
+        || currentTradePlan.entry_reference <= 0
+        || currentTradePlan.risk_per_share <= 0
+      ) {
+        result.innerHTML = '<p class="meta">Enter valid capital and risk between 0.1% and 5%.</p>';
+        return;
+      }
+
+      const riskBudget = capital * riskPercent / 100;
+      const riskSizedShares = Math.floor(riskBudget / currentTradePlan.risk_per_share);
+      const affordableShares = Math.floor(capital / currentTradePlan.entry_reference);
+      const shares = Math.max(0, Math.min(riskSizedShares, affordableShares));
+      const positionValue = shares * currentTradePlan.entry_reference;
+      const actualRisk = shares * currentTradePlan.risk_per_share;
+      result.innerHTML = [
+        ["Shares", shares.toLocaleString("en-IN")],
+        ["Position value", currency(positionValue)],
+        ["Risk at stop", currency(actualRisk)]
+      ].map(([label, value]) => `<div><div class="plan-label">${label}</div><div class="plan-value">${value}</div></div>`).join("");
+    }
+
+    function deriveTradePlan(cash, score) {
+      const atr = Number(cash?.atr14);
+      if (!Number.isFinite(atr) || atr <= 0) return null;
+
+      const breakoutLevel = cash.prior_twenty_day_high + atr * 0.1;
+      const entryValid = score >= 75 && cash.close >= breakoutLevel && cash.volume_ratio >= 1.2;
+      const entryLow = entryValid
+        ? Math.max(breakoutLevel, cash.close - atr * 0.25)
+        : breakoutLevel;
+      const entryHigh = entryValid ? cash.close + atr * 0.25 : breakoutLevel + atr * 0.5;
+      const entryReference = entryHigh;
+      const atrStop = entryReference - atr * 1.5;
+      const structuralStop = cash.recent_swing_low - atr * 0.25;
+      const stopLoss = Math.min(Math.max(atrStop, structuralStop), entryLow - atr * 0.5);
+      const riskPerShare = entryReference - stopLoss;
+      const round = value => Math.round(value * 100) / 100;
+
+      return {
+        status: entryValid ? "Entry valid now" : "Wait for breakout",
+        entry_valid: entryValid,
+        entry_low: round(entryLow),
+        entry_high: round(entryHigh),
+        entry_reference: round(entryReference),
+        stop_loss: round(stopLoss),
+        risk_per_share: round(riskPerShare),
+        targets: [round(entryReference + riskPerShare * 1.5), round(entryReference + riskPerShare * 2.5)],
+        risk_reward_ratio: 2.5,
+        invalidation: entryValid
+          ? `Daily close below INR ${stopLoss.toFixed(2)}, or a breakout close back below INR ${cash.prior_twenty_day_high.toFixed(2)}.`
+          : `Daily close below the 20-session average at INR ${cash.sma20.toFixed(2)} before a favorable, volume-confirmed close above INR ${breakoutLevel.toFixed(2)}.`
+      };
+    }
+
+    function renderTradePlan(plan) {
+      const section = document.getElementById("tradePlan");
+      if (!plan) {
+        section.hidden = true;
+        currentTradePlan = null;
+        return;
+      }
+
+      currentTradePlan = plan;
+      section.hidden = false;
+      const planStatus = document.getElementById("planStatus");
+      planStatus.textContent = plan.status;
+      planStatus.className = `plan-status ${plan.entry_valid ? "valid" : "wait"}`;
+      document.getElementById("planLevels").innerHTML = [
+        ["Suggested entry zone", `${currency(plan.entry_low)} – ${currency(plan.entry_high)}`],
+        ["ATR stop-loss", currency(plan.stop_loss)],
+        ["Target 1 / Target 2", `${currency(plan.targets[0])} / ${currency(plan.targets[1])}`],
+        ["Risk / reward", `1 : ${number(plan.risk_reward_ratio, 1)}`]
+      ].map(([label, value]) => `<div class="plan-item"><div class="plan-label">${label}</div><div class="plan-value">${value}</div></div>`).join("");
+      document.getElementById("invalidation").innerHTML = `<strong>Setup invalidation:</strong> ${escapeHtml(plan.invalidation)}`;
+      calculatePositionSize();
+    }
+
     function renderReport(data) {
       const cash = data.cash;
       const fno = data.fno;
@@ -632,6 +768,7 @@
       confidence.style.setProperty("--badge-bg", badgeBackground);
       document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
       renderDailyChange(data.daily_change);
+      renderTradePlan(data.trade_plan || deriveTradePlan(cash, data.score));
 
       list("pros", data.pros, "No strong supporting evidence detected.");
       list("cons", data.cons, "No material risk flags detected by this model.");
@@ -764,6 +901,9 @@
       closeSuggestions();
       analyzeTicker(recentButton.dataset.ticker);
     });
+
+    document.getElementById("accountCapital").addEventListener("input", calculatePositionSize);
+    document.getElementById("riskPercent").addEventListener("input", calculatePositionSize);
 
     document.addEventListener("click", event => {
       if (!event.target.closest(".ticker-field")) closeSuggestions();

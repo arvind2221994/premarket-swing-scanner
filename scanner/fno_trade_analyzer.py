@@ -501,6 +501,55 @@ def build_daily_change(current_score, current_pros, current_cons, previous_date,
     }
 
 
+def build_trade_plan(cash, score):
+    atr = cash["atr14"]
+    if atr <= 0:
+        return None
+
+    breakout_level = cash["prior_twenty_day_high"] + atr * 0.1
+    entry_valid = (
+        score >= 75
+        and cash["close"] >= breakout_level
+        and cash["volume_ratio"] >= 1.2
+    )
+    if entry_valid:
+        entry_low = max(breakout_level, cash["close"] - atr * 0.25)
+        entry_high = cash["close"] + atr * 0.25
+    else:
+        entry_low = breakout_level
+        entry_high = breakout_level + atr * 0.5
+
+    entry_reference = entry_high
+    atr_stop = entry_reference - atr * 1.5
+    structural_stop = cash["recent_swing_low"] - atr * 0.25
+    stop_loss = min(max(atr_stop, structural_stop), entry_low - atr * 0.5)
+    risk_per_share = entry_reference - stop_loss
+    target_one = entry_reference + risk_per_share * 1.5
+    target_two = entry_reference + risk_per_share * 2.5
+
+    invalidation = (
+        f"Daily close below INR {stop_loss:.2f}, or a breakout close back below "
+        f"INR {cash['prior_twenty_day_high']:.2f}."
+        if entry_valid
+        else (
+            f"Daily close below the 20-session average at INR {cash['sma20']:.2f} "
+            f"before a favorable, volume-confirmed close above INR {breakout_level:.2f}."
+        )
+    )
+    return {
+        "status": "Entry valid now" if entry_valid else "Wait for breakout",
+        "entry_valid": entry_valid,
+        "entry_low": round(entry_low, 2),
+        "entry_high": round(entry_high, 2),
+        "entry_reference": round(entry_reference, 2),
+        "stop_loss": round(stop_loss, 2),
+        "risk_per_share": round(risk_per_share, 2),
+        "targets": [round(target_one, 2), round(target_two, 2)],
+        "risk_reward_ratio": 2.5,
+        "invalidation": invalidation,
+    }
+
+
 def build_symbol_report(symbol):
     clean_symbol = symbol.strip().upper()
     if not re.fullmatch(r"[A-Z0-9&-]{1,20}", clean_symbol):
@@ -521,6 +570,7 @@ def build_symbol_report(symbol):
     news = fetch_company_news(clean_symbol, fundamentals.get("name"))
     score, verdict = make_assessment(cash, fno, fundamental_score)
     pros, cons = build_pros_cons(cash, fno, fundamental_score)
+    trade_plan = build_trade_plan(cash, score)
     daily_change = None
     if len(history) >= 51:
         previous_history = history.iloc[:-1].reset_index(drop=True)
@@ -566,6 +616,7 @@ def build_symbol_report(symbol):
         "pros": pros,
         "cons": cons,
         "daily_change": daily_change,
+        "trade_plan": trade_plan,
         "calculation": {
             "cash_score": cash["score"],
             "cash_weight": cash_weight,
