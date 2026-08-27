@@ -1,37 +1,49 @@
 {
-  "generated_at_ist": "2026-08-13 12:02:58",
+  "generated_at_ist": "2026-08-27 11:15:51",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
   "global_cues": {
-    "nasdaq_change_pct": 0.54,
-    "spx_change_pct": 0.26,
-    "dow_change_pct": -0.04,
-    "gift_nifty_change_pct": 0.28
+    "nasdaq_change_pct": -0.08,
+    "spx_change_pct": -0.02,
+    "dow_change_pct": -0.21,
+    "gift_nifty_change_pct": -0.33,
+    "source_metadata": {
+      "nasdaq": {
+        "change_pct": -0.08,
+        "observed_at": "2026-08-26T00:00:00",
+        "fetched_at": "2026-08-27T05:45:51.436893+00:00",
+        "source": "Yahoo Finance"
+      },
+      "spx": {
+        "change_pct": -0.02,
+        "observed_at": "2026-08-26T00:00:00",
+        "fetched_at": "2026-08-27T05:45:52.896910+00:00",
+        "source": "Yahoo Finance"
+      },
+      "dow": {
+        "change_pct": -0.21,
+        "observed_at": "2026-08-26T00:00:00",
+        "fetched_at": "2026-08-27T05:45:53.602971+00:00",
+        "source": "Yahoo Finance"
+      },
+      "gift_nifty": {
+        "change_pct": -0.33,
+        "observed_at": "27-Aug-2026 11:15:52",
+        "fetched_at": "2026-08-27T05:45:54.229411+00:00",
+        "source": "NSE International Exchange"
+      }
+    }
   },
   "top_3": [
     {
-      "symbol": "RELIANCE",
-      "score": 85.2,
-      "recommendation": "High confidence bullish swing candidate",
-      "pcr": 1.18,
-      "reasons": [
-        "Long build-up",
-        "Healthy bullish PCR",
-        "Volume above average",
-        "Price above 20 DMA",
-        "Price above 50 DMA",
-        "Positive 5-day momentum"
-      ]
-    },
-    {
       "symbol": "ICICIBANK",
-      "score": 83.2,
-      "recommendation": "High confidence bullish swing candidate",
-      "pcr": 1.08,
+      "score": 71.6,
+      "recommendation": "Moderate bullish swing candidate",
+      "pcr": 0.762683320468739,
       "reasons": [
-        "Long build-up",
-        "Healthy bullish PCR",
-        "Normal volume",
+        "Short covering",
+        "Neutral PCR",
+        "Weak volume",
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum"
@@ -39,41 +51,38 @@
     },
     {
       "symbol": "TCS",
-      "score": 62.15,
-      "recommendation": "Moderate bullish swing candidate",
-      "pcr": 0.92,
+      "score": 48.15,
+      "recommendation": "Avoid",
+      "pcr": 1.0051897983392646,
       "reasons": [
-        "Short covering",
+        "Short build-up",
         "Healthy bullish PCR",
-        "Normal volume",
+        "Weak volume",
         "Price above 50 DMA"
+      ]
+    },
+    {
+      "symbol": "RELIANCE",
+      "score": 34.6,
+      "recommendation": "Avoid",
+      "pcr": 0.8614120353194331,
+      "reasons": [
+        "Short build-up",
+        "Neutral PCR",
+        "Weak volume"
       ]
     }
   ],
   "all_results": [
     {
-      "symbol": "RELIANCE",
-      "score": 85.2,
-      "recommendation": "High confidence bullish swing candidate",
-      "pcr": 1.18,
-      "reasons": [
-        "Long build-up",
-        "Healthy bullish PCR",
-        "Volume above average",
-        "Price above 20 DMA",
-        "Price above 50 DMA",
-        "Positive 5-day momentum"
-      ]
-    },
-    {
       "symbol": "ICICIBANK",
-      "score": 83.2,
-      "recommendation": "High confidence bullish swing candidate",
-      "pcr": 1.08,
+      "score": 71.6,
+      "recommendation": "Moderate bullish swing candidate",
+      "pcr": 0.762683320468739,
       "reasons": [
-        "Long build-up",
-        "Healthy bullish PCR",
-        "Normal volume",
+        "Short covering",
+        "Neutral PCR",
+        "Weak volume",
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum"
@@ -81,14 +90,25 @@
     },
     {
       "symbol": "TCS",
-      "score": 62.15,
-      "recommendation": "Moderate bullish swing candidate",
-      "pcr": 0.92,
+      "score": 48.15,
+      "recommendation": "Avoid",
+      "pcr": 1.0051897983392646,
       "reasons": [
-        "Short covering",
+        "Short build-up",
         "Healthy bullish PCR",
-        "Normal volume",
+        "Weak volume",
         "Price above 50 DMA"
+      ]
+    },
+    {
+      "symbol": "RELIANCE",
+      "score": 34.6,
+      "recommendation": "Avoid",
+      "pcr": 0.8614120353194331,
+      "reasons": [
+        "Short build-up",
+        "Neutral PCR",
+        "Weak volume"
       ]
     }
   ]
