@@ -3,6 +3,8 @@ from datetime import datetime, timezone
 import requests
 import yfinance as yf
 
+from resilience import UpstreamUnavailableError, call_with_resilience
+
 
 NSE_IX_MARKET_WATCH_URL = "https://www.nseix.com/api/streamer-market-watch/"
 
@@ -10,21 +12,19 @@ NSE_IX_MARKET_WATCH_URL = "https://www.nseix.com/api/streamer-market-watch/"
 def get_change_snapshot(ticker):
     fetched_at = datetime.now(timezone.utc).isoformat()
     try:
-        data = yf.download(
-            ticker,
-            period="5d",
-            interval="1d",
-            progress=False,
-            multi_level_index=False,
-        )
+        def download_snapshot():
+            data = yf.download(
+                ticker,
+                period="5d",
+                interval="1d",
+                progress=False,
+                multi_level_index=False,
+            )
+            if data is None or len(data) < 2:
+                raise ValueError("Insufficient Yahoo Finance history")
+            return data
 
-        if data is None or len(data) < 2:
-            return {
-                "change_pct": None,
-                "observed_at": None,
-                "fetched_at": fetched_at,
-                "source": "Yahoo Finance",
-            }
+        data = call_with_resilience("Yahoo Finance", download_snapshot)
 
         prev_close = float(data["Close"].iloc[-2])
         latest_close = float(data["Close"].iloc[-1])
@@ -35,13 +35,13 @@ def get_change_snapshot(ticker):
             "fetched_at": fetched_at,
             "source": "Yahoo Finance",
         }
-    except Exception as error:
+    except (UpstreamUnavailableError, KeyError, TypeError, ValueError, IndexError):
         return {
             "change_pct": None,
             "observed_at": None,
             "fetched_at": fetched_at,
             "source": "Yahoo Finance",
-            "error": str(error),
+            "error": "Yahoo Finance data is temporarily unavailable.",
         }
 
 
@@ -74,12 +74,19 @@ def parse_gift_nifty_change_pct(payload):
 def get_gift_nifty_snapshot():
     fetched_at = datetime.now(timezone.utc).isoformat()
     try:
-        response = requests.get(
-            NSE_IX_MARKET_WATCH_URL,
-            headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.nseix.com/"},
-            timeout=10,
+        def request_gift_nifty():
+            response = requests.get(
+                NSE_IX_MARKET_WATCH_URL,
+                headers={"User-Agent": "Mozilla/5.0", "Referer": "https://www.nseix.com/"},
+                timeout=10,
+            )
+            response.raise_for_status()
+            return response
+
+        response = call_with_resilience(
+            "NSE",
+            request_gift_nifty,
         )
-        response.raise_for_status()
         quote = select_gift_nifty_quote(response.json())
         return {
             "change_pct": (
@@ -89,13 +96,13 @@ def get_gift_nifty_snapshot():
             "fetched_at": fetched_at,
             "source": "NSE International Exchange",
         }
-    except (requests.RequestException, KeyError, TypeError, ValueError) as error:
+    except (requests.RequestException, UpstreamUnavailableError, KeyError, TypeError, ValueError):
         return {
             "change_pct": None,
             "observed_at": None,
             "fetched_at": fetched_at,
             "source": "NSE International Exchange",
-            "error": str(error),
+            "error": "NSE market data is temporarily unavailable.",
         }
 
 

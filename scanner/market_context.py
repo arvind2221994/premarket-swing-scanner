@@ -5,6 +5,7 @@ import requests
 import yfinance as yf
 
 from global_cues import fetch_global_cues
+from resilience import UpstreamUnavailableError, call_with_resilience
 from scoring import score_global_cues
 
 
@@ -39,17 +40,21 @@ def classify_trend(close, sma20, sma50):
 def fetch_yahoo_trend(ticker):
     fetched_at = datetime.now(timezone.utc).isoformat()
     try:
-        data = yf.download(
-            ticker,
-            period="6mo",
-            interval="1d",
-            progress=False,
-            multi_level_index=False,
-            auto_adjust=False,
-        )
-        closes = data["Close"].dropna() if data is not None else None
-        if closes is None or len(closes) < 50:
-            raise ValueError("Fewer than 50 daily closes returned")
+        def download_trend():
+            data = yf.download(
+                ticker,
+                period="6mo",
+                interval="1d",
+                progress=False,
+                multi_level_index=False,
+                auto_adjust=False,
+            )
+            closes = data["Close"].dropna() if data is not None else None
+            if closes is None or len(closes) < 50:
+                raise ValueError("Fewer than 50 daily closes returned")
+            return closes
+
+        closes = call_with_resilience("Yahoo Finance", download_trend)
 
         close = float(closes.iloc[-1])
         previous_close = float(closes.iloc[-2])
@@ -66,7 +71,7 @@ def fetch_yahoo_trend(ticker):
             "fetched_at": fetched_at,
             "source": "Yahoo Finance",
         }
-    except Exception as error:
+    except (UpstreamUnavailableError, KeyError, TypeError, ValueError, IndexError):
         return {
             "ticker": ticker,
             "close": None,
@@ -77,7 +82,7 @@ def fetch_yahoo_trend(ticker):
             "observed_at": None,
             "fetched_at": fetched_at,
             "source": "Yahoo Finance",
-            "error": str(error),
+            "error": "Yahoo Finance data is temporarily unavailable.",
         }
 
 
@@ -89,13 +94,17 @@ def fetch_market_breadth():
     fetched_at = datetime.now(timezone.utc).isoformat()
     try:
         with requests.Session() as session:
-            session.get("https://www.nseindia.com/", headers=NSE_HEADERS, timeout=10)
-            response = session.get(
-                NSE_ALL_INDICES_URL,
-                headers=NSE_HEADERS,
-                timeout=10,
-            )
-            response.raise_for_status()
+            def request_breadth():
+                session.get("https://www.nseindia.com/", headers=NSE_HEADERS, timeout=10)
+                response = session.get(
+                    NSE_ALL_INDICES_URL,
+                    headers=NSE_HEADERS,
+                    timeout=10,
+                )
+                response.raise_for_status()
+                return response
+
+            response = call_with_resilience("NSE", request_breadth)
             payload = response.json()
 
         rows = payload.get("data", [])
@@ -125,7 +134,7 @@ def fetch_market_breadth():
             "fetched_at": fetched_at,
             "source": "NSE India allIndices",
         }
-    except Exception as error:
+    except (UpstreamUnavailableError, requests.RequestException, KeyError, TypeError, ValueError):
         return {
             "universe": None,
             "advances": None,
@@ -136,7 +145,7 @@ def fetch_market_breadth():
             "observed_at": None,
             "fetched_at": fetched_at,
             "source": "NSE India allIndices",
-            "error": str(error),
+            "error": "NSE market breadth is temporarily unavailable.",
         }
 
 

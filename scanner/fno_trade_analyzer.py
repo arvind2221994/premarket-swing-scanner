@@ -9,6 +9,7 @@ import requests
 
 from fundamentals import calculate_fundamental_score, fetch_screener_data
 from news import fetch_company_news
+from resilience import UpstreamUnavailableError, call_with_resilience
 
 
 ARCHIVE_URL = (
@@ -26,12 +27,17 @@ def download_bhavcopy(session, segment, trade_date):
         code=code,
         trade_date=trade_date.strftime("%Y%m%d"),
     )
-    response = session.get(url, headers=HEADERS, timeout=20)
+    def request_bhavcopy():
+        response = session.get(url, headers=HEADERS, timeout=20)
+        if response.status_code != 404:
+            response.raise_for_status()
+        return response
+
+    response = call_with_resilience("NSE", request_bhavcopy)
 
     if response.status_code == 404:
         return None
 
-    response.raise_for_status()
     with zipfile.ZipFile(io.BytesIO(response.content)) as archive:
         return pd.read_csv(archive.open(archive.namelist()[0]))
 
@@ -83,16 +89,20 @@ def load_recent_fno_frames(session, latest_cash_date, sessions=2):
 
 def fetch_fno_ban_status(session, symbol):
     try:
-        response = session.get(FNO_BAN_URL, headers=HEADERS, timeout=20)
-        response.raise_for_status()
+        def request_ban_status():
+            response = session.get(FNO_BAN_URL, headers=HEADERS, timeout=20)
+            response.raise_for_status()
+            return response
+
+        response = call_with_resilience("NSE", request_ban_status)
         text = response.text.strip()
-    except requests.RequestException as error:
+    except (requests.RequestException, UpstreamUnavailableError):
         return {
             "is_banned": None,
             "trade_date": None,
             "mwpl_utilization_pct": None,
             "source": "NSE F&O security ban file",
-            "note": f"Ban status unavailable: {error}",
+            "note": "Ban status is temporarily unavailable.",
         }
     date_match = re.search(r"Trade Date\s+(\d{1,2}-[A-Z]{3}-\d{4})", text, re.I)
     trade_date = None

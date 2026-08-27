@@ -8,11 +8,14 @@ import requests
 from flask import Flask, jsonify, request
 
 from fno_trade_analyzer import build_symbol_report
+from resilience import BoundedTTLCache, UpstreamUnavailableError, call_with_resilience
 
 
 DOCS_DIR = Path(__file__).resolve().parent.parent / "docs"
 CACHE_SECONDS = int(os.getenv("REPORT_CACHE_SECONDS", "3600"))
 TICKER_SEARCH_CACHE_SECONDS = 86400
+REPORT_CACHE_MAX_SIZE = int(os.getenv("REPORT_CACHE_MAX_SIZE", "128"))
+TICKER_SEARCH_CACHE_MAX_SIZE = int(os.getenv("TICKER_SEARCH_CACHE_MAX_SIZE", "256"))
 YAHOO_SEARCH_URL = "https://query1.finance.yahoo.com/v1/finance/search"
 CURATED_TICKERS = (
     {"symbol": "ARVSMART", "name": "Arvind SmartSpaces Limited"},
@@ -24,8 +27,11 @@ ALLOWED_ORIGINS = {
 }
 
 app = Flask(__name__, static_folder=str(DOCS_DIR), static_url_path="")
-report_cache = {}
-ticker_search_cache = {}
+report_cache = BoundedTTLCache(REPORT_CACHE_MAX_SIZE, CACHE_SECONDS)
+ticker_search_cache = BoundedTTLCache(
+    TICKER_SEARCH_CACHE_MAX_SIZE,
+    TICKER_SEARCH_CACHE_SECONDS,
+)
 analysis_lock = threading.Lock()
 health_lock = threading.Lock()
 dependency_health = {
@@ -35,7 +41,7 @@ dependency_health = {
         "last_failure_at": None,
         "error": None,
     }
-    for name in ("analysis", "nse", "screener", "google_news")
+    for name in ("analysis", "nse", "screener", "yahoo", "google_news")
 }
 
 
@@ -74,13 +80,15 @@ def record_report_health(report):
 
 
 def record_analysis_failure(error):
-    message = str(error)
+    message = "Analysis dependency is temporarily unavailable."
     record_dependency("analysis", "unhealthy", message)
-    lowered = message.lower()
-    if "screener.in" in lowered:
-        record_dependency("screener", "unhealthy", message)
-    elif "nsearchives.nseindia.com" in lowered:
-        record_dependency("nse", "unhealthy", message)
+    source = getattr(error, "source", "").casefold()
+    if "screener" in source:
+        record_dependency("screener", "unhealthy", "Screener is temporarily unavailable.")
+    elif "nse" in source:
+        record_dependency("nse", "unhealthy", "NSE is temporarily unavailable.")
+    elif "yahoo" in source:
+        record_dependency("yahoo", "unhealthy", "Yahoo Finance is temporarily unavailable.")
 
 
 def normalize_search_text(value):
@@ -96,13 +104,21 @@ def search_tickers(query):
     ]
 
     try:
-        response = requests.get(
-            YAHOO_SEARCH_URL,
-            params={"q": query, "quotesCount": 10, "newsCount": 0},
-            headers={"User-Agent": "Mozilla/5.0"},
-            timeout=8,
+        def request_tickers():
+            response = requests.get(
+                YAHOO_SEARCH_URL,
+                params={"q": query, "quotesCount": 10, "newsCount": 0},
+                headers={"User-Agent": "Mozilla/5.0"},
+                timeout=8,
+            )
+            response.raise_for_status()
+            return response
+
+        response = call_with_resilience(
+            "Yahoo Finance",
+            request_tickers,
         )
-        response.raise_for_status()
+        record_dependency("yahoo", "healthy")
         remote_matches = []
         for quote in response.json().get("quotes", []):
             yahoo_symbol = quote.get("symbol", "")
@@ -115,7 +131,12 @@ def search_tickers(query):
                 "symbol": symbol,
                 "name": quote.get("longname") or quote.get("shortname") or symbol,
             })
-    except (requests.RequestException, ValueError):
+    except (requests.RequestException, UpstreamUnavailableError, ValueError):
+        record_dependency(
+            "yahoo",
+            "unhealthy",
+            "Yahoo Finance is temporarily unavailable.",
+        )
         remote_matches = []
 
     matches = []
@@ -164,15 +185,11 @@ def ticker_suggestions():
 
     cache_key = query.casefold()
     cached = ticker_search_cache.get(cache_key)
-    now = time.time()
-    if cached and now - cached["created_at"] < TICKER_SEARCH_CACHE_SECONDS:
-        return jsonify({"suggestions": cached["suggestions"]})
+    if cached is not None:
+        return jsonify({"suggestions": cached})
 
     suggestions = search_tickers(query)
-    ticker_search_cache[cache_key] = {
-        "created_at": now,
-        "suggestions": suggestions,
-    }
+    ticker_search_cache.set(cache_key, suggestions)
     return jsonify({"suggestions": suggestions})
 
 
@@ -180,27 +197,28 @@ def ticker_suggestions():
 def analyze(symbol):
     clean_symbol = symbol.strip().upper()
     cached = report_cache.get(clean_symbol)
-    now = time.time()
-    if cached and now - cached["created_at"] < CACHE_SECONDS:
-        return jsonify({**cached["report"], "cached": True})
+    if cached is not None:
+        return jsonify({**cached, "cached": True})
 
     try:
         with analysis_lock:
             cached = report_cache.get(clean_symbol)
-            if cached and now - cached["created_at"] < CACHE_SECONDS:
-                return jsonify({**cached["report"], "cached": True})
+            if cached is not None:
+                return jsonify({**cached, "cached": True})
             report = build_symbol_report(clean_symbol)
-            report_cache[clean_symbol] = {"created_at": time.time(), "report": report}
+            report_cache.set(clean_symbol, report)
             record_report_health(report)
         return jsonify({**report, "cached": False})
     except ValueError as error:
-        if "Screener.in" in str(error):
-            record_analysis_failure(error)
-        return jsonify({"error": str(error)}), 400
+        message = str(error)
+        if message == "Enter a valid NSE ticker symbol":
+            return jsonify({"error": message}), 400
+        record_analysis_failure(error)
+        return jsonify({"error": "The requested NSE ticker could not be analyzed."}), 404
     except Exception as error:
         record_analysis_failure(error)
         app.logger.exception("Analysis failed for %s", clean_symbol)
-        return jsonify({"error": f"Analysis failed for {clean_symbol}: {error}"}), 502
+        return jsonify({"error": "Analysis is temporarily unavailable. Please try again later."}), 502
 
 
 if __name__ == "__main__":

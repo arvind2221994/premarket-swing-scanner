@@ -17,6 +17,7 @@ from scoring import calculate_stock_score
 from global_cues import fetch_global_cues
 from market_context import build_market_context
 from backtest_score_buckets import run_backtest
+from resilience import UpstreamUnavailableError
 
 
 DEFAULT_SYMBOLS = ("RELIANCE", "ICICIBANK", "TCS")
@@ -134,9 +135,9 @@ def main():
             (data_as_of + timedelta(days=1)).isoformat(),
             int(os.getenv("BACKTEST_HORIZON_SESSIONS", "10")),
         )
-    except Exception as error:
+    except UpstreamUnavailableError:
         backtest = {
-            "error": str(error),
+            "error": "Historical calibration is temporarily unavailable.",
             "symbols": backtest_symbols,
             "score_scope": "cash_technical_heuristic_only",
         }

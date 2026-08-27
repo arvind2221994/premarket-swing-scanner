@@ -1,6 +1,8 @@
 import bs4
 import requests
 
+from resilience import call_with_resilience
+
 
 FUNDAMENTAL_FIELDS = ("pe_ratio", "pb_ratio", "roce", "roe", "de_ratio")
 
@@ -26,7 +28,13 @@ def fetch_screener_data(symbol: str) -> dict:
 
     response = None
     for url in urls:
-        res = requests.get(url, headers=headers, timeout=10)
+        def request_screener():
+            result = requests.get(url, headers=headers, timeout=10)
+            if result.status_code != 404:
+                result.raise_for_status()
+            return result
+
+        res = call_with_resilience("Screener", request_screener)
         if res.status_code == 200:
             response = res
             break

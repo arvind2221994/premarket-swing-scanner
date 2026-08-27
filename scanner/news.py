@@ -5,6 +5,8 @@ from urllib.parse import quote_plus, urlparse
 import feedparser
 import requests
 
+from resilience import UpstreamUnavailableError, call_with_resilience
+
 
 GOOGLE_NEWS_RSS = "https://news.google.com/rss/search"
 HEADERS = {"User-Agent": "Mozilla/5.0 (compatible; SwingScanner/1.0)"}
@@ -65,15 +67,19 @@ def fetch_company_news(symbol, company_name=None, days=7, limit=20):
             f"&gl={edition['gl']}&ceid={edition['ceid']}"
         )
         try:
-            response = requests.get(
-                f"{GOOGLE_NEWS_RSS}?{params}", headers=HEADERS, timeout=15
-            )
-            response.raise_for_status()
+            def request_news():
+                response = requests.get(
+                    f"{GOOGLE_NEWS_RSS}?{params}", headers=HEADERS, timeout=15
+                )
+                response.raise_for_status()
+                return response
+
+            response = call_with_resilience("Google News", request_news)
             articles.extend(
                 parse_news_feed(response.content, edition["scope"], cutoff)
             )
-        except (requests.RequestException, ValueError) as error:
-            errors.append(f"{edition['scope']} news unavailable: {error}")
+        except (requests.RequestException, UpstreamUnavailableError, ValueError):
+            errors.append(f"{edition['scope']} news is temporarily unavailable.")
 
     unique = {}
     for article in articles:

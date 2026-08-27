@@ -6,6 +6,7 @@ import pandas as pd
 import yfinance as yf
 
 from fno_trade_analyzer import analyze_cash
+from resilience import UpstreamUnavailableError, call_with_resilience
 
 
 SCORE_BUCKETS = ("below_60", "60_to_74_9", "75_and_above")
@@ -29,17 +30,21 @@ def classify_regime(close, sma20, sma50):
 
 
 def download_history(ticker, start, end):
-    data = yf.download(
-        ticker,
-        start=start,
-        end=end,
-        interval="1d",
-        auto_adjust=True,
-        progress=False,
-        multi_level_index=False,
-    )
-    if data is None or data.empty:
-        raise ValueError(f"No Yahoo Finance history returned for {ticker}")
+    def download_ticker_history():
+        data = yf.download(
+            ticker,
+            start=start,
+            end=end,
+            interval="1d",
+            auto_adjust=True,
+            progress=False,
+            multi_level_index=False,
+        )
+        if data is None or data.empty:
+            raise ValueError("No Yahoo Finance history returned")
+        return data
+
+    data = call_with_resilience("Yahoo Finance", download_ticker_history)
     return data.dropna(subset=["Open", "High", "Low", "Close", "Volume"])
 
 
@@ -156,11 +161,12 @@ def run_backtest(symbols, start, end, horizon):
         ticker = f"{symbol}.NS"
         try:
             stock = download_history(ticker, start, end)
-            observations.extend(
-                generate_observations(symbol, stock, nifty, horizon)
-            )
-        except Exception as error:
-            errors.append({"symbol": symbol, "error": str(error)})
+        except UpstreamUnavailableError:
+            errors.append({"symbol": symbol, "error": "Historical data is temporarily unavailable."})
+            continue
+        observations.extend(
+            generate_observations(symbol, stock, nifty, horizon)
+        )
 
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
