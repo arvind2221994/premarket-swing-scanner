@@ -1,35 +1,35 @@
 {
-  "generated_at_ist": "2026-08-27 11:15:51",
+  "generated_at_ist": "2026-08-27 11:45:32",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
   "global_cues": {
     "nasdaq_change_pct": -0.08,
     "spx_change_pct": -0.02,
     "dow_change_pct": -0.21,
-    "gift_nifty_change_pct": -0.33,
+    "gift_nifty_change_pct": -0.37,
     "source_metadata": {
       "nasdaq": {
         "change_pct": -0.08,
         "observed_at": "2026-08-26T00:00:00",
-        "fetched_at": "2026-08-27T05:45:51.436893+00:00",
+        "fetched_at": "2026-08-27T06:15:32.601360+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
         "change_pct": -0.02,
         "observed_at": "2026-08-26T00:00:00",
-        "fetched_at": "2026-08-27T05:45:52.896910+00:00",
+        "fetched_at": "2026-08-27T06:15:33.200371+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
         "change_pct": -0.21,
         "observed_at": "2026-08-26T00:00:00",
-        "fetched_at": "2026-08-27T05:45:53.602971+00:00",
+        "fetched_at": "2026-08-27T06:15:33.437569+00:00",
         "source": "Yahoo Finance"
       },
       "gift_nifty": {
-        "change_pct": -0.33,
-        "observed_at": "27-Aug-2026 11:15:52",
-        "fetched_at": "2026-08-27T05:45:54.229411+00:00",
+        "change_pct": -0.37,
+        "observed_at": "27-Aug-2026 11:45:30",
+        "fetched_at": "2026-08-27T06:15:33.676182+00:00",
         "source": "NSE International Exchange"
       }
     }
