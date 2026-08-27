@@ -35,6 +35,36 @@
       color: red;
     }
 
+    .freshness {
+      display: inline-flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 6px;
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .freshness-live {
+      background: #087f5b;
+    }
+
+    .freshness-delayed {
+      background: #b45309;
+    }
+
+    .freshness-stale {
+      background: #b42318;
+    }
+
+    .freshness-warning {
+      padding: 16px;
+      border-left: 5px solid #b42318;
+      background: #fff1f0;
+      color: #7a271a;
+      font-weight: bold;
+    }
+
     li {
       margin-bottom: 6px;
     }
@@ -67,6 +97,7 @@
 <body>
   <h1>Pre-market Swing Scanner</h1>
   <p><a class="analyze-button" href="./analyze.html">Analyze a stock ticker</a></p>
+  <p><span id="freshness" class="freshness freshness-stale">Checking freshness</span></p>
   <p id="generatedAt"></p>
   <p><strong>Disclaimer:</strong> Educational scanner only. Not financial advice.</p>
 
@@ -77,49 +108,114 @@
   <div id="topPicks"></div>
 
   <script>
+    function parseScannerDate(value) {
+      if (!value) return null;
+      const timestamp = /^\d{4}-\d{2}-\d{2}$/.test(value)
+        ? `${value}T00:00:00+05:30`
+        : value.replace(" ", "T") + (value.includes("+") || value.endsWith("Z") ? "" : "+05:30");
+      const parsed = new Date(timestamp);
+      return Number.isNaN(parsed.getTime()) ? null : parsed;
+    }
+
+    function datePartsInIst(value) {
+      const parts = new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Asia/Kolkata",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      }).formatToParts(value);
+      const part = type => Number(parts.find(item => item.type === type).value);
+      return new Date(Date.UTC(part("year"), part("month") - 1, part("day")));
+    }
+
+    function tradingSessionsOld(value, now = new Date()) {
+      const observed = parseScannerDate(value);
+      if (!observed || observed > now) return Number.POSITIVE_INFINITY;
+
+      const cursor = datePartsInIst(observed);
+      const today = datePartsInIst(now);
+      let sessions = 0;
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
+
+      while (cursor <= today) {
+        const day = cursor.getUTCDay();
+        if (day !== 0 && day !== 6) sessions += 1;
+        cursor.setUTCDate(cursor.getUTCDate() + 1);
+      }
+      return sessions;
+    }
+
+    function getFreshness(data) {
+      const generatedAge = tradingSessionsOld(data.generated_at_ist);
+      const marketAge = tradingSessionsOld(data.data_as_of);
+      const age = Math.max(generatedAge, marketAge);
+
+      if (age === 0) return { label: "Live", className: "freshness-live", stale: false };
+      if (age === 1) return { label: "Delayed", className: "freshness-delayed", stale: false };
+      return { label: "Stale", className: "freshness-stale", stale: true };
+    }
+
     async function loadScannerData() {
-      const response = await fetch("./data/latest.json?ts=" + Date.now());
-      const data = await response.json();
-
-      document.getElementById("generatedAt").innerText =
-        "Generated at IST: " + data.generated_at_ist;
-
-      const global = data.global_cues;
-
-      document.getElementById("globalCues").innerHTML = `
-        <p>NASDAQ: ${global.nasdaq_change_pct ?? "N/A"}%</p>
-        <p>S&P 500: ${global.spx_change_pct ?? "N/A"}%</p>
-        <p>Dow Jones: ${global.dow_change_pct ?? "N/A"}%</p>
-        <p>GIFT Nifty: ${global.gift_nifty_change_pct ?? "N/A"}%</p>
-      `;
-
+      const freshnessBadge = document.getElementById("freshness");
       const container = document.getElementById("topPicks");
-      container.innerHTML = "";
 
-      data.top_3.forEach((stock, index) => {
-        let scoreClass = "low";
+      try {
+        const response = await fetch("./data/latest.json?ts=" + Date.now(), { cache: "no-store" });
+        if (!response.ok) throw new Error(`Scanner data request failed: ${response.status}`);
+        const data = await response.json();
+        const freshness = getFreshness(data);
 
-        if (stock.score >= 75) {
-          scoreClass = "high";
-        } else if (stock.score >= 60) {
-          scoreClass = "medium";
+        freshnessBadge.innerText = freshness.label;
+        freshnessBadge.className = `freshness ${freshness.className}`;
+
+        document.getElementById("generatedAt").innerText =
+          `Generated at IST: ${data.generated_at_ist} | Market data as of: ${data.data_as_of || "Unknown"}`;
+
+        const global = data.global_cues;
+
+        document.getElementById("globalCues").innerHTML = `
+          <p>NASDAQ: ${global.nasdaq_change_pct ?? "N/A"}%</p>
+          <p>S&P 500: ${global.spx_change_pct ?? "N/A"}%</p>
+          <p>Dow Jones: ${global.dow_change_pct ?? "N/A"}%</p>
+          <p>GIFT Nifty: ${global.gift_nifty_change_pct ?? "N/A"}%</p>
+        `;
+
+        if (freshness.stale) {
+          container.innerHTML = '<div class="freshness-warning">Recommendations are hidden because the scanner data is more than one trading session old.</div>';
+          return;
         }
 
-        const reasons = stock.reasons
-          .map(reason => `<li>${reason}</li>`)
-          .join("");
+        container.innerHTML = "";
+        data.top_3.forEach((stock, index) => {
+          let scoreClass = "low";
 
-        container.innerHTML += `
-          <div class="card">
-            <h2>${index + 1}. ${stock.symbol}</h2>
-            <div class="score ${scoreClass}">${stock.score}/100</div>
-            <p><strong>${stock.recommendation}</strong></p>
-            <p>PCR: ${stock.pcr}</p>
-            <h4>Reasons</h4>
-            <ul>${reasons}</ul>
-          </div>
-        `;
-      });
+          if (stock.score >= 75) {
+            scoreClass = "high";
+          } else if (stock.score >= 60) {
+            scoreClass = "medium";
+          }
+
+          const reasons = stock.reasons
+            .map(reason => `<li>${reason}</li>`)
+            .join("");
+
+          container.innerHTML += `
+            <div class="card">
+              <h2>${index + 1}. ${stock.symbol}</h2>
+              <div class="score ${scoreClass}">${stock.score}/100</div>
+              <p><strong>${stock.recommendation}</strong></p>
+              <p>PCR: ${stock.pcr}</p>
+              <h4>Reasons</h4>
+              <ul>${reasons}</ul>
+            </div>
+          `;
+        });
+      } catch (error) {
+        freshnessBadge.innerText = "Stale";
+        freshnessBadge.className = "freshness freshness-stale";
+        container.innerHTML = '<div class="freshness-warning">Recommendations are unavailable because current scanner data could not be verified.</div>';
+        console.error(error);
+      }
     }
 
     loadScannerData();

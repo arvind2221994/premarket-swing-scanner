@@ -74,6 +74,10 @@ def load_stock_universe():
             for history in histories.values()
         )
         fno_frames = load_recent_fno_frames(session, latest_cash_date)
+        if not fno_frames:
+            raise RuntimeError("No live NSE F&O histories were available")
+        latest_fno_date = pd.to_datetime(fno_frames[0]["TradDt"].iloc[0]).date()
+        data_as_of = min(latest_cash_date, latest_fno_date)
 
         stocks = []
         for symbol, history in histories.items():
@@ -101,7 +105,7 @@ def load_stock_universe():
 
     if not stocks:
         raise RuntimeError("No symbols had complete live NSE cash and F&O data")
-    return stocks
+    return stocks, data_as_of
 
 
 def main():
@@ -109,7 +113,7 @@ def main():
     now = datetime.now(ist)
 
     global_cues = fetch_global_cues()
-    stocks = load_stock_universe()
+    stocks, data_as_of = load_stock_universe()
 
     scored = []
 
@@ -121,6 +125,7 @@ def main():
 
     output = {
         "generated_at_ist": now.strftime("%Y-%m-%d %H:%M:%S"),
+        "data_as_of": data_as_of.isoformat(),
         "scanner_type": "pre_market_swing_scanner",
         "disclaimer": "Educational scanner only. Not financial advice.",
         "global_cues": global_cues,
