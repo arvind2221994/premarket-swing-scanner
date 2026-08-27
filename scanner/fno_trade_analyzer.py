@@ -482,15 +482,34 @@ def build_pros_cons(cash, fno, fundamental_score):
     return pros, cons
 
 
+def build_daily_change(current_score, current_pros, current_cons, previous_date,
+                       previous_cash, previous_fno, fundamental_score):
+    previous_score, _ = make_assessment(
+        previous_cash, previous_fno, fundamental_score
+    )
+    previous_pros, previous_cons = build_pros_cons(
+        previous_cash, previous_fno, fundamental_score
+    )
+    return {
+        "previous_date": previous_date.isoformat(),
+        "previous_score": previous_score,
+        "score_change": round(current_score - previous_score, 1),
+        "added_positive": [signal for signal in current_pros if signal not in previous_pros],
+        "removed_positive": [signal for signal in previous_pros if signal not in current_pros],
+        "added_risks": [signal for signal in current_cons if signal not in previous_cons],
+        "resolved_risks": [signal for signal in previous_cons if signal not in current_cons],
+    }
+
+
 def build_symbol_report(symbol):
     clean_symbol = symbol.strip().upper()
     if not re.fullmatch(r"[A-Z0-9&-]{1,20}", clean_symbol):
         raise ValueError("Enter a valid NSE ticker symbol")
 
     with requests.Session() as session:
-        history = load_recent_symbol_history(session, clean_symbol)
+        history = load_recent_symbol_history(session, clean_symbol, sessions=51)
         latest_date = pd.to_datetime(history.iloc[-1]["TradDt"]).date()
-        fno_frames = load_recent_fno_frames(session, latest_date)
+        fno_frames = load_recent_fno_frames(session, latest_date, sessions=3)
         ban_status = fetch_fno_ban_status(session, clean_symbol)
 
     cash = analyze_cash(history)
@@ -502,6 +521,22 @@ def build_symbol_report(symbol):
     news = fetch_company_news(clean_symbol, fundamentals.get("name"))
     score, verdict = make_assessment(cash, fno, fundamental_score)
     pros, cons = build_pros_cons(cash, fno, fundamental_score)
+    daily_change = None
+    if len(history) >= 51:
+        previous_history = history.iloc[:-1].reset_index(drop=True)
+        previous_date = pd.to_datetime(previous_history.iloc[-1]["TradDt"]).date()
+        previous_cash = analyze_cash(previous_history)
+        previous_fno = analyze_fno(clean_symbol, fno_frames[1:], ban_status)
+        if (fno is None) == (previous_fno is None):
+            daily_change = build_daily_change(
+                score,
+                pros,
+                cons,
+                previous_date,
+                previous_cash,
+                previous_fno,
+                fundamental_score,
+            )
 
     cash_weight = 0.8 if fno is None else 0.5
     fno_weight = 0.35 if fno is not None else 0
@@ -530,6 +565,7 @@ def build_symbol_report(symbol):
         "news": news,
         "pros": pros,
         "cons": cons,
+        "daily_change": daily_change,
         "calculation": {
             "cash_score": cash["score"],
             "cash_weight": cash_weight,

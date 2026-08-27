@@ -242,6 +242,32 @@
 
     .meta { color: var(--muted); font-size: 14px; }
 
+    .daily-change {
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--blue);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+
+    .change-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .score-change { font: 700 20px/1 "Space Grotesk", sans-serif; }
+    .score-change.positive-change { color: var(--green); }
+    .score-change.negative-change { color: var(--red); }
+    .change-list { display: grid; gap: 9px; }
+    .change-item { margin: 0; line-height: 1.4; }
+    .change-kind { font-weight: 700; }
+    .change-kind.positive-change { color: var(--green); }
+    .change-kind.negative-change { color: var(--red); }
+
     .two-column, .three-column {
       display: grid;
       gap: 18px;
@@ -340,6 +366,7 @@
       .summary { grid-template-columns: 1fr; text-align: center; }
       .two-column, .three-column { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .change-header { align-items: flex-start; flex-direction: column; }
       .news-header { align-items: flex-start; flex-direction: column; }
       .news-item { grid-template-columns: 1fr; gap: 9px; }
       .header-inner { align-items: flex-start; flex-direction: column; padding: 14px 0; }
@@ -386,6 +413,17 @@
           <span id="confidence" class="badge"></span>
           <p id="cacheStatus" class="meta"></p>
         </div>
+      </section>
+
+      <section class="daily-change" aria-labelledby="dailyChangeTitle">
+        <div class="change-header">
+          <div>
+            <h2 id="dailyChangeTitle">What changed since yesterday?</h2>
+            <span id="comparisonDate" class="meta"></span>
+          </div>
+          <span id="scoreChange" class="score-change"></span>
+        </div>
+        <div id="signalChanges" class="change-list"></div>
       </section>
 
       <div class="two-column">
@@ -547,6 +585,31 @@
         : '<p class="meta">No matching recent articles were found.</p>';
     }
 
+    function renderDailyChange(change) {
+      const scoreChange = Number(change?.score_change || 0);
+      document.getElementById("comparisonDate").textContent = change?.previous_date
+        ? `Compared with the previous trading session, ${change.previous_date}`
+        : "Previous-session comparison unavailable";
+
+      const scoreElement = document.getElementById("scoreChange");
+      scoreElement.textContent = change
+        ? `${scoreChange > 0 ? "+" : ""}${number(scoreChange, 1)} points`
+        : "N/A";
+      scoreElement.className = `score-change ${scoreChange > 0 ? "positive-change" : scoreChange < 0 ? "negative-change" : ""}`;
+
+      const changes = change ? [
+        ...(change.added_positive || []).map(signal => ["New positive", signal, "positive-change"]),
+        ...(change.resolved_risks || []).map(signal => ["Risk resolved", signal, "positive-change"]),
+        ...(change.removed_positive || []).map(signal => ["Positive lost", signal, "negative-change"]),
+        ...(change.added_risks || []).map(signal => ["New risk", signal, "negative-change"])
+      ] : [];
+      document.getElementById("signalChanges").innerHTML = changes.length
+        ? changes.map(([label, signal, className]) => `
+            <p class="change-item"><span class="change-kind ${className}">${escapeHtml(label)}:</span> ${escapeHtml(signal)}</p>
+          `).join("")
+        : '<p class="change-item meta">No score-driving signal changes since the previous trading session.</p>';
+    }
+
     function renderReport(data) {
       const cash = data.cash;
       const fno = data.fno;
@@ -568,6 +631,7 @@
       confidence.style.setProperty("--score-color", scoreColor);
       confidence.style.setProperty("--badge-bg", badgeBackground);
       document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
+      renderDailyChange(data.daily_change);
 
       list("pros", data.pros, "No strong supporting evidence detected.");
       list("cons", data.cons, "No material risk flags detected by this model.");
