@@ -86,6 +86,21 @@
     .calibration-label { color:var(--muted); font-size:11px; } .calibration-value { margin-top:4px; font:600 20px "Space Grotesk",sans-serif; }
     .regime-table { width:100%; border-collapse:collapse; } .regime-table th,.regime-table td { padding:11px 8px; border-top:1px solid var(--line); text-align:right; }
     .regime-table th:first-child,.regime-table td:first-child { text-align:left; } .regime-table th { color:var(--muted); font-size:11px; }
+    .universe-table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+    .universe-table { width:100%; min-width:1120px; border-collapse:collapse; }
+    .universe-table th,.universe-table td { padding:12px 10px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; }
+    .universe-table th:first-child,.universe-table td:first-child,.universe-table th:nth-child(4),.universe-table td:nth-child(4) { text-align:left; }
+    .universe-table tbody tr:last-child td { border-bottom:0; }
+    .universe-table tbody tr:hover { background:#f7f9f5; }
+    .universe-table th { color:var(--muted); font-size:11px; }
+    .sort-button { display:inline-flex; align-items:center; gap:5px; padding:2px; border:0; background:transparent; color:inherit; font:inherit; font-weight:600; }
+    .sort-button:hover,.sort-button:focus-visible { color:var(--ink); }
+    .sort-indicator { display:inline-block; width:10px; color:var(--green); }
+    .symbol-link { color:var(--ink); font-weight:700; text-decoration:none; }
+    .symbol-link:hover { color:var(--green); text-decoration:underline; }
+    .table-score { font:700 16px "Space Grotesk",sans-serif; }
+    .table-recommendation { max-width:260px; overflow:hidden; text-overflow:ellipsis; }
+    .table-actions { display:flex; align-items:center; justify-content:flex-end; gap:10px; }
     .calibration-note { margin:14px 0 0; color:var(--muted); font-size:12px; }
     .freshness-warning { padding:18px; border-left:5px solid var(--red); border-radius:6px; background:var(--red-soft); color:#7a271a; font-weight:600; }
     .skeleton { position:relative; overflow:hidden; border-radius:6px; background:#e4e8e2; }
@@ -108,7 +123,7 @@
     <div class="status-bar"><time id="dataTimestamp" class="data-timestamp">Loading timestamp…</time><p id="dataStatus" class="meta" role="status" aria-live="polite"></p></div>
     <section><div class="section-header"><h2>Market conditions</h2><p class="section-note">Environment for long swing trades</p></div><div id="marketConditionSummary"></div><div class="conditions-grid" id="marketConditions"></div></section>
     <section><div class="section-header"><h2>Watchlist</h2><p class="section-note">Stored on this device</p></div><div id="watchlist" class="watchlist"></div></section>
-    <section><div class="section-header"><div><h2 id="candidateTitle">Top bullish setups</h2><p id="universeSummary" class="section-note"></p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div id="topPicks" class="candidate-grid"></div></section>
+    <section><div class="section-header"><div><h2 id="candidateTitle">Bullish universe</h2><p id="universeSummary" class="section-note"></p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div id="topPicks"></div></section>
     <section><div class="section-header"><h2>Side-by-side comparison</h2><p id="comparisonCount" class="section-note">0 of 3 selected</p></div><div id="comparison" class="comparison"><p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p></div></section>
     <section><div class="section-header"><h2>Historical calibration</h2><p id="backtestHorizon" class="section-note">Cash technical score</p></div><div id="backtest" class="calibration"><p class="meta">Calibration data is unavailable until the next scanner refresh.</p></div></section>
     <p class="disclaimer">Educational scanner only. Market data can be delayed or unavailable. This is not financial advice.</p>
@@ -121,6 +136,7 @@
     let scannerData = null;
     let selectedSymbols = [];
     let setupMode = "bullish";
+    let universeSort = { key: "score", direction: "desc" };
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[character]);
 
     function parseScannerDate(value) {
@@ -187,7 +203,7 @@
     function showRefreshSkeletons() {
       document.getElementById("marketConditionSummary").innerHTML = '<div class="skeleton skeleton-summary" aria-hidden="true"></div>';
       document.getElementById("marketConditions").innerHTML = '<div class="skeleton skeleton-conditions" aria-hidden="true"></div>';
-      document.getElementById("topPicks").innerHTML = Array.from({ length: 3 }, () => '<div class="skeleton skeleton-card" aria-hidden="true"></div>').join("");
+      document.getElementById("topPicks").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
       document.getElementById("comparison").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
       document.getElementById("backtest").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
     }
@@ -339,24 +355,57 @@
         <p class="calibration-note">${escapeHtml(backtest.observation_count)} observations across ${escapeHtml((backtest.symbols || []).join(", "))}. Historical cash-score calibration only; excludes F&amp;O, fundamentals, costs, and slippage.</p>`;
     }
 
+    const universeColumns = [
+      ["rank", "Rank"], ["symbol", "Symbol"], ["score", "Score"], ["recommendation", "Recommendation"],
+      ["futures_price_change_pct", "Futures"], ["futures_oi_change_pct", "OI change"], ["pcr", "PCR"],
+      ["return_5d", "5-day"], ["sector_relative_strength_pct", "Sector relative"], ["estimated_slippage_bps", "Slippage"],
+      ["gap_pct", "Gap"], ["event_risk", "Event risk"]
+    ];
+
+    function sortUniverse(stocks) {
+      const ranked = stocks.map((stock, index) => ({ ...stock, rank: index + 1 }));
+      const multiplier = universeSort.direction === "asc" ? 1 : -1;
+      return ranked.sort((left, right) => {
+        const leftValue = left[universeSort.key];
+        const rightValue = right[universeSort.key];
+        if (leftValue == null) return rightValue == null ? 0 : 1;
+        if (rightValue == null) return -1;
+        const comparison = typeof leftValue === "number" && typeof rightValue === "number"
+          ? leftValue - rightValue
+          : String(leftValue).localeCompare(String(rightValue), undefined, { numeric: true });
+        return comparison * multiplier || left.symbol.localeCompare(right.symbol);
+      });
+    }
+
+    function sortHeader(key, label) {
+      const active = universeSort.key === key;
+      const direction = active ? universeSort.direction : "none";
+      const indicator = active ? (direction === "asc" ? "↑" : "↓") : "";
+      return `<th scope="col" aria-sort="${direction === "none" ? "none" : direction === "asc" ? "ascending" : "descending"}"><button class="sort-button" type="button" data-sort="${key}">${escapeHtml(label)}<span class="sort-indicator" aria-hidden="true">${indicator}</span></button></th>`;
+    }
+
     function renderCandidates(stocks) {
       if (!stocks.length) {
         document.getElementById("topPicks").innerHTML = '<div class="freshness-warning">This setup mode is unavailable until the next scanner refresh.</div>';
         return;
       }
-      document.getElementById("topPicks").innerHTML = stocks.map((stock, index) => `
-        <article class="card" style="--score-color:${scoreColor(stock.score, stock.setup_mode)}">
-          <a class="card-link" href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}&mode=${encodeURIComponent(stock.setup_mode || setupMode)}" aria-label="Open ${escapeHtml(stock.setup_mode || setupMode)} analysis for ${escapeHtml(stock.symbol)}"></a>
-          <div class="card-content"><p class="rank">${escapeHtml(titleCase(stock.setup_mode || setupMode))} rank ${index + 1}</p><div class="candidate-title"><h3>${escapeHtml(stock.symbol)}</h3><span class="score">${Number(stock.score).toFixed(1)}</span></div><p class="recommendation">${escapeHtml(stock.recommendation)}</p><div class="intelligence">
-            <div class="intel-item"><div class="intel-label">Sector relative</div><div class="intel-value">${percent(stock.sector_relative_strength_pct)} · ${escapeHtml(stock.sector || "N/A")}</div></div>
-            <div class="intel-item"><div class="intel-label">Liquidity / slippage</div><div class="intel-value">${escapeHtml(titleCase(stock.liquidity_tier))} · ${stock.estimated_slippage_bps ?? "N/A"} bps</div></div>
-            <div class="intel-item"><div class="intel-label">Opening gap</div><div class="intel-value ${stock.gap_extended ? "risk-flag" : ""}">${percent(stock.gap_pct)}${stock.gap_extended ? " · extended" : ""}</div></div>
-            <div class="intel-item"><div class="intel-label">Option walls</div><div class="intel-value">Put ${stock.put_oi_wall ?? "N/A"} · Call ${stock.call_oi_wall ?? "N/A"}</div></div>
-            <div class="intel-item"><div class="intel-label">Event risk</div><div class="intel-value ${stock.event_risk ? "risk-flag" : ""}">${stock.event_risk_status === "unavailable" ? "News evidence unavailable" : stock.event_risk ? escapeHtml((stock.event_categories || []).join(", ")) : "None detected"}</div></div>
-            <div class="intel-item"><div class="intel-label">Near-ATM PCR</div><div class="intel-value">${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</div></div>
-          </div><ul class="reasons">${(stock.reasons || []).slice(0, 6).map(reason => `<li>${escapeHtml(reason)}</li>`).join("")}</ul></div>
-          <div class="card-controls"><button class="watch-button" type="button" data-watch="${escapeHtml(stock.symbol)}" aria-pressed="false">Watch</button><label class="compare-label"><input class="compare-input" type="checkbox" data-compare="${escapeHtml(stock.symbol)}">Compare</label></div>
-        </article>`).join("");
+      const sortedStocks = sortUniverse(stocks);
+      document.getElementById("topPicks").innerHTML = `<div class="universe-table-wrap"><table class="universe-table">
+        <thead><tr>${universeColumns.map(column => sortHeader(...column)).join("")}<th scope="col">Actions</th></tr></thead>
+        <tbody>${sortedStocks.map(stock => `
+          <tr>
+            <td>${stock.rank}</td>
+            <td><a class="symbol-link" href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}&mode=${encodeURIComponent(stock.setup_mode || setupMode)}">${escapeHtml(stock.symbol)}</a></td>
+            <td><span class="table-score" style="color:${scoreColor(stock.score, stock.setup_mode)}">${Number(stock.score).toFixed(1)}</span></td>
+            <td class="table-recommendation" title="${escapeHtml(stock.recommendation)}">${escapeHtml(stock.recommendation)}</td>
+            <td>${percent(stock.futures_price_change_pct)}</td><td>${percent(stock.futures_oi_change_pct)}</td>
+            <td>${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</td><td>${percent(stock.return_5d)}</td>
+            <td>${percent(stock.sector_relative_strength_pct)}</td><td>${stock.estimated_slippage_bps == null ? "N/A" : `${stock.estimated_slippage_bps} bps`}</td>
+            <td class="${stock.gap_extended ? "risk-flag" : ""}">${percent(stock.gap_pct)}</td>
+            <td class="${stock.event_risk ? "risk-flag" : ""}">${stock.event_risk_status === "unavailable" ? "Unavailable" : stock.event_risk ? "Detected" : "None"}</td>
+            <td><div class="table-actions"><button class="watch-button" type="button" data-watch="${escapeHtml(stock.symbol)}" aria-pressed="false">Watch</button><label class="compare-label"><input class="compare-input" type="checkbox" data-compare="${escapeHtml(stock.symbol)}" ${selectedSymbols.includes(stock.symbol) ? "checked" : ""}>Compare</label></div></td>
+          </tr>`).join("")}</tbody>
+      </table></div>`;
       syncWatchButtons();
     }
 
@@ -364,7 +413,7 @@
       document.getElementById("comparisonCount").textContent = `${selectedSymbols.length} of 3 selected`;
       const target = document.getElementById("comparison");
       if (selectedSymbols.length < 2) { target.innerHTML = '<p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p>'; return; }
-      const activeStocks = scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || [];
+      const activeStocks = scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || [];
       const stocks = selectedSymbols.map(symbol => activeStocks.find(stock => stock.symbol === symbol)).filter(Boolean);
       target.innerHTML = `<div class="comparison-grid" style="--count:${stocks.length}">${stocks.map(stock => `
         <div class="comparison-column"><h3>${escapeHtml(stock.symbol)}</h3>
@@ -401,7 +450,7 @@
       document.getElementById("universeSummary").textContent = universe
         ? `${universe.eligible_count ?? universe.scanned_count} eligible of ${universe.scanned_count} scanned · ${universe.source}`
         : "Select two or three to compare";
-      renderCandidates(scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || []);
+      renderCandidates(scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || []);
     }
 
     async function loadScannerData() {
@@ -469,6 +518,14 @@
       if (button) setWatchlist(getWatchlist().filter(symbol => symbol !== button.dataset.remove));
     });
     document.getElementById("topPicks").addEventListener("click", event => {
+      const sort = event.target.closest("[data-sort]");
+      if (sort) {
+        universeSort = universeSort.key === sort.dataset.sort
+          ? { key: universeSort.key, direction: universeSort.direction === "asc" ? "desc" : "asc" }
+          : { key: sort.dataset.sort, direction: sort.dataset.sort === "symbol" || sort.dataset.sort === "recommendation" ? "asc" : "desc" };
+        renderCandidates(scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || []);
+        return;
+      }
       const watch = event.target.closest("[data-watch]");
       if (watch) {
         const values = getWatchlist();
@@ -486,9 +543,10 @@
       if (!button || !scannerData) return;
       setupMode = button.dataset.mode;
       selectedSymbols = [];
+      universeSort = { key: "score", direction: "desc" };
       document.querySelectorAll("[data-mode]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
-      document.getElementById("candidateTitle").textContent = `Top ${setupMode} setups`;
-      renderCandidates(scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || []);
+      document.getElementById("candidateTitle").textContent = `${titleCase(setupMode)} universe`;
+      renderCandidates(scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || []);
       renderComparison();
     });
     document.getElementById("refreshData").addEventListener("click", refreshScannerData);
