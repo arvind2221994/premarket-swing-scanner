@@ -143,7 +143,7 @@
       text-align: left;
     }
 
-    .suggestion-button:hover, .suggestion-button:focus { background: var(--green-soft); }
+    .suggestion-button:hover, .suggestion-button:focus, [role="option"][aria-selected="true"] .suggestion-button { background: var(--green-soft); }
     .suggestion-symbol { font-family: "Space Grotesk", sans-serif; font-weight: 700; }
     .suggestion-name { color: var(--muted); overflow-wrap: anywhere; }
 
@@ -646,6 +646,7 @@
     let suggestionTimer = null;
     let suggestionRequest = null;
     let suggestionLoading = false;
+    let activeSuggestionIndex = -1;
     let analysisLoading = false;
     let currentTradePlan = null;
 
@@ -685,6 +686,8 @@
 
     function closeSuggestions() {
       suggestionsElement.innerHTML = "";
+      activeSuggestionIndex = -1;
+      input.removeAttribute("aria-activedescendant");
       input.setAttribute("aria-expanded", "false");
     }
 
@@ -698,8 +701,10 @@
     }
 
     function renderSuggestions(suggestions) {
-      suggestionsElement.innerHTML = suggestions.map(({ symbol, name }) => `
-        <li role="option">
+      activeSuggestionIndex = -1;
+      input.removeAttribute("aria-activedescendant");
+      suggestionsElement.innerHTML = suggestions.map(({ symbol, name }, index) => `
+        <li id="tickerSuggestion-${index}" role="option" aria-selected="false">
           <button class="suggestion-button" type="button" data-symbol="${escapeHtml(symbol)}" data-name="${escapeHtml(name)}">
             <span class="suggestion-symbol">${escapeHtml(symbol)}</span>
             <span class="suggestion-name">${escapeHtml(name)}</span>
@@ -707,6 +712,28 @@
         </li>
       `).join("");
       input.setAttribute("aria-expanded", suggestions.length ? "true" : "false");
+    }
+
+    function setActiveSuggestion(index) {
+      const options = [...suggestionsElement.querySelectorAll('[role="option"]')];
+      if (!options.length) return;
+      activeSuggestionIndex = (index + options.length) % options.length;
+      options.forEach((option, optionIndex) => {
+        option.setAttribute("aria-selected", String(optionIndex === activeSuggestionIndex));
+      });
+      const activeOption = options[activeSuggestionIndex];
+      input.setAttribute("aria-activedescendant", activeOption.id);
+      activeOption.scrollIntoView({ block: "nearest" });
+    }
+
+    function selectSuggestion(option) {
+      confirmedTicker = { symbol: option.dataset.symbol, name: option.dataset.name };
+      input.value = confirmedTicker.symbol;
+      closeSuggestions();
+      status.className = "status";
+      status.textContent = `${confirmedTicker.name} maps to ${confirmedTicker.symbol}. Select Analyze stock to proceed.`;
+      updateAnalysisControls();
+      button.focus();
     }
 
     async function loadSuggestions(query) {
@@ -802,10 +829,23 @@
         <p class="meta">Largest call wall: ${number(fno.call_oi_wall, 0)} · Largest put wall: ${number(fno.put_oi_wall, 0)}</p>`;
     }
 
+    function formatTradingDate(value) {
+      const [year, month, day] = String(value).split("-").map(Number);
+      const date = new Date(Date.UTC(year, month - 1, day));
+      if (!year || !month || !day || Number.isNaN(date.getTime())) return value;
+      return new Intl.DateTimeFormat("en-US", {
+        weekday: "long",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        timeZone: "UTC"
+      }).format(date);
+    }
+
     function renderDailyChange(change) {
       const scoreChange = Number(change?.score_change || 0);
       document.getElementById("comparisonDate").textContent = change?.previous_date
-        ? `Compared with the previous trading session, ${change.previous_date}`
+        ? `Compared with the previous trading session, ${formatTradingDate(change.previous_date)}`
         : "Previous-session comparison unavailable";
 
       const scoreElement = document.getElementById("scoreChange");
@@ -1061,13 +1101,7 @@
     suggestionsElement.addEventListener("click", event => {
       const option = event.target.closest("button[data-symbol]");
       if (!option) return;
-      confirmedTicker = { symbol: option.dataset.symbol, name: option.dataset.name };
-      input.value = confirmedTicker.symbol;
-      closeSuggestions();
-      status.className = "status";
-      status.textContent = `${confirmedTicker.name} maps to ${confirmedTicker.symbol}. Select Analyze stock to proceed.`;
-      updateAnalysisControls();
-      button.focus();
+      selectSuggestion(option);
     });
 
     recentList.addEventListener("click", event => {
@@ -1098,7 +1132,19 @@
     });
 
     input.addEventListener("keydown", event => {
-      if (event.key === "Escape") closeSuggestions();
+      const options = [...suggestionsElement.querySelectorAll("button[data-symbol]")];
+      if (event.key === "ArrowDown" && options.length) {
+        event.preventDefault();
+        setActiveSuggestion(activeSuggestionIndex + 1);
+      } else if (event.key === "ArrowUp" && options.length) {
+        event.preventDefault();
+        setActiveSuggestion(activeSuggestionIndex < 0 ? options.length - 1 : activeSuggestionIndex - 1);
+      } else if (event.key === "Enter" && activeSuggestionIndex >= 0) {
+        event.preventDefault();
+        selectSuggestion(options[activeSuggestionIndex]);
+      } else if (event.key === "Escape") {
+        closeSuggestions();
+      }
     });
 
     renderRecentTickers();
