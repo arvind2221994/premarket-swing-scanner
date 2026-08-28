@@ -37,6 +37,46 @@ def classify_trend(close, sma20, sma50):
     return "mixed"
 
 
+def _unavailable_yahoo_trend(ticker, fetched_at):
+    return {
+        "ticker": ticker,
+        "close": None,
+        "daily_change_pct": None,
+        "return_5d_pct": None,
+        "sma20": None,
+        "sma50": None,
+        "trend": "unavailable",
+        "observed_at": None,
+        "fetched_at": fetched_at,
+        "source": "Yahoo Finance",
+        "error": "Yahoo Finance data is temporarily unavailable.",
+    }
+
+
+def _yahoo_trend_snapshot(ticker, closes, fetched_at):
+    closes = closes.dropna()
+    if len(closes) < 50:
+        raise ValueError("Fewer than 50 daily closes returned")
+
+    close = float(closes.iloc[-1])
+    previous_close = float(closes.iloc[-2])
+    five_session_close = float(closes.iloc[-6])
+    sma20 = float(closes.tail(20).mean())
+    sma50 = float(closes.tail(50).mean())
+    return {
+        "ticker": ticker,
+        "close": round(close, 4),
+        "daily_change_pct": round((close / previous_close - 1) * 100, 2),
+        "return_5d_pct": round((close / five_session_close - 1) * 100, 2),
+        "sma20": round(sma20, 4),
+        "sma50": round(sma50, 4),
+        "trend": classify_trend(close, sma20, sma50),
+        "observed_at": closes.index[-1].isoformat(),
+        "fetched_at": fetched_at,
+        "source": "Yahoo Finance",
+    }
+
+
 def fetch_yahoo_trend(ticker):
     fetched_at = datetime.now(timezone.utc).isoformat()
     try:
@@ -49,44 +89,50 @@ def fetch_yahoo_trend(ticker):
                 multi_level_index=False,
                 auto_adjust=False,
             )
-            closes = data["Close"].dropna() if data is not None else None
-            if closes is None or len(closes) < 50:
+            closes = data["Close"] if data is not None else None
+            if closes is None:
                 raise ValueError("Fewer than 50 daily closes returned")
             return closes
 
         closes = call_with_resilience("Yahoo Finance", download_trend)
-
-        close = float(closes.iloc[-1])
-        previous_close = float(closes.iloc[-2])
-        five_session_close = float(closes.iloc[-6])
-        sma20 = float(closes.tail(20).mean())
-        sma50 = float(closes.tail(50).mean())
-        return {
-            "ticker": ticker,
-            "close": round(close, 4),
-            "daily_change_pct": round((close / previous_close - 1) * 100, 2),
-            "return_5d_pct": round((close / five_session_close - 1) * 100, 2),
-            "sma20": round(sma20, 4),
-            "sma50": round(sma50, 4),
-            "trend": classify_trend(close, sma20, sma50),
-            "observed_at": closes.index[-1].isoformat(),
-            "fetched_at": fetched_at,
-            "source": "Yahoo Finance",
-        }
+        return _yahoo_trend_snapshot(ticker, closes, fetched_at)
     except (UpstreamUnavailableError, KeyError, TypeError, ValueError, IndexError):
+        return _unavailable_yahoo_trend(ticker, fetched_at)
+
+
+def fetch_yahoo_trends(tickers):
+    fetched_at = datetime.now(timezone.utc).isoformat()
+    unique_tickers = list(dict.fromkeys(tickers))
+    try:
+        def download_trends():
+            data = yf.download(
+                unique_tickers,
+                period="6mo",
+                interval="1d",
+                progress=False,
+                group_by="ticker",
+                auto_adjust=False,
+            )
+            if data is None or data.empty:
+                raise ValueError("No Yahoo Finance history returned")
+            return data
+
+        data = call_with_resilience("Yahoo Finance", download_trends)
+    except (UpstreamUnavailableError, TypeError, ValueError):
         return {
-            "ticker": ticker,
-            "close": None,
-            "daily_change_pct": None,
-            "return_5d_pct": None,
-            "sma20": None,
-            "sma50": None,
-            "trend": "unavailable",
-            "observed_at": None,
-            "fetched_at": fetched_at,
-            "source": "Yahoo Finance",
-            "error": "Yahoo Finance data is temporarily unavailable.",
+            ticker: _unavailable_yahoo_trend(ticker, fetched_at)
+            for ticker in unique_tickers
         }
+
+    trends = {}
+    for ticker in unique_tickers:
+        try:
+            trends[ticker] = _yahoo_trend_snapshot(
+                ticker, data[ticker]["Close"], fetched_at
+            )
+        except (KeyError, TypeError, ValueError, IndexError):
+            trends[ticker] = _unavailable_yahoo_trend(ticker, fetched_at)
+    return trends
 
 
 def _as_int(value):
@@ -219,11 +265,19 @@ def assess_long_swing_environment(nifty, vix, breadth, sectors, global_score):
 def build_market_context(global_cues=None):
     global_cues = global_cues or fetch_global_cues()
     global_score, global_reasons = score_global_cues(global_cues)
-    nifty = fetch_yahoo_trend("^NSEI")
-    vix = fetch_yahoo_trend("^INDIAVIX")
+    trend_tickers = [
+        "^NSEI",
+        "^INDIAVIX",
+        *SECTOR_TICKERS.values(),
+        "INR=X",
+        "CL=F",
+    ]
+    trends = fetch_yahoo_trends(trend_tickers)
+    nifty = trends["^NSEI"]
+    vix = trends["^INDIAVIX"]
     breadth = fetch_market_breadth()
     sectors = {
-        name: fetch_yahoo_trend(ticker)
+        name: trends[ticker]
         for name, ticker in SECTOR_TICKERS.items()
     }
     context = {
@@ -233,8 +287,8 @@ def build_market_context(global_cues=None):
         "market_breadth": breadth,
         "sector_indices": sectors,
         "macro": {
-            "usd_inr": fetch_yahoo_trend("INR=X"),
-            "wti_crude": fetch_yahoo_trend("CL=F"),
+            "usd_inr": trends["INR=X"],
+            "wti_crude": trends["CL=F"],
         },
         "global_cues": {
             **global_cues,

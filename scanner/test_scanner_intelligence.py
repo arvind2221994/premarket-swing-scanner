@@ -2,12 +2,15 @@ import importlib.util
 import sys
 import unittest
 from pathlib import Path
+from unittest.mock import Mock, patch
 
 import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+from fundamentals import fetch_screener_data
 from fno_trade_analyzer import _option_oi_profile, analyze_cash, build_trade_plan
+from market_context import SECTOR_TICKERS, build_market_context
 from news import classify_news_article
 from scoring import calculate_stock_score
 
@@ -18,6 +21,54 @@ scanner_job = importlib.util.module_from_spec(scanner_spec)
 scanner_spec.loader.exec_module(scanner_job)
 add_sector_relative_strength = scanner_job.add_sector_relative_strength
 select_liquid_fno_symbols = scanner_job.select_liquid_fno_symbols
+
+
+class FundamentalDataTests(unittest.TestCase):
+    @patch("fundamentals.call_with_resilience")
+    def test_derives_debt_to_equity_from_latest_balance_sheet(self, request):
+        response = Mock(status_code=200)
+        response.text = """
+            <h1>Example Ltd</h1>
+            <ul id="top-ratios">
+              <li><span class="name">Current Price</span><span class="number">200</span></li>
+              <li><span class="name">Book Value</span><span class="number">100</span></li>
+            </ul>
+            <section id="balance-sheet">
+              <table class="data-table"><tbody>
+                <tr><td>Equity Capital</td><td>40</td><td>50</td></tr>
+                <tr><td>Reserves</td><td>120</td><td>150</td></tr>
+                <tr><td>Borrowings +</td><td>80</td><td>100</td></tr>
+              </tbody></table>
+            </section>
+        """
+        request.return_value = response
+
+        metrics = fetch_screener_data("EXAMPLE")
+
+        self.assertEqual(metrics["de_ratio"], 0.5)
+
+
+class MarketContextTests(unittest.TestCase):
+    @patch("market_context.fetch_market_breadth")
+    @patch("market_context.fetch_yahoo_trends")
+    def test_fetches_market_trends_in_one_batch(self, fetch_trends, fetch_breadth):
+        tickers = ["^NSEI", "^INDIAVIX", *SECTOR_TICKERS.values(), "INR=X", "CL=F"]
+        fetch_trends.return_value = {
+            ticker: {"ticker": ticker, "trend": "mixed", "close": 1}
+            for ticker in tickers
+        }
+        fetch_breadth.return_value = {"advance_pct": 50}
+
+        context = build_market_context({
+            "nasdaq_change_pct": 0,
+            "spx_change_pct": 0,
+            "dow_change_pct": 0,
+            "gift_nifty_change_pct": 0,
+        })
+
+        fetch_trends.assert_called_once_with(tickers)
+        self.assertEqual(context["macro"]["usd_inr"]["ticker"], "INR=X")
+        self.assertEqual(context["macro"]["wti_crude"]["ticker"], "CL=F")
 
 
 class UniverseTests(unittest.TestCase):

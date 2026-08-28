@@ -114,7 +114,8 @@
       font-weight: 600;
     }
 
-    button:disabled { cursor: wait; opacity: 0.65; }
+    button:disabled { cursor: not-allowed; opacity: 0.5; }
+    #submitButton[data-loading="true"] { cursor: wait; }
 
     .suggestions {
       z-index: 10;
@@ -323,7 +324,53 @@
     }
 
     .metric { min-width: 0; }
-    .metric-label { color: var(--muted); font-size: 12px; margin-bottom: 3px; }
+    .metric-label { display: flex; align-items: center; gap: 5px; color: var(--muted); font-size: 12px; margin-bottom: 3px; }
+    .metric-help {
+      position: relative;
+      display: inline-grid;
+      place-items: center;
+      flex: 0 0 16px;
+      width: 16px;
+      height: 16px;
+      min-height: 16px;
+      padding: 0;
+      border: 1px solid var(--muted);
+      border-radius: 50%;
+      background: var(--surface);
+      color: var(--muted);
+      font: 700 10px/1 "IBM Plex Sans", sans-serif;
+      cursor: help;
+    }
+    .metric-help:hover, .metric-help:focus {
+      border-color: var(--blue);
+      outline: none;
+      background: rgba(23, 105, 170, 0.08);
+      color: var(--blue);
+    }
+    .metric-help:focus-visible { box-shadow: 0 0 0 3px rgba(23, 105, 170, 0.18); }
+    .metric-help::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      z-index: 10;
+      left: 50%;
+      bottom: calc(100% + 8px);
+      width: min(240px, 70vw);
+      padding: 9px 10px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      background: #17211c;
+      box-shadow: 0 8px 24px rgba(23, 33, 28, 0.2);
+      color: #fff;
+      font: 12px/1.4 "Space Grotesk", sans-serif;
+      text-align: left;
+      transform: translateX(-50%);
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .metric:nth-child(odd) .metric-help::after { left: 0; transform: none; }
+    .metric:nth-child(even) .metric-help::after { right: 0; left: auto; transform: none; }
+    .metric-help:hover::after, .metric-help:focus::after { opacity: 1; visibility: visible; }
     .metric-value { font: 600 18px/1.25 "Space Grotesk", sans-serif; overflow-wrap: anywhere; }
     .option-walls { display:grid; gap:9px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
     .wall-row { display:grid; grid-template-columns:62px minmax(0,1fr) minmax(0,1fr); gap:8px; align-items:center; }
@@ -430,7 +477,7 @@
         <input id="ticker" name="ticker" maxlength="80" placeholder="Ticker or company name, for example TCS" autocomplete="off" required aria-label="NSE ticker or company name" role="combobox" aria-autocomplete="list" aria-controls="tickerSuggestions" aria-expanded="false">
         <ul id="tickerSuggestions" class="suggestions" role="listbox"></ul>
       </div>
-      <button id="submitButton" type="submit">Analyze stock</button>
+      <button id="submitButton" type="submit" disabled>Analyze stock</button>
     </form>
     <section id="recentStocks" class="recent" hidden aria-labelledby="recentLabel">
       <p id="recentLabel" class="recent-label">Recently viewed</p>
@@ -539,6 +586,8 @@
     let confirmedTicker = null;
     let suggestionTimer = null;
     let suggestionRequest = null;
+    let suggestionLoading = false;
+    let analysisLoading = false;
     let currentTradePlan = null;
 
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({
@@ -580,6 +629,15 @@
       input.setAttribute("aria-expanded", "false");
     }
 
+    function updateAnalysisControls() {
+      button.disabled = analysisLoading || suggestionLoading || !confirmedTicker;
+      button.dataset.loading = String(analysisLoading || suggestionLoading);
+      button.textContent = analysisLoading ? "Analyzing…" : suggestionLoading ? "Searching…" : "Analyze stock";
+      recentList.querySelectorAll("button[data-ticker]").forEach(recentButton => {
+        recentButton.disabled = analysisLoading;
+      });
+    }
+
     function renderSuggestions(suggestions) {
       suggestionsElement.innerHTML = suggestions.map(({ symbol, name }) => `
         <li role="option">
@@ -594,24 +652,46 @@
 
     async function loadSuggestions(query) {
       suggestionRequest?.abort();
-      suggestionRequest = new AbortController();
+      const request = new AbortController();
+      suggestionRequest = request;
+      suggestionLoading = true;
+      updateAnalysisControls();
+      status.className = "status loading";
+      status.textContent = "Finding matching NSE companies…";
       try {
         const response = await fetch(`${API_BASE}/api/tickers?q=${encodeURIComponent(query)}`, {
-          signal: suggestionRequest.signal
+          signal: request.signal
         });
         if (!response.ok) throw new Error("Ticker search failed");
         const data = await response.json();
-        if (input.value.trim() === query) renderSuggestions(data.suggestions || []);
+        if (suggestionRequest === request && input.value.trim() === query) {
+          const suggestions = data.suggestions || [];
+          renderSuggestions(suggestions);
+          status.className = suggestions.length ? "status" : "status error";
+          status.textContent = suggestions.length
+            ? "Select a company from the suggestions to enable analysis."
+            : "No matching NSE company was found. Check the name or ticker and try again.";
+        }
         return data.suggestions || [];
       } catch (error) {
-        if (error.name !== "AbortError") closeSuggestions();
+        if (error.name !== "AbortError" && suggestionRequest === request) {
+          closeSuggestions();
+          status.className = "status error";
+          status.textContent = "Company search is temporarily unavailable. Try again shortly.";
+        }
         return [];
+      } finally {
+        if (suggestionRequest === request) {
+          suggestionRequest = null;
+          suggestionLoading = false;
+          updateAnalysisControls();
+        }
       }
     }
 
     function metrics(targetId, entries) {
-      document.getElementById(targetId).innerHTML = entries.map(([label, value]) => `
-        <div class="metric"><div class="metric-label">${escapeHtml(label)}</div><div class="metric-value">${escapeHtml(value)}</div></div>
+      document.getElementById(targetId).innerHTML = entries.map(([label, value, tooltip]) => `
+        <div class="metric"><div class="metric-label">${escapeHtml(label)}${tooltip ? `<button class="metric-help" type="button" title="${escapeHtml(tooltip)}" aria-label="About ${escapeHtml(label)}" data-tooltip="${escapeHtml(tooltip)}">i</button>` : ""}</div><div class="metric-value">${escapeHtml(value)}</div></div>
       `).join("");
     }
 
@@ -827,12 +907,12 @@
       renderOptionWalls(fno);
 
       metrics("fundamentalMetrics", [
-        ["P/E", number(fundamentals.pe_ratio)],
-        ["P/B", number(fundamentals.pb_ratio)],
-        ["ROCE", fundamentals.roce == null ? "N/A" : `${number(fundamentals.roce)}%`],
-        ["ROE", fundamentals.roe == null ? "N/A" : `${number(fundamentals.roe)}%`],
-        ["Debt / equity", number(fundamentals.de_ratio)],
-        ["Score", assessment.score == null ? "Excluded" : `${number(assessment.score, 1)}/10`]
+        ["P/E", number(fundamentals.pe_ratio), "Price-to-earnings ratio: share price divided by earnings per share. Compare it with similar companies."],
+        ["P/B", number(fundamentals.pb_ratio), "Price-to-book ratio: share price divided by book value per share. Lower values can indicate a cheaper valuation."],
+        ["ROCE", fundamentals.roce == null ? "N/A" : `${number(fundamentals.roce)}%`, "Return on capital employed: operating profit generated from the capital used by the business."],
+        ["ROE", fundamentals.roe == null ? "N/A" : `${number(fundamentals.roe)}%`, "Return on equity: profit generated from shareholders' equity."],
+        ["Debt / equity", number(fundamentals.de_ratio), "Borrowings divided by shareholders' equity. Lower values generally indicate less financial leverage."],
+        ["Score", assessment.score == null ? "Excluded" : `${number(assessment.score, 1)}/10`, "Composite fundamentals score based on valuation, returns, leverage, and dividend yield. Missing data can exclude the score."]
       ]);
 
       metrics("riskMetrics", [
@@ -865,7 +945,9 @@
     }
 
     async function analyzeTicker(ticker) {
-      button.disabled = true;
+      if (analysisLoading) return;
+      analysisLoading = true;
+      updateAnalysisControls();
       reportElement.hidden = true;
       status.className = "status loading";
       status.textContent = "Downloading NSE sessions and calculating the report. The first run can take up to two minutes.";
@@ -885,36 +967,32 @@
           ? "The analysis service is unavailable. It may be starting up; wait a minute and try again."
           : error.message;
       } finally {
-        button.disabled = false;
+        analysisLoading = false;
+        updateAnalysisControls();
       }
     }
 
     form.addEventListener("submit", event => {
       event.preventDefault();
-      const query = input.value.trim();
-      const directTicker = /^[A-Za-z0-9&-]{1,20}$/.test(query) ? query.toUpperCase() : null;
-      const ticker = confirmedTicker?.symbol || directTicker;
-      if (ticker) {
+      if (confirmedTicker && !suggestionLoading && !analysisLoading) {
         closeSuggestions();
-        analyzeTicker(ticker);
+        analyzeTicker(confirmedTicker.symbol);
         return;
       }
-
-      loadSuggestions(query).then(suggestions => {
-        status.className = suggestions.length ? "status" : "status error";
-        status.textContent = suggestions.length
-          ? "Select the matching company to confirm its NSE ticker before analysis."
-          : "No matching NSE ticker was found. Try the listed ticker symbol.";
-      });
     });
 
     input.addEventListener("input", () => {
       confirmedTicker = null;
+      updateAnalysisControls();
       status.textContent = "";
       status.className = "status";
       clearTimeout(suggestionTimer);
       const query = input.value.trim();
       if (query.length < 2) {
+        suggestionRequest?.abort();
+        suggestionRequest = null;
+        suggestionLoading = false;
+        updateAnalysisControls();
         closeSuggestions();
         return;
       }
@@ -929,6 +1007,7 @@
       closeSuggestions();
       status.className = "status";
       status.textContent = `${confirmedTicker.name} maps to ${confirmedTicker.symbol}. Select Analyze stock to proceed.`;
+      updateAnalysisControls();
       button.focus();
     });
 
@@ -938,6 +1017,7 @@
       input.value = recentButton.dataset.ticker;
       confirmedTicker = { symbol: recentButton.dataset.ticker, name: recentButton.dataset.ticker };
       closeSuggestions();
+      updateAnalysisControls();
       analyzeTicker(recentButton.dataset.ticker);
     });
 
@@ -953,6 +1033,7 @@
     });
 
     renderRecentTickers();
+    updateAnalysisControls();
 
     const initialTicker = initialParams.get("ticker");
     if (initialTicker) {

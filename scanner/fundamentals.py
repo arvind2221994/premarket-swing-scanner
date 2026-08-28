@@ -7,6 +7,38 @@ from resilience import call_with_resilience
 FUNDAMENTAL_FIELDS = ("pe_ratio", "pb_ratio", "roce", "roe", "de_ratio")
 
 
+def _latest_balance_sheet_value(soup, row_name: str):
+    balance_sheet = soup.find("section", id="balance-sheet")
+    if not balance_sheet:
+        return None
+
+    for row in balance_sheet.select("table.data-table tr"):
+        cells = row.find_all("td")
+        if not cells or not cells[0].get_text(" ", strip=True).startswith(row_name):
+            continue
+        if len(cells) < 2:
+            return None
+        value = cells[-1].get_text(strip=True).replace(",", "")
+        try:
+            return float(value)
+        except ValueError:
+            return None
+    return None
+
+
+def _debt_to_equity_from_balance_sheet(soup):
+    borrowings = _latest_balance_sheet_value(soup, "Borrowings")
+    equity_capital = _latest_balance_sheet_value(soup, "Equity Capital")
+    reserves = _latest_balance_sheet_value(soup, "Reserves")
+    if borrowings is None or equity_capital is None or reserves is None:
+        return None
+
+    shareholder_equity = equity_capital + reserves
+    if shareholder_equity <= 0:
+        return None
+    return round(borrowings / shareholder_equity, 2)
+
+
 def fetch_screener_data(symbol: str) -> dict:
     """Scrapes financial metrics directly from Screener.in without login requirements."""
     clean_symbol = symbol.strip().upper()
@@ -75,6 +107,12 @@ def fetch_screener_data(symbol: str) -> dict:
         if title in {"Broad Sector", "Sector", "Broad Industry", "Industry"}:
             classification[title] = link.get_text(strip=True)
 
+    de_ratio = raw_ratios.get("Debt to equity")
+    de_ratio_source = "quick_ratio"
+    if de_ratio is None:
+        de_ratio = _debt_to_equity_from_balance_sheet(soup)
+        de_ratio_source = "balance_sheet" if de_ratio is not None else None
+
     # Extract ratios from "Key Points" or text sections if available
     metrics = {
         "symbol": clean_symbol,
@@ -91,7 +129,8 @@ def fetch_screener_data(symbol: str) -> dict:
         "roce": raw_ratios.get("ROCE"),
         "roe": raw_ratios.get("ROE"),
         "face_value": raw_ratios.get("Face Value"),
-        "de_ratio": raw_ratios.get("Debt to equity"),
+        "de_ratio": de_ratio,
+        "de_ratio_source": de_ratio_source,
     }
 
     # Calculate Price-to-Book Ratio manually if missing
