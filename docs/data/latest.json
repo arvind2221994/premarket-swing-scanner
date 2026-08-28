@@ -1,5 +1,5 @@
 {
-  "generated_at_ist": "2026-08-28 11:41:20",
+  "generated_at_ist": "2026-08-28 13:43:15",
   "data_as_of": "2026-08-27",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
@@ -7,94 +7,94 @@
     "nasdaq_change_pct": 1.57,
     "spx_change_pct": 0.72,
     "dow_change_pct": 0.2,
-    "gift_nifty_change_pct": 0.15,
+    "gift_nifty_change_pct": 0.16,
     "source_metadata": {
       "nasdaq": {
         "change_pct": 1.57,
         "observed_at": "2026-08-27T00:00:00",
-        "fetched_at": "2026-08-28T06:11:20.948834+00:00",
+        "fetched_at": "2026-08-28T08:13:15.470484+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
         "change_pct": 0.72,
         "observed_at": "2026-08-27T00:00:00",
-        "fetched_at": "2026-08-28T06:11:22.311805+00:00",
+        "fetched_at": "2026-08-28T08:13:15.768140+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
         "change_pct": 0.2,
         "observed_at": "2026-08-27T00:00:00",
-        "fetched_at": "2026-08-28T06:11:22.515727+00:00",
+        "fetched_at": "2026-08-28T08:13:15.912423+00:00",
         "source": "Yahoo Finance"
       },
       "gift_nifty": {
-        "change_pct": 0.15,
-        "observed_at": "28-Aug-2026 11:41:21",
-        "fetched_at": "2026-08-28T06:11:22.765142+00:00",
+        "change_pct": 0.16,
+        "observed_at": "28-Aug-2026 13:43:10",
+        "fetched_at": "2026-08-28T08:13:16.057157+00:00",
         "source": "NSE International Exchange"
       }
     }
   },
   "market_context": {
-    "generated_at": "2026-08-28T06:12:06.803059+00:00",
+    "generated_at": "2026-08-28T08:13:43.166002+00:00",
     "nifty_50": {
       "ticker": "^NSEI",
-      "close": 24104.0,
-      "daily_change_pct": 0.05,
-      "return_5d_pct": -0.61,
-      "sma20": 24371.7352,
-      "sma50": 24206.76,
+      "close": 24113.75,
+      "daily_change_pct": 0.1,
+      "return_5d_pct": -0.57,
+      "sma20": 24372.2227,
+      "sma50": 24206.955,
       "trend": "mixed",
       "observed_at": "2026-08-28T00:00:00",
-      "fetched_at": "2026-08-28T06:12:00.276066+00:00",
+      "fetched_at": "2026-08-28T08:13:41.526590+00:00",
       "source": "Yahoo Finance"
     },
     "india_vix": {
       "ticker": "^INDIAVIX",
-      "close": 10.8325,
-      "daily_change_pct": -2.15,
-      "return_5d_pct": -3.28,
-      "sma20": 11.5056,
-      "sma50": 12.3692,
+      "close": 10.73,
+      "daily_change_pct": -3.07,
+      "return_5d_pct": -4.2,
+      "sma20": 11.5005,
+      "sma50": 12.3672,
       "trend": "bearish",
       "observed_at": "2026-08-28T00:00:00",
-      "fetched_at": "2026-08-28T06:12:00.541184+00:00",
+      "fetched_at": "2026-08-28T08:13:41.526590+00:00",
       "source": "Yahoo Finance"
     },
     "market_breadth": {
       "universe": "NIFTY 500",
-      "advances": 217,
-      "declines": 281,
+      "advances": 223,
+      "declines": 275,
       "unchanged": 2,
-      "advance_decline_ratio": 0.77,
-      "advance_pct": 43.6,
-      "observed_at": "28-Aug-2026 11:40",
-      "fetched_at": "2026-08-28T06:12:00.705297+00:00",
+      "advance_decline_ratio": 0.81,
+      "advance_pct": 44.8,
+      "observed_at": "28-Aug-2026 13:42",
+      "fetched_at": "2026-08-28T08:13:41.993867+00:00",
       "source": "NSE India allIndices"
     },
     "sector_indices": {
       "Nifty Bank": {
         "ticker": "^NSEBANK",
-        "close": 57431.8516,
-        "daily_change_pct": -0.14,
-        "return_5d_pct": -0.57,
-        "sma20": 57643.7047,
-        "sma50": 57618.443,
+        "close": 57388.3008,
+        "daily_change_pct": -0.21,
+        "return_5d_pct": -0.65,
+        "sma20": 57641.5271,
+        "sma50": 57617.572,
         "trend": "mixed",
         "observed_at": "2026-08-28T00:00:00",
-        "fetched_at": "2026-08-28T06:12:01.342773+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty IT": {
         "ticker": "^CNXIT",
-        "close": 31037.25,
-        "daily_change_pct": 2.7,
-        "return_5d_pct": 1.65,
-        "sma20": 31021.5877,
-        "sma50": 29405.3511,
+        "close": 31185.6992,
+        "daily_change_pct": 3.19,
+        "return_5d_pct": 2.14,
+        "sma20": 31029.0102,
+        "sma50": 29408.3201,
         "trend": "bullish",
         "observed_at": "2026-08-28T00:00:00",
-        "fetched_at": "2026-08-28T06:12:01.587408+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Auto": {
@@ -106,20 +106,20 @@
         "sma50": null,
         "trend": "unavailable",
         "observed_at": null,
-        "fetched_at": "2026-08-28T06:12:01.803791+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance",
         "error": "Yahoo Finance data is temporarily unavailable."
       },
       "Nifty Pharma": {
         "ticker": "^CNXPHARMA",
-        "close": 26855.6504,
-        "daily_change_pct": 0.03,
-        "return_5d_pct": 1.88,
-        "sma20": 26554.1154,
-        "sma50": 25996.6982,
+        "close": 26901.8496,
+        "daily_change_pct": 0.2,
+        "return_5d_pct": 2.06,
+        "sma20": 26556.4254,
+        "sma50": 25997.6222,
         "trend": "bullish",
         "observed_at": "2026-08-28T00:00:00",
-        "fetched_at": "2026-08-28T06:12:03.060782+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty FMCG": {
@@ -131,7 +131,7 @@
         "sma50": null,
         "trend": "unavailable",
         "observed_at": null,
-        "fetched_at": "2026-08-28T06:12:03.269252+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance",
         "error": "Yahoo Finance data is temporarily unavailable."
       },
@@ -144,7 +144,7 @@
         "sma50": null,
         "trend": "unavailable",
         "observed_at": null,
-        "fetched_at": "2026-08-28T06:12:04.483181+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance",
         "error": "Yahoo Finance data is temporarily unavailable."
       },
@@ -157,7 +157,7 @@
         "sma50": null,
         "trend": "unavailable",
         "observed_at": null,
-        "fetched_at": "2026-08-28T06:12:05.666844+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance",
         "error": "Yahoo Finance data is temporarily unavailable."
       },
@@ -170,7 +170,7 @@
         "sma50": null,
         "trend": "unavailable",
         "observed_at": null,
-        "fetched_at": "2026-08-28T06:12:06.803020+00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
         "source": "Yahoo Finance",
         "error": "Yahoo Finance data is temporarily unavailable."
       }
@@ -178,59 +178,57 @@
     "macro": {
       "usd_inr": {
         "ticker": "INR=X",
-        "close": null,
-        "daily_change_pct": null,
-        "return_5d_pct": null,
-        "sma20": null,
-        "sma50": null,
-        "trend": "unavailable",
-        "observed_at": null,
-        "fetched_at": "2026-08-28T06:12:06.803065+00:00",
-        "source": "Yahoo Finance",
-        "error": "Yahoo Finance data is temporarily unavailable."
+        "close": 95.382,
+        "daily_change_pct": -0.05,
+        "return_5d_pct": -0.41,
+        "sma20": 95.3482,
+        "sma50": 95.516,
+        "trend": "mixed",
+        "observed_at": "2026-08-28T00:00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
+        "source": "Yahoo Finance"
       },
       "wti_crude": {
         "ticker": "CL=F",
-        "close": null,
-        "daily_change_pct": null,
-        "return_5d_pct": null,
-        "sma20": null,
-        "sma50": null,
-        "trend": "unavailable",
-        "observed_at": null,
-        "fetched_at": "2026-08-28T06:12:06.803075+00:00",
-        "source": "Yahoo Finance",
-        "error": "Yahoo Finance data is temporarily unavailable."
+        "close": 83.0,
+        "daily_change_pct": -0.63,
+        "return_5d_pct": -4.66,
+        "sma20": 82.267,
+        "sma50": 79.2912,
+        "trend": "bullish",
+        "observed_at": "2026-08-28T00:00:00",
+        "fetched_at": "2026-08-28T08:13:41.526590+00:00",
+        "source": "Yahoo Finance"
       }
     },
     "global_cues": {
       "nasdaq_change_pct": 1.57,
       "spx_change_pct": 0.72,
       "dow_change_pct": 0.2,
-      "gift_nifty_change_pct": 0.15,
+      "gift_nifty_change_pct": 0.16,
       "source_metadata": {
         "nasdaq": {
           "change_pct": 1.57,
           "observed_at": "2026-08-27T00:00:00",
-          "fetched_at": "2026-08-28T06:11:20.948834+00:00",
+          "fetched_at": "2026-08-28T08:13:15.470484+00:00",
           "source": "Yahoo Finance"
         },
         "spx": {
           "change_pct": 0.72,
           "observed_at": "2026-08-27T00:00:00",
-          "fetched_at": "2026-08-28T06:11:22.311805+00:00",
+          "fetched_at": "2026-08-28T08:13:15.768140+00:00",
           "source": "Yahoo Finance"
         },
         "dow": {
           "change_pct": 0.2,
           "observed_at": "2026-08-27T00:00:00",
-          "fetched_at": "2026-08-28T06:11:22.515727+00:00",
+          "fetched_at": "2026-08-28T08:13:15.912423+00:00",
           "source": "Yahoo Finance"
         },
         "gift_nifty": {
-          "change_pct": 0.15,
-          "observed_at": "28-Aug-2026 11:41:21",
-          "fetched_at": "2026-08-28T06:11:22.765142+00:00",
+          "change_pct": 0.16,
+          "observed_at": "28-Aug-2026 13:43:10",
+          "fetched_at": "2026-08-28T08:13:16.057157+00:00",
           "source": "NSE International Exchange"
         }
       },
@@ -256,7 +254,9 @@
     }
   },
   "backtest": {
-    "error": "Historical calibration is temporarily unavailable.",
+    "generated_at": "2026-08-28T08:13:58.518175+00:00",
+    "score_scope": "cash_technical_heuristic_only",
+    "source": "Yahoo Finance adjusted daily history",
     "symbols": [
       "HDFCBANK",
       "KOTAKBANK",
@@ -264,7 +264,137 @@
       "RELIANCE",
       "ICICIBANK"
     ],
-    "score_scope": "cash_technical_heuristic_only"
+    "start": "2021-01-01",
+    "end": "2026-08-28",
+    "forward_horizon_sessions": 10,
+    "methodology": {
+      "win": "Forward return is greater than zero at the horizon.",
+      "expectancy": "Mean forward return at the horizon.",
+      "drawdown": "Mean worst intraperiod low relative to signal close.",
+      "false_breakout": "Signal close is at or above the prior 20-day high, a later close falls below that level, and horizon return is non-positive.",
+      "regime": "Nifty close/SMA20/SMA50: bullish, bearish, or mixed."
+    },
+    "limitations": [
+      "This calibrates the cash technical score, not the live composite.",
+      "Historical F&O and point-in-time fundamentals are unavailable here; using current values would introduce look-ahead bias.",
+      "Results exclude costs, slippage, taxes, position sizing, and overlapping-signal effects."
+    ],
+    "observation_count": 6710,
+    "errors": [],
+    "overall": {
+      "observations": 6710,
+      "win_rate_pct": 52.2,
+      "expectancy_pct": 0.77,
+      "average_max_drawdown_pct": -3.76,
+      "breakout_observations": 460,
+      "false_breakout_rate_pct": 47.4
+    },
+    "by_regime": {
+      "bullish": {
+        "observations": 2795,
+        "win_rate_pct": 50.1,
+        "expectancy_pct": 0.39,
+        "average_max_drawdown_pct": -3.68,
+        "breakout_observations": 281,
+        "false_breakout_rate_pct": 47.7
+      },
+      "mixed": {
+        "observations": 2605,
+        "win_rate_pct": 50.6,
+        "expectancy_pct": 0.91,
+        "average_max_drawdown_pct": -3.71,
+        "breakout_observations": 159,
+        "false_breakout_rate_pct": 46.5
+      },
+      "bearish": {
+        "observations": 1310,
+        "win_rate_pct": 59.8,
+        "expectancy_pct": 1.33,
+        "average_max_drawdown_pct": -4.04,
+        "breakout_observations": 20,
+        "false_breakout_rate_pct": 50.0
+      }
+    },
+    "score_buckets_by_regime": {
+      "below_60": {
+        "bullish": {
+          "observations": 1027,
+          "win_rate_pct": 48.4,
+          "expectancy_pct": 0.52,
+          "average_max_drawdown_pct": -3.65,
+          "breakout_observations": 0,
+          "false_breakout_rate_pct": null
+        },
+        "mixed": {
+          "observations": 1658,
+          "win_rate_pct": 49.1,
+          "expectancy_pct": 0.53,
+          "average_max_drawdown_pct": -3.5,
+          "breakout_observations": 3,
+          "false_breakout_rate_pct": 100.0
+        },
+        "bearish": {
+          "observations": 1094,
+          "win_rate_pct": 60.6,
+          "expectancy_pct": 1.27,
+          "average_max_drawdown_pct": -4.03,
+          "breakout_observations": 0,
+          "false_breakout_rate_pct": null
+        }
+      },
+      "60_to_74_9": {
+        "bullish": {
+          "observations": 455,
+          "win_rate_pct": 52.7,
+          "expectancy_pct": 0.55,
+          "average_max_drawdown_pct": -3.74,
+          "breakout_observations": 8,
+          "false_breakout_rate_pct": 75.0
+        },
+        "mixed": {
+          "observations": 299,
+          "win_rate_pct": 54.2,
+          "expectancy_pct": 1.21,
+          "average_max_drawdown_pct": -3.87,
+          "breakout_observations": 11,
+          "false_breakout_rate_pct": 45.5
+        },
+        "bearish": {
+          "observations": 69,
+          "win_rate_pct": 50.7,
+          "expectancy_pct": 0.93,
+          "average_max_drawdown_pct": -4.53,
+          "breakout_observations": 3,
+          "false_breakout_rate_pct": 66.7
+        }
+      },
+      "75_and_above": {
+        "bullish": {
+          "observations": 1313,
+          "win_rate_pct": 50.5,
+          "expectancy_pct": 0.23,
+          "average_max_drawdown_pct": -3.68,
+          "breakout_observations": 273,
+          "false_breakout_rate_pct": 46.9
+        },
+        "mixed": {
+          "observations": 648,
+          "win_rate_pct": 52.9,
+          "expectancy_pct": 1.73,
+          "average_max_drawdown_pct": -4.16,
+          "breakout_observations": 145,
+          "false_breakout_rate_pct": 45.5
+        },
+        "bearish": {
+          "observations": 147,
+          "win_rate_pct": 57.8,
+          "expectancy_pct": 2.0,
+          "average_max_drawdown_pct": -3.9,
+          "breakout_observations": 17,
+          "false_breakout_rate_pct": 47.1
+        }
+      }
+    }
   },
   "universe": {
     "source": "NSE front-month single-stock futures ranked by traded value",
@@ -285,7 +415,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.7127903722362161,
       "sector": "Nifty Bank",
-      "sector_relative_strength_pct": 7.3272668931672245,
+      "sector_relative_strength_pct": 7.4072668931672245,
       "gap_pct": -0.227981761459084,
       "gap_atr": -0.12709030100334293,
       "gap_extended": false,
@@ -303,7 +433,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 7.3% over five sessions",
+        "Outperforming sector by 7.4% over five sessions",
         "NASDAQ strongly positive"
       ]
     },
@@ -314,7 +444,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.6722939424031777,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 5.555586457073748,
+      "sector_relative_strength_pct": 5.515586457073748,
       "gap_pct": 0.1203369434416457,
       "gap_atr": 0.04423380726698264,
       "gap_extended": false,
@@ -332,7 +462,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 5.6% over five sessions",
+        "Outperforming sector by 5.5% over five sessions",
         "NASDAQ strongly positive"
       ]
     },
@@ -343,7 +473,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.5233205708318831,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 6.33054794520549,
+      "sector_relative_strength_pct": 6.29054794520549,
       "gap_pct": 0.2278749337572883,
       "gap_atr": 0.10645446507515359,
       "gap_extended": false,
@@ -375,7 +505,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.7127903722362161,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 7.3272668931672245,
+        "sector_relative_strength_pct": 7.4072668931672245,
         "gap_pct": -0.227981761459084,
         "gap_atr": -0.12709030100334293,
         "gap_extended": false,
@@ -393,7 +523,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 7.3% over five sessions",
+          "Outperforming sector by 7.4% over five sessions",
           "NASDAQ strongly positive"
         ]
       },
@@ -404,7 +534,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.6722939424031777,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 5.555586457073748,
+        "sector_relative_strength_pct": 5.515586457073748,
         "gap_pct": 0.1203369434416457,
         "gap_atr": 0.04423380726698264,
         "gap_extended": false,
@@ -422,7 +552,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 5.6% over five sessions",
+          "Outperforming sector by 5.5% over five sessions",
           "NASDAQ strongly positive"
         ]
       },
@@ -433,7 +563,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.5233205708318831,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.33054794520549,
+        "sector_relative_strength_pct": 6.29054794520549,
         "gap_pct": 0.2278749337572883,
         "gap_atr": 0.10645446507515359,
         "gap_extended": false,
@@ -460,11 +590,11 @@
       {
         "symbol": "POLYCAB",
         "setup_mode": "bearish",
-        "score": 78.99,
+        "score": 79.03,
         "recommendation": "High confidence bearish swing candidate",
         "pcr": 0.6768841839153105,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 0.10589041095890928,
+        "sector_relative_strength_pct": 0.06589041095890924,
         "gap_pct": 0.9713024282560712,
         "gap_atr": 0.49537595496582226,
         "gap_extended": false,
@@ -491,42 +621,13 @@
         ]
       },
       {
-        "symbol": "HDFCBANK",
-        "setup_mode": "bearish",
-        "score": 78.67,
-        "recommendation": "High confidence bearish swing candidate",
-        "pcr": 0.8205541381316861,
-        "sector": "Nifty Bank",
-        "sector_relative_strength_pct": -1.367797393283214,
-        "gap_pct": 0.13063806380637644,
-        "gap_atr": 0.11565217391303528,
-        "gap_extended": false,
-        "liquidity_tier": "high",
-        "estimated_slippage_bps": 4,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
-        "call_oi_wall": 730.0,
-        "put_oi_wall": 730.0,
-        "reasons": [
-          "Long unwinding",
-          "PCR leans bearish",
-          "Strong volume expansion",
-          "Price below 20 DMA",
-          "Price below 50 DMA",
-          "Negative 5-day momentum",
-          "Underperforming sector by 1.4% over five sessions",
-          "NASDAQ strongly positive"
-        ]
-      },
-      {
         "symbol": "BHARTIARTL",
         "setup_mode": "bearish",
-        "score": 74.66,
+        "score": 74.7,
         "recommendation": "Moderate bearish swing candidate",
         "pcr": 1.1497100307868546,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": -2.6551799969099283,
+        "sector_relative_strength_pct": -2.6951799969099284,
         "gap_pct": 0.6781977813995033,
         "gap_atr": 0.3841735800893453,
         "gap_extended": false,
@@ -550,6 +651,39 @@
           "NASDAQ strongly positive",
           "Event risk detected"
         ]
+      },
+      {
+        "symbol": "HDFCBANK",
+        "setup_mode": "bearish",
+        "score": 74.09,
+        "recommendation": "Moderate bearish swing candidate",
+        "pcr": 0.8205541381316861,
+        "sector": "Nifty Bank",
+        "sector_relative_strength_pct": -1.2877973932832139,
+        "gap_pct": 0.13063806380637644,
+        "gap_atr": 0.11565217391303528,
+        "gap_extended": false,
+        "liquidity_tier": "high",
+        "estimated_slippage_bps": 4,
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings",
+          "material_event"
+        ],
+        "call_oi_wall": 730.0,
+        "put_oi_wall": 730.0,
+        "reasons": [
+          "Long unwinding",
+          "PCR leans bearish",
+          "Strong volume expansion",
+          "Price below 20 DMA",
+          "Price below 50 DMA",
+          "Negative 5-day momentum",
+          "Underperforming sector by 1.3% over five sessions",
+          "NASDAQ strongly positive",
+          "Event risk detected"
+        ]
       }
     ]
   },
@@ -561,7 +695,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.7127903722362161,
       "sector": "Nifty Bank",
-      "sector_relative_strength_pct": 7.3272668931672245,
+      "sector_relative_strength_pct": 7.4072668931672245,
       "gap_pct": -0.227981761459084,
       "gap_atr": -0.12709030100334293,
       "gap_extended": false,
@@ -579,7 +713,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 7.3% over five sessions",
+        "Outperforming sector by 7.4% over five sessions",
         "NASDAQ strongly positive"
       ]
     },
@@ -590,7 +724,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.6722939424031777,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 5.555586457073748,
+      "sector_relative_strength_pct": 5.515586457073748,
       "gap_pct": 0.1203369434416457,
       "gap_atr": 0.04423380726698264,
       "gap_extended": false,
@@ -608,7 +742,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 5.6% over five sessions",
+        "Outperforming sector by 5.5% over five sessions",
         "NASDAQ strongly positive"
       ]
     },
@@ -619,7 +753,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.5233205708318831,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 6.33054794520549,
+      "sector_relative_strength_pct": 6.29054794520549,
       "gap_pct": 0.2278749337572883,
       "gap_atr": 0.10645446507515359,
       "gap_extended": false,
@@ -648,7 +782,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.5495049504950495,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 7.967587794529197,
+      "sector_relative_strength_pct": 7.927587794529197,
       "gap_pct": 0.8695652173912993,
       "gap_atr": 0.2839756592292087,
       "gap_extended": false,
@@ -666,7 +800,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 8.0% over five sessions",
+        "Outperforming sector by 7.9% over five sessions",
         "NASDAQ strongly positive"
       ]
     },
@@ -677,7 +811,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.7024090694378838,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 6.002156862745101,
+      "sector_relative_strength_pct": 5.962156862745101,
       "gap_pct": 0.9411196911196962,
       "gap_atr": 0.4099099099099139,
       "gap_extended": false,
@@ -705,7 +839,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.4291300097751711,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 6.1972483221476535,
+      "sector_relative_strength_pct": 6.1572483221476535,
       "gap_pct": 0.0,
       "gap_atr": 0.0,
       "gap_extended": false,
@@ -730,11 +864,11 @@
     {
       "symbol": "ICICIBANK",
       "setup_mode": "bullish",
-      "score": 78.87,
+      "score": 78.95,
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.8044568971134424,
       "sector": "Nifty Bank",
-      "sector_relative_strength_pct": 2.7727055740491573,
+      "sector_relative_strength_pct": 2.8527055740491574,
       "gap_pct": 1.0489510489510412,
       "gap_atr": 0.8117510630073449,
       "gap_extended": false,
@@ -752,18 +886,18 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 2.8% over five sessions",
+        "Outperforming sector by 2.9% over five sessions",
         "NASDAQ strongly positive"
       ]
     },
     {
       "symbol": "ETERNAL",
       "setup_mode": "bullish",
-      "score": 76.88,
+      "score": 76.84,
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.4077688359419555,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 0.7777084921481997,
+      "sector_relative_strength_pct": 0.7377084921481997,
       "gap_pct": 0.6116207951070374,
       "gap_atr": 0.2836879432624117,
       "gap_extended": false,
@@ -781,7 +915,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 0.8% over five sessions",
+        "Outperforming sector by 0.7% over five sessions",
         "NASDAQ strongly positive"
       ]
     },
@@ -792,7 +926,7 @@
       "recommendation": "High confidence bullish swing candidate",
       "pcr": 0.9453599306157849,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 6.013011514614709,
+      "sector_relative_strength_pct": 5.973011514614709,
       "gap_pct": 0.7246376811594235,
       "gap_atr": 0.35023041474654987,
       "gap_extended": false,
@@ -818,11 +952,11 @@
     {
       "symbol": "AXISBANK",
       "setup_mode": "bullish",
-      "score": 65.57,
+      "score": 65.65,
       "recommendation": "Moderate bullish swing candidate",
       "pcr": 0.8436878854288772,
       "sector": "Nifty Bank",
-      "sector_relative_strength_pct": 0.9696802557953538,
+      "sector_relative_strength_pct": 1.0496802557953537,
       "gap_pct": 0.3984063745019917,
       "gap_atr": 0.27504911591355574,
       "gap_extended": false,
@@ -849,11 +983,11 @@
     {
       "symbol": "TATASTEEL",
       "setup_mode": "bullish",
-      "score": 49.51,
+      "score": 49.47,
       "recommendation": "Avoid",
       "pcr": 0.7663564850345357,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 2.408365122615819,
+      "sector_relative_strength_pct": 2.368365122615819,
       "gap_pct": 0.02127546407106884,
       "gap_atr": 0.010360777058284676,
       "gap_extended": false,
@@ -879,19 +1013,22 @@
     {
       "symbol": "HDFCBANK",
       "setup_mode": "bullish",
-      "score": 48.88,
+      "score": 44.46,
       "recommendation": "Avoid",
       "pcr": 0.8205541381316861,
       "sector": "Nifty Bank",
-      "sector_relative_strength_pct": -1.367797393283214,
+      "sector_relative_strength_pct": -1.2877973932832139,
       "gap_pct": 0.13063806380637644,
       "gap_atr": 0.11565217391303528,
       "gap_extended": false,
       "liquidity_tier": "high",
       "estimated_slippage_bps": 4,
-      "event_risk": false,
-      "event_risk_status": "clear",
-      "event_categories": [],
+      "event_risk": true,
+      "event_risk_status": "detected",
+      "event_categories": [
+        "earnings",
+        "material_event"
+      ],
       "call_oi_wall": 730.0,
       "put_oi_wall": 730.0,
       "reasons": [
@@ -899,17 +1036,18 @@
         "Neutral PCR",
         "Strong volume expansion",
         "Sector-relative momentum opposes bullish setup",
-        "NASDAQ strongly positive"
+        "NASDAQ strongly positive",
+        "Event risk detected"
       ]
     },
     {
       "symbol": "BHARTIARTL",
       "setup_mode": "bullish",
-      "score": 42.64,
+      "score": 42.6,
       "recommendation": "Avoid",
       "pcr": 1.1497100307868546,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": -2.6551799969099283,
+      "sector_relative_strength_pct": -2.6951799969099284,
       "gap_pct": 0.6781977813995033,
       "gap_atr": 0.3841735800893453,
       "gap_extended": false,
@@ -934,11 +1072,11 @@
     {
       "symbol": "RELIANCE",
       "setup_mode": "bullish",
-      "score": 41.55,
+      "score": 41.51,
       "recommendation": "Avoid",
       "pcr": 1.014715479674112,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": -1.7506457508376534,
+      "sector_relative_strength_pct": -1.7906457508376534,
       "gap_pct": 0.5392912172573094,
       "gap_atr": 0.40546131568059607,
       "gap_extended": false,
@@ -964,11 +1102,11 @@
     {
       "symbol": "POLYCAB",
       "setup_mode": "bullish",
-      "score": 38.51,
+      "score": 38.47,
       "recommendation": "Avoid",
       "pcr": 0.6768841839153105,
       "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 0.10589041095890928,
+      "sector_relative_strength_pct": 0.06589041095890924,
       "gap_pct": 0.9713024282560712,
       "gap_atr": 0.49537595496582226,
       "gap_extended": false,
@@ -1001,7 +1139,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.7127903722362161,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 7.3272668931672245,
+        "sector_relative_strength_pct": 7.4072668931672245,
         "gap_pct": -0.227981761459084,
         "gap_atr": -0.12709030100334293,
         "gap_extended": false,
@@ -1019,7 +1157,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 7.3% over five sessions",
+          "Outperforming sector by 7.4% over five sessions",
           "NASDAQ strongly positive"
         ]
       },
@@ -1030,7 +1168,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.6722939424031777,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 5.555586457073748,
+        "sector_relative_strength_pct": 5.515586457073748,
         "gap_pct": 0.1203369434416457,
         "gap_atr": 0.04423380726698264,
         "gap_extended": false,
@@ -1048,7 +1186,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 5.6% over five sessions",
+          "Outperforming sector by 5.5% over five sessions",
           "NASDAQ strongly positive"
         ]
       },
@@ -1059,7 +1197,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.5233205708318831,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.33054794520549,
+        "sector_relative_strength_pct": 6.29054794520549,
         "gap_pct": 0.2278749337572883,
         "gap_atr": 0.10645446507515359,
         "gap_extended": false,
@@ -1088,7 +1226,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.5495049504950495,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 7.967587794529197,
+        "sector_relative_strength_pct": 7.927587794529197,
         "gap_pct": 0.8695652173912993,
         "gap_atr": 0.2839756592292087,
         "gap_extended": false,
@@ -1106,7 +1244,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 8.0% over five sessions",
+          "Outperforming sector by 7.9% over five sessions",
           "NASDAQ strongly positive"
         ]
       },
@@ -1117,7 +1255,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.7024090694378838,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.002156862745101,
+        "sector_relative_strength_pct": 5.962156862745101,
         "gap_pct": 0.9411196911196962,
         "gap_atr": 0.4099099099099139,
         "gap_extended": false,
@@ -1145,7 +1283,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.4291300097751711,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.1972483221476535,
+        "sector_relative_strength_pct": 6.1572483221476535,
         "gap_pct": 0.0,
         "gap_atr": 0.0,
         "gap_extended": false,
@@ -1170,11 +1308,11 @@
       {
         "symbol": "ICICIBANK",
         "setup_mode": "bullish",
-        "score": 78.87,
+        "score": 78.95,
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.8044568971134424,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 2.7727055740491573,
+        "sector_relative_strength_pct": 2.8527055740491574,
         "gap_pct": 1.0489510489510412,
         "gap_atr": 0.8117510630073449,
         "gap_extended": false,
@@ -1192,18 +1330,18 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 2.8% over five sessions",
+          "Outperforming sector by 2.9% over five sessions",
           "NASDAQ strongly positive"
         ]
       },
       {
         "symbol": "ETERNAL",
         "setup_mode": "bullish",
-        "score": 76.88,
+        "score": 76.84,
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.4077688359419555,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 0.7777084921481997,
+        "sector_relative_strength_pct": 0.7377084921481997,
         "gap_pct": 0.6116207951070374,
         "gap_atr": 0.2836879432624117,
         "gap_extended": false,
@@ -1221,7 +1359,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 0.8% over five sessions",
+          "Outperforming sector by 0.7% over five sessions",
           "NASDAQ strongly positive"
         ]
       },
@@ -1232,7 +1370,7 @@
         "recommendation": "High confidence bullish swing candidate",
         "pcr": 0.9453599306157849,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.013011514614709,
+        "sector_relative_strength_pct": 5.973011514614709,
         "gap_pct": 0.7246376811594235,
         "gap_atr": 0.35023041474654987,
         "gap_extended": false,
@@ -1258,11 +1396,11 @@
       {
         "symbol": "AXISBANK",
         "setup_mode": "bullish",
-        "score": 65.57,
+        "score": 65.65,
         "recommendation": "Moderate bullish swing candidate",
         "pcr": 0.8436878854288772,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 0.9696802557953538,
+        "sector_relative_strength_pct": 1.0496802557953537,
         "gap_pct": 0.3984063745019917,
         "gap_atr": 0.27504911591355574,
         "gap_extended": false,
@@ -1289,11 +1427,11 @@
       {
         "symbol": "TATASTEEL",
         "setup_mode": "bullish",
-        "score": 49.51,
+        "score": 49.47,
         "recommendation": "Avoid",
         "pcr": 0.7663564850345357,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 2.408365122615819,
+        "sector_relative_strength_pct": 2.368365122615819,
         "gap_pct": 0.02127546407106884,
         "gap_atr": 0.010360777058284676,
         "gap_extended": false,
@@ -1319,19 +1457,22 @@
       {
         "symbol": "HDFCBANK",
         "setup_mode": "bullish",
-        "score": 48.88,
+        "score": 44.46,
         "recommendation": "Avoid",
         "pcr": 0.8205541381316861,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": -1.367797393283214,
+        "sector_relative_strength_pct": -1.2877973932832139,
         "gap_pct": 0.13063806380637644,
         "gap_atr": 0.11565217391303528,
         "gap_extended": false,
         "liquidity_tier": "high",
         "estimated_slippage_bps": 4,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings",
+          "material_event"
+        ],
         "call_oi_wall": 730.0,
         "put_oi_wall": 730.0,
         "reasons": [
@@ -1339,17 +1480,18 @@
           "Neutral PCR",
           "Strong volume expansion",
           "Sector-relative momentum opposes bullish setup",
-          "NASDAQ strongly positive"
+          "NASDAQ strongly positive",
+          "Event risk detected"
         ]
       },
       {
         "symbol": "BHARTIARTL",
         "setup_mode": "bullish",
-        "score": 42.64,
+        "score": 42.6,
         "recommendation": "Avoid",
         "pcr": 1.1497100307868546,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": -2.6551799969099283,
+        "sector_relative_strength_pct": -2.6951799969099284,
         "gap_pct": 0.6781977813995033,
         "gap_atr": 0.3841735800893453,
         "gap_extended": false,
@@ -1374,11 +1516,11 @@
       {
         "symbol": "RELIANCE",
         "setup_mode": "bullish",
-        "score": 41.55,
+        "score": 41.51,
         "recommendation": "Avoid",
         "pcr": 1.014715479674112,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": -1.7506457508376534,
+        "sector_relative_strength_pct": -1.7906457508376534,
         "gap_pct": 0.5392912172573094,
         "gap_atr": 0.40546131568059607,
         "gap_extended": false,
@@ -1404,11 +1546,11 @@
       {
         "symbol": "POLYCAB",
         "setup_mode": "bullish",
-        "score": 38.51,
+        "score": 38.47,
         "recommendation": "Avoid",
         "pcr": 0.6768841839153105,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 0.10589041095890928,
+        "sector_relative_strength_pct": 0.06589041095890924,
         "gap_pct": 0.9713024282560712,
         "gap_atr": 0.49537595496582226,
         "gap_extended": false,
@@ -1436,11 +1578,11 @@
       {
         "symbol": "POLYCAB",
         "setup_mode": "bearish",
-        "score": 78.99,
+        "score": 79.03,
         "recommendation": "High confidence bearish swing candidate",
         "pcr": 0.6768841839153105,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 0.10589041095890928,
+        "sector_relative_strength_pct": 0.06589041095890924,
         "gap_pct": 0.9713024282560712,
         "gap_atr": 0.49537595496582226,
         "gap_extended": false,
@@ -1467,42 +1609,13 @@
         ]
       },
       {
-        "symbol": "HDFCBANK",
-        "setup_mode": "bearish",
-        "score": 78.67,
-        "recommendation": "High confidence bearish swing candidate",
-        "pcr": 0.8205541381316861,
-        "sector": "Nifty Bank",
-        "sector_relative_strength_pct": -1.367797393283214,
-        "gap_pct": 0.13063806380637644,
-        "gap_atr": 0.11565217391303528,
-        "gap_extended": false,
-        "liquidity_tier": "high",
-        "estimated_slippage_bps": 4,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
-        "call_oi_wall": 730.0,
-        "put_oi_wall": 730.0,
-        "reasons": [
-          "Long unwinding",
-          "PCR leans bearish",
-          "Strong volume expansion",
-          "Price below 20 DMA",
-          "Price below 50 DMA",
-          "Negative 5-day momentum",
-          "Underperforming sector by 1.4% over five sessions",
-          "NASDAQ strongly positive"
-        ]
-      },
-      {
         "symbol": "BHARTIARTL",
         "setup_mode": "bearish",
-        "score": 74.66,
+        "score": 74.7,
         "recommendation": "Moderate bearish swing candidate",
         "pcr": 1.1497100307868546,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": -2.6551799969099283,
+        "sector_relative_strength_pct": -2.6951799969099284,
         "gap_pct": 0.6781977813995033,
         "gap_atr": 0.3841735800893453,
         "gap_extended": false,
@@ -1528,13 +1641,46 @@
         ]
       },
       {
+        "symbol": "HDFCBANK",
+        "setup_mode": "bearish",
+        "score": 74.09,
+        "recommendation": "Moderate bearish swing candidate",
+        "pcr": 0.8205541381316861,
+        "sector": "Nifty Bank",
+        "sector_relative_strength_pct": -1.2877973932832139,
+        "gap_pct": 0.13063806380637644,
+        "gap_atr": 0.11565217391303528,
+        "gap_extended": false,
+        "liquidity_tier": "high",
+        "estimated_slippage_bps": 4,
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings",
+          "material_event"
+        ],
+        "call_oi_wall": 730.0,
+        "put_oi_wall": 730.0,
+        "reasons": [
+          "Long unwinding",
+          "PCR leans bearish",
+          "Strong volume expansion",
+          "Price below 20 DMA",
+          "Price below 50 DMA",
+          "Negative 5-day momentum",
+          "Underperforming sector by 1.3% over five sessions",
+          "NASDAQ strongly positive",
+          "Event risk detected"
+        ]
+      },
+      {
         "symbol": "RELIANCE",
         "setup_mode": "bearish",
-        "score": 71.75,
+        "score": 71.79,
         "recommendation": "Moderate bearish swing candidate",
         "pcr": 1.014715479674112,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": -1.7506457508376534,
+        "sector_relative_strength_pct": -1.7906457508376534,
         "gap_pct": 0.5392912172573094,
         "gap_atr": 0.40546131568059607,
         "gap_extended": false,
@@ -1563,11 +1709,11 @@
       {
         "symbol": "TATASTEEL",
         "setup_mode": "bearish",
-        "score": 67.09,
+        "score": 67.13,
         "recommendation": "Moderate bearish swing candidate",
         "pcr": 0.7663564850345357,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 2.408365122615819,
+        "sector_relative_strength_pct": 2.368365122615819,
         "gap_pct": 0.02127546407106884,
         "gap_atr": 0.010360777058284676,
         "gap_extended": false,
@@ -1594,11 +1740,11 @@
       {
         "symbol": "AXISBANK",
         "setup_mode": "bearish",
-        "score": 49.98,
+        "score": 49.9,
         "recommendation": "Avoid",
         "pcr": 0.8436878854288772,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 0.9696802557953538,
+        "sector_relative_strength_pct": 1.0496802557953537,
         "gap_pct": 0.3984063745019917,
         "gap_atr": 0.27504911591355574,
         "gap_extended": false,
@@ -1628,7 +1774,7 @@
         "recommendation": "Avoid",
         "pcr": 0.7024090694378838,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.002156862745101,
+        "sector_relative_strength_pct": 5.962156862745101,
         "gap_pct": 0.9411196911196962,
         "gap_atr": 0.4099099099099139,
         "gap_extended": false,
@@ -1651,11 +1797,11 @@
       {
         "symbol": "ETERNAL",
         "setup_mode": "bearish",
-        "score": 46.62,
+        "score": 46.66,
         "recommendation": "Avoid",
         "pcr": 0.4077688359419555,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 0.7777084921481997,
+        "sector_relative_strength_pct": 0.7377084921481997,
         "gap_pct": 0.6116207951070374,
         "gap_atr": 0.2836879432624117,
         "gap_extended": false,
@@ -1677,11 +1823,11 @@
       {
         "symbol": "ICICIBANK",
         "setup_mode": "bearish",
-        "score": 45.68,
+        "score": 45.6,
         "recommendation": "Avoid",
         "pcr": 0.8044568971134424,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 2.7727055740491573,
+        "sector_relative_strength_pct": 2.8527055740491574,
         "gap_pct": 1.0489510489510412,
         "gap_atr": 0.8117510630073449,
         "gap_extended": false,
@@ -1707,7 +1853,7 @@
         "recommendation": "Avoid",
         "pcr": 0.6722939424031777,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 5.555586457073748,
+        "sector_relative_strength_pct": 5.515586457073748,
         "gap_pct": 0.1203369434416457,
         "gap_atr": 0.04423380726698264,
         "gap_extended": false,
@@ -1733,7 +1879,7 @@
         "recommendation": "Avoid",
         "pcr": 0.5233205708318831,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.33054794520549,
+        "sector_relative_strength_pct": 6.29054794520549,
         "gap_pct": 0.2278749337572883,
         "gap_atr": 0.10645446507515359,
         "gap_extended": false,
@@ -1759,7 +1905,7 @@
         "recommendation": "Avoid",
         "pcr": 0.5495049504950495,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 7.967587794529197,
+        "sector_relative_strength_pct": 7.927587794529197,
         "gap_pct": 0.8695652173912993,
         "gap_atr": 0.2839756592292087,
         "gap_extended": false,
@@ -1785,7 +1931,7 @@
         "recommendation": "Avoid",
         "pcr": 0.7127903722362161,
         "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 7.3272668931672245,
+        "sector_relative_strength_pct": 7.4072668931672245,
         "gap_pct": -0.227981761459084,
         "gap_atr": -0.12709030100334293,
         "gap_extended": false,
@@ -1811,7 +1957,7 @@
         "recommendation": "Avoid",
         "pcr": 0.4291300097751711,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.1972483221476535,
+        "sector_relative_strength_pct": 6.1572483221476535,
         "gap_pct": 0.0,
         "gap_atr": 0.0,
         "gap_extended": false,
@@ -1837,7 +1983,7 @@
         "recommendation": "Avoid",
         "pcr": 0.9453599306157849,
         "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 6.013011514614709,
+        "sector_relative_strength_pct": 5.973011514614709,
         "gap_pct": 0.7246376811594235,
         "gap_atr": 0.35023041474654987,
         "gap_extended": false,
