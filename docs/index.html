@@ -26,15 +26,17 @@
     .intro { margin:0; } .section-header { align-items:baseline; margin:30px 0 14px; } .section-note { margin:0; font-size:13px; }
     .intro-actions { display:flex; align-items:center; gap:10px; }
     .action-button { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 18px; border:1px solid var(--ink); border-radius:6px; font-weight:600; text-decoration:none; white-space:nowrap; }
-    .refresh-button { background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; }
+    .refresh-button { gap:8px; background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; }
     .refresh-button:hover { border-color:var(--green); color:var(--green); }
     .refresh-button:disabled { cursor:wait; opacity:.65; }
+    .refresh-icon { font-size:18px; line-height:1; }
+    .refresh-button.is-refreshing .refresh-icon { animation:refresh-spin .9s linear infinite; }
+    @keyframes refresh-spin { to { transform:rotate(360deg); } }
     .analyze-button { background:var(--ink); color:#fff; }
     .analyze-button:hover { border-color:var(--green); background:var(--green); }
     .status-bar { padding:14px 16px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
-    .freshness { padding:6px 10px; border-radius:4px; color:#fff; font-size:13px; font-weight:700; }
-    .freshness-live { background:var(--green); } .freshness-delayed { background:var(--amber); } .freshness-stale { background:var(--red); }
-    #generatedAt { margin:0; font-size:13px; text-align:right; }
+    .data-timestamp { font-size:13px; font-weight:600; }
+    #dataStatus { margin:0; font-size:13px; text-align:right; }
     .cue-grid { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); border:1px solid var(--line); border-radius:8px; background:var(--surface); overflow:hidden; }
     .cue { padding:18px; border-right:1px solid var(--line); } .cue:last-child { border:0; }
     .cue-label { color:var(--muted); font-size:12px; } .cue-value { margin-top:5px; font:600 22px "Space Grotesk",sans-serif; }
@@ -86,16 +88,24 @@
     .regime-table th:first-child,.regime-table td:first-child { text-align:left; } .regime-table th { color:var(--muted); font-size:11px; }
     .calibration-note { margin:14px 0 0; color:var(--muted); font-size:12px; }
     .freshness-warning { padding:18px; border-left:5px solid var(--red); border-radius:6px; background:var(--red-soft); color:#7a271a; font-weight:600; }
+    .skeleton { position:relative; overflow:hidden; border-radius:6px; background:#e4e8e2; }
+    .skeleton::after { position:absolute; inset:0; content:""; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent); animation:skeleton-wave 1.4s infinite; }
+    .skeleton-summary { height:76px; margin-bottom:12px; }
+    .skeleton-conditions { height:104px; }
+    .skeleton-card { height:430px; }
+    .skeleton-panel { height:180px; }
+    @keyframes skeleton-wave { to { transform:translateX(100%); } }
+    @media(prefers-reduced-motion:reduce) { .skeleton::after,.refresh-button.is-refreshing .refresh-icon { animation:none; } }
     .disclaimer { margin-top:34px; color:var(--muted); font-size:13px; }
     @media(max-width:820px) { .candidate-grid { grid-template-columns:1fr; } .cue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media(max-width:620px) { main { padding-top:26px; } .header-inner,.intro-row,.status-bar,.section-header,.condition-summary { align-items:flex-start; flex-direction:column; } .condition-reasons { text-align:left; } .intro-actions,.action-button { width:100%; } .intro-actions { flex-direction:column; } #generatedAt { text-align:left; } .comparison,.calibration { overflow-x:auto; } .comparison-grid { min-width:calc(var(--count) * 210px); } .regime-table { min-width:650px; } }
+    @media(max-width:620px) { main { padding-top:26px; } .header-inner,.intro-row,.status-bar,.section-header,.condition-summary { align-items:flex-start; flex-direction:column; } .condition-reasons { text-align:left; } .intro-actions,.action-button { width:100%; } .intro-actions { flex-direction:column; } #dataStatus { text-align:left; } .comparison,.calibration { overflow-x:auto; } .comparison-grid { min-width:calc(var(--count) * 210px); } .regime-table { min-width:650px; } }
   </style>
 </head>
 <body>
   <header><div class="header-inner"><div class="brand">Spiderman trading</div><nav><a href="./analyze.html">Stock analysis</a></nav></div></header>
   <main>
-    <div class="intro-row"><div><h1>Market dashboard</h1><p class="intro">Pre-market context and ranked NSE swing candidates.</p></div><div class="intro-actions"><button id="refreshData" class="action-button refresh-button" type="button">Refresh market data</button><a class="action-button analyze-button" href="./analyze.html">Analyze another stock</a></div></div>
-    <div class="status-bar"><span id="freshness" class="freshness freshness-stale">Checking freshness</span><p id="generatedAt" class="meta"></p></div>
+    <div class="intro-row"><div><h1>Market dashboard</h1><p class="intro">Pre-market context and ranked NSE swing candidates.</p></div><div class="intro-actions"><button id="refreshData" class="action-button refresh-button" type="button"><span class="refresh-icon" aria-hidden="true">↻</span><span class="refresh-label">Refresh market data</span></button><a class="action-button analyze-button" href="./analyze.html">Analyze another stock</a></div></div>
+    <div class="status-bar"><time id="dataTimestamp" class="data-timestamp">Loading timestamp…</time><p id="dataStatus" class="meta" role="status" aria-live="polite"></p></div>
     <section><div class="section-header"><h2>Market conditions</h2><p class="section-note">Environment for long swing trades</p></div><div id="marketConditionSummary"></div><div class="conditions-grid" id="marketConditions"></div></section>
     <section><div class="section-header"><h2>Watchlist</h2><p class="section-note">Stored on this device</p></div><div id="watchlist" class="watchlist"></div></section>
     <section><div class="section-header"><div><h2 id="candidateTitle">Top bullish setups</h2><p id="universeSummary" class="section-note"></p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div id="topPicks" class="candidate-grid"></div></section>
@@ -158,6 +168,34 @@
       if (age === 0) return { label: "Live", className: "freshness-live", stale: false };
       if (age === 1) return { label: "Delayed", className: "freshness-delayed", stale: false };
       return { label: "Stale", className: "freshness-stale", stale: true };
+    }
+
+    function formatDataTimestamp(value) {
+      const timestamp = parseScannerDate(value);
+      if (!timestamp) return "Timestamp unavailable";
+      return new Intl.DateTimeFormat("en-US", {
+        timeZone: "Asia/Kolkata",
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+        hour: "numeric",
+        minute: "2-digit",
+        timeZoneName: "short"
+      }).format(timestamp);
+    }
+
+    function showRefreshSkeletons() {
+      document.getElementById("marketConditionSummary").innerHTML = '<div class="skeleton skeleton-summary" aria-hidden="true"></div>';
+      document.getElementById("marketConditions").innerHTML = '<div class="skeleton skeleton-conditions" aria-hidden="true"></div>';
+      document.getElementById("topPicks").innerHTML = Array.from({ length: 3 }, () => '<div class="skeleton skeleton-card" aria-hidden="true"></div>').join("");
+      document.getElementById("comparison").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
+      document.getElementById("backtest").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
+    }
+
+    function setRefreshButton(label, refreshing) {
+      const refreshButton = document.getElementById("refreshData");
+      refreshButton.querySelector(".refresh-label").textContent = label;
+      refreshButton.classList.toggle("is-refreshing", refreshing);
     }
 
     function getWatchlist() {
@@ -341,16 +379,14 @@
     }
 
     function loadScannerDataFromSnapshot(snapshot) {
-      const freshnessBadge = document.getElementById("freshness");
       const container = document.getElementById("topPicks");
       scannerData = snapshot;
       const freshness = getFreshness(scannerData);
 
-      freshnessBadge.innerText = freshness.label;
-      freshnessBadge.className = `freshness ${freshness.className}`;
-
-      document.getElementById("generatedAt").innerText =
-        `Generated ${scannerData.generated_at_ist} IST · Market data ${scannerData.data_as_of || "unknown"}`;
+      const dataTimestamp = document.getElementById("dataTimestamp");
+      dataTimestamp.textContent = formatDataTimestamp(scannerData.generated_at_ist);
+      dataTimestamp.dateTime = parseScannerDate(scannerData.generated_at_ist)?.toISOString() || "";
+      document.getElementById("dataStatus").textContent = `Market data ${scannerData.data_as_of || "unknown"}`;
 
       renderMarketConditions(scannerData.market_context);
       renderBacktest(scannerData.backtest);
@@ -369,7 +405,6 @@
     }
 
     async function loadScannerData() {
-      const freshnessBadge = document.getElementById("freshness");
       const container = document.getElementById("topPicks");
 
       try {
@@ -377,8 +412,8 @@
         if (!response.ok) throw new Error(`Scanner data request failed: ${response.status}`);
         loadScannerDataFromSnapshot(await response.json());
       } catch (error) {
-        freshnessBadge.innerText = "Stale";
-        freshnessBadge.className = "freshness freshness-stale";
+        document.getElementById("dataTimestamp").textContent = "Timestamp unavailable";
+        document.getElementById("dataStatus").textContent = "Scanner data could not be verified.";
         container.innerHTML = '<div class="freshness-warning">Recommendations are unavailable because current scanner data could not be verified.</div>';
         document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable.</p>';
         console.error(error);
@@ -387,8 +422,11 @@
 
     async function refreshScannerData() {
       const refreshButton = document.getElementById("refreshData");
+      const previousSnapshot = scannerData;
       refreshButton.disabled = true;
-      refreshButton.textContent = "Starting refresh…";
+      setRefreshButton("Starting refresh…", true);
+      document.getElementById("dataStatus").textContent = "Refreshing market data. This can take several minutes.";
+      showRefreshSkeletons();
 
       try {
         const startResponse = await fetch(`${API_BASE}/api/refresh`, { method: "POST" });
@@ -397,7 +435,7 @@
         }
 
         let refresh = await startResponse.json();
-        refreshButton.textContent = refresh.status === "running" ? "Refreshing…" : "Loading latest…";
+        setRefreshButton(refresh.status === "running" ? "Refreshing…" : "Loading latest…", true);
 
         while (refresh.status === "running") {
           await new Promise(resolve => setTimeout(resolve, 5000));
@@ -408,17 +446,21 @@
 
         if (refresh.status === "failed") throw new Error(refresh.error);
 
+        document.getElementById("dataStatus").textContent = "Refresh complete. Loading latest data…";
         const dataResponse = await fetch(`${API_BASE}/api/scanner-data?ts=${Date.now()}`, { cache: "no-store" });
         if (!dataResponse.ok) throw new Error(`Scanner data request failed: ${dataResponse.status}`);
         scannerData = await dataResponse.json();
-        await loadScannerDataFromSnapshot(scannerData);
+        loadScannerDataFromSnapshot(scannerData);
+        document.getElementById("dataStatus").textContent = "Data refresh complete.";
       } catch (error) {
-        refreshButton.textContent = "Refresh failed";
+        setRefreshButton("Refresh failed", false);
+        if (previousSnapshot) loadScannerDataFromSnapshot(previousSnapshot);
+        document.getElementById("dataStatus").textContent = "Refresh failed. Showing the previous data.";
         console.error(error);
         await new Promise(resolve => setTimeout(resolve, 2500));
       } finally {
         refreshButton.disabled = false;
-        refreshButton.textContent = "Refresh market data";
+        setRefreshButton("Refresh market data", false);
       }
     }
 
