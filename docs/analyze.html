@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Stock Analysis | Pre-market Swing Scanner</title>
+  <title>Stock Analysis | Spiderman trading</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
@@ -358,6 +358,7 @@
       overflow: hidden;
     }
 
+    .panel > h2 { margin-bottom: 16px; }
     .panel.positive { border-top: 4px solid var(--green); }
     .panel.negative { border-top: 4px solid var(--red); }
 
@@ -511,7 +512,7 @@
 <body>
   <header>
     <div class="header-inner">
-      <div class="brand">Pre-market Swing Scanner</div>
+      <div class="brand">Spiderman trading</div>
       <nav><a href="./index.html">Scanner dashboard</a></nav>
     </div>
   </header>
@@ -974,16 +975,16 @@
       ]);
 
       metrics("riskMetrics", [
-        ["ATR (14)", currency(cash.atr14)],
-        ["Recent swing low", currency(cash.recent_swing_low)],
-        ["Prior 20-day high", currency(cash.prior_twenty_day_high)],
-        ["10-day low", currency(cash.ten_day_low)],
-        ["Distance from SMA20", `${signed(cash.distance_from_sma20_atr, "")} ATR`],
-        ["Distance from breakout", `${signed(cash.distance_from_breakout_atr, "")} ATR`],
-        ["Opening gap", `${signed(cash.gap_pct)} · ${signed(cash.gap_atr, "")} ATR${cash.gap_up_extended ? " · Extended" : ""}`],
-        ["Average cash turnover", cash.average_traded_value_crore == null ? "N/A" : `₹${number(cash.average_traded_value_crore, 1)} crore`],
-        ["Liquidity / slippage", `${cash.liquidity_tier || "N/A"} · ${cash.estimated_slippage_bps ?? "N/A"} bps`],
-        ["Event risk", data.news?.event_risk?.status === "unavailable" ? "News evidence unavailable" : data.news?.event_risk?.detected ? data.news.event_risk.categories.join(", ").replaceAll("_", " ") : "None detected"]
+        ["ATR (14)", currency(cash.atr14), "Average True Range over 14 sessions. It estimates the stock's typical daily price movement and volatility."],
+        ["Recent swing low", currency(cash.recent_swing_low), "The latest meaningful short-term low, often used as a support or trade-invalidation level."],
+        ["Prior 20-day high", currency(cash.prior_twenty_day_high), "The highest price before the latest session across the preceding 20 sessions. It is used as the breakout reference."],
+        ["10-day low", currency(cash.ten_day_low), "The lowest price recorded during the latest 10 trading sessions."],
+        ["Distance from SMA20", `${signed(cash.distance_from_sma20_atr, "")} ATR`, "How far the current price is above or below its 20-session average, measured in ATR units."],
+        ["Distance from breakout", `${signed(cash.distance_from_breakout_atr, "")} ATR`, "How far the current price is above or below the breakout level, measured in ATR units."],
+        ["Opening gap", `${signed(cash.gap_pct)} · ${signed(cash.gap_atr, "")} ATR${cash.gap_up_extended ? " · Extended" : ""}`, "The difference between today's opening price and the previous close, shown as a percentage and in ATR units."],
+        ["Average cash turnover", cash.average_traded_value_crore == null ? "N/A" : `₹${number(cash.average_traded_value_crore, 1)} crore`, "Average daily traded value in the cash market. Higher turnover generally indicates easier entry and exit."],
+        ["Liquidity / slippage", `${cash.liquidity_tier || "N/A"} · ${cash.estimated_slippage_bps ?? "N/A"} bps`, "The estimated ease of trading and expected execution cost. One basis point equals 0.01%."],
+        ["Event risk", data.news?.event_risk?.status === "unavailable" ? "News evidence unavailable" : data.news?.event_risk?.detected ? data.news.event_risk.categories.join(", ").replaceAll("_", " ") : "None detected", "Potential price-moving company events found in recent news, such as earnings, dividends, or corporate actions."]
       ]);
 
       const components = [
