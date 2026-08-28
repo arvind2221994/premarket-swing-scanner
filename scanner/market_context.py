@@ -58,12 +58,14 @@ def fetch_yahoo_trend(ticker):
 
         close = float(closes.iloc[-1])
         previous_close = float(closes.iloc[-2])
+        five_session_close = float(closes.iloc[-6])
         sma20 = float(closes.tail(20).mean())
         sma50 = float(closes.tail(50).mean())
         return {
             "ticker": ticker,
             "close": round(close, 4),
             "daily_change_pct": round((close / previous_close - 1) * 100, 2),
+            "return_5d_pct": round((close / five_session_close - 1) * 100, 2),
             "sma20": round(sma20, 4),
             "sma50": round(sma50, 4),
             "trend": classify_trend(close, sma20, sma50),
@@ -76,6 +78,7 @@ def fetch_yahoo_trend(ticker):
             "ticker": ticker,
             "close": None,
             "daily_change_pct": None,
+            "return_5d_pct": None,
             "sma20": None,
             "sma50": None,
             "trend": "unavailable",

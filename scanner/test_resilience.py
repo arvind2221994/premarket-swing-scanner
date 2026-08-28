@@ -107,6 +107,20 @@ class ApiErrorSanitizationTests(unittest.TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertEqual(response.get_json()["error"], "Enter a valid NSE ticker symbol")
 
+    def test_setup_modes_use_separate_report_cache_entries(self):
+        def report(symbol, mode):
+            return {"symbol": symbol, "setup_mode": mode}
+
+        with patch.object(web_app, "build_symbol_report", side_effect=report) as builder:
+            bullish = self.client.get("/api/analyze/TEST?mode=bullish")
+            bearish = self.client.get("/api/analyze/TEST?mode=bearish")
+            cached_bullish = self.client.get("/api/analyze/TEST?mode=bullish")
+
+        self.assertEqual(bullish.get_json()["setup_mode"], "bullish")
+        self.assertEqual(bearish.get_json()["setup_mode"], "bearish")
+        self.assertTrue(cached_bullish.get_json()["cached"])
+        self.assertEqual(builder.call_count, 2)
+
 
 if __name__ == "__main__":
     unittest.main()

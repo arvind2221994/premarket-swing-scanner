@@ -41,6 +41,9 @@
     .condition-item { min-width:130px; padding:16px; border-right:1px solid var(--line); } .condition-item:last-child { border:0; }
     .condition-label { color:var(--muted); font-size:11px; } .condition-value { margin-top:5px; font:600 17px/1.25 "Space Grotesk",sans-serif; overflow-wrap:anywhere; } .condition-detail { margin-top:4px; color:var(--muted); font-size:11px; }
     .candidate-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+    .mode-switch { display:inline-flex; padding:3px; border:1px solid var(--line); border-radius:6px; background:var(--surface); }
+    .mode-button { min-height:34px; padding:0 12px; border:0; border-radius:4px; background:transparent; color:var(--muted); font-weight:600; }
+    .mode-button[aria-pressed="true"] { background:var(--ink); color:#fff; }
     .card { position:relative; display:flex; flex-direction:column; min-width:0; padding:22px; border:1px solid var(--line); border-top:4px solid var(--score-color); border-radius:8px; background:var(--surface); transition:transform 150ms,box-shadow 150ms; }
     .card:hover { transform:translateY(-2px); box-shadow:0 10px 24px rgba(23,33,28,.11); }
     .card-link { position:absolute; inset:0; border-radius:8px; } .card-link:focus-visible { outline:3px solid rgba(23,105,170,.35); outline-offset:3px; }
@@ -48,6 +51,10 @@
     .rank { margin:0 0 5px; color:var(--muted); font-size:12px; font-weight:600; text-transform:uppercase; }
     .candidate-title { display:flex; align-items:baseline; justify-content:space-between; gap:10px; } .score { color:var(--score-color); font-size:24px; font-weight:700; }
     .recommendation { min-height:48px; font-weight:600; } .pcr,.reasons { color:var(--muted); font-size:14px; } .reasons { padding-left:18px; } li { margin-bottom:6px; }
+    .intelligence { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:8px; margin:14px 0; }
+    .intel-item { padding:9px; background:var(--paper); }
+    .intel-label { color:var(--muted); font-size:10px; } .intel-value { margin-top:3px; font-size:13px; font-weight:600; overflow-wrap:anywhere; }
+    .risk-flag { color:var(--red); }
     .card-controls { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-top:16px; padding-top:14px; border-top:1px solid var(--line); }
     button { font:inherit; cursor:pointer; } .watch-button { min-height:36px; padding:0 11px; border:1px solid #aeb8b0; border-radius:5px; background:#fff; font-size:13px; font-weight:600; }
     .watch-button[aria-pressed="true"] { border-color:var(--green); background:var(--green-soft); color:var(--green); }
@@ -80,7 +87,7 @@
     <div class="status-bar"><span id="freshness" class="freshness freshness-stale">Checking freshness</span><p id="generatedAt" class="meta"></p></div>
     <section><div class="section-header"><h2>Market conditions</h2><p class="section-note">Environment for long swing trades</p></div><div id="marketConditionSummary"></div><div class="conditions-grid" id="marketConditions"></div></section>
     <section><div class="section-header"><h2>Watchlist</h2><p class="section-note">Stored on this device</p></div><div id="watchlist" class="watchlist"></div></section>
-    <section><div class="section-header"><h2>Top candidates</h2><p class="section-note">Select two or three to compare</p></div><div id="topPicks" class="candidate-grid"></div></section>
+    <section><div class="section-header"><div><h2 id="candidateTitle">Top bullish setups</h2><p id="universeSummary" class="section-note"></p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div id="topPicks" class="candidate-grid"></div></section>
     <section><div class="section-header"><h2>Side-by-side comparison</h2><p id="comparisonCount" class="section-note">0 of 3 selected</p></div><div id="comparison" class="comparison"><p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p></div></section>
     <section><div class="section-header"><h2>Historical calibration</h2><p id="backtestHorizon" class="section-note">Cash technical score</p></div><div id="backtest" class="calibration"><p class="meta">Calibration data is unavailable until the next scanner refresh.</p></div></section>
     <p class="disclaimer">Educational scanner only. Market data can be delayed or unavailable. This is not financial advice.</p>
@@ -90,6 +97,7 @@
     const watchlistKey = "swing-scanner-watchlist";
     let scannerData = null;
     let selectedSymbols = [];
+    let setupMode = "bullish";
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[character]);
 
     function parseScannerDate(value) {
@@ -168,7 +176,7 @@
       });
     }
 
-    const scoreColor = score => score >= 75 ? "var(--green)" : score >= 60 ? "var(--amber)" : "var(--red)";
+    const scoreColor = (score, mode = setupMode) => score >= 75 ? (mode === "bearish" ? "var(--red)" : "var(--green)") : score >= 60 ? "var(--amber)" : "var(--muted)";
     function cue(label, value) {
       const number = Number(value);
       const formatted = value == null ? "N/A" : `${number >= 0 ? "+" : ""}${number.toFixed(2)}%`;
@@ -244,10 +252,21 @@
     }
 
     function renderCandidates(stocks) {
+      if (!stocks.length) {
+        document.getElementById("topPicks").innerHTML = '<div class="freshness-warning">This setup mode is unavailable until the next scanner refresh.</div>';
+        return;
+      }
       document.getElementById("topPicks").innerHTML = stocks.map((stock, index) => `
-        <article class="card" style="--score-color:${scoreColor(stock.score)}">
-          <a class="card-link" href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}" aria-label="Open detailed analysis for ${escapeHtml(stock.symbol)}"></a>
-          <div class="card-content"><p class="rank">Rank ${index + 1}</p><div class="candidate-title"><h3>${escapeHtml(stock.symbol)}</h3><span class="score">${Number(stock.score).toFixed(1)}</span></div><p class="recommendation">${escapeHtml(stock.recommendation)}</p><p class="pcr">Put-call ratio: ${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</p><ul class="reasons">${(stock.reasons || []).map(reason => `<li>${escapeHtml(reason)}</li>`).join("")}</ul></div>
+        <article class="card" style="--score-color:${scoreColor(stock.score, stock.setup_mode)}">
+          <a class="card-link" href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}&mode=${encodeURIComponent(stock.setup_mode || setupMode)}" aria-label="Open ${escapeHtml(stock.setup_mode || setupMode)} analysis for ${escapeHtml(stock.symbol)}"></a>
+          <div class="card-content"><p class="rank">${escapeHtml(titleCase(stock.setup_mode || setupMode))} rank ${index + 1}</p><div class="candidate-title"><h3>${escapeHtml(stock.symbol)}</h3><span class="score">${Number(stock.score).toFixed(1)}</span></div><p class="recommendation">${escapeHtml(stock.recommendation)}</p><div class="intelligence">
+            <div class="intel-item"><div class="intel-label">Sector relative</div><div class="intel-value">${percent(stock.sector_relative_strength_pct)} · ${escapeHtml(stock.sector || "N/A")}</div></div>
+            <div class="intel-item"><div class="intel-label">Liquidity / slippage</div><div class="intel-value">${escapeHtml(titleCase(stock.liquidity_tier))} · ${stock.estimated_slippage_bps ?? "N/A"} bps</div></div>
+            <div class="intel-item"><div class="intel-label">Opening gap</div><div class="intel-value ${stock.gap_extended ? "risk-flag" : ""}">${percent(stock.gap_pct)}${stock.gap_extended ? " · extended" : ""}</div></div>
+            <div class="intel-item"><div class="intel-label">Option walls</div><div class="intel-value">Put ${stock.put_oi_wall ?? "N/A"} · Call ${stock.call_oi_wall ?? "N/A"}</div></div>
+            <div class="intel-item"><div class="intel-label">Event risk</div><div class="intel-value ${stock.event_risk ? "risk-flag" : ""}">${stock.event_risk_status === "unavailable" ? "News evidence unavailable" : stock.event_risk ? escapeHtml((stock.event_categories || []).join(", ")) : "None detected"}</div></div>
+            <div class="intel-item"><div class="intel-label">Near-ATM PCR</div><div class="intel-value">${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</div></div>
+          </div><ul class="reasons">${(stock.reasons || []).slice(0, 6).map(reason => `<li>${escapeHtml(reason)}</li>`).join("")}</ul></div>
           <div class="card-controls"><button class="watch-button" type="button" data-watch="${escapeHtml(stock.symbol)}" aria-pressed="false">Watch</button><label class="compare-label"><input class="compare-input" type="checkbox" data-compare="${escapeHtml(stock.symbol)}">Compare</label></div>
         </article>`).join("");
       syncWatchButtons();
@@ -257,14 +276,17 @@
       document.getElementById("comparisonCount").textContent = `${selectedSymbols.length} of 3 selected`;
       const target = document.getElementById("comparison");
       if (selectedSymbols.length < 2) { target.innerHTML = '<p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p>'; return; }
-      const stocks = selectedSymbols.map(symbol => scannerData.top_3.find(stock => stock.symbol === symbol)).filter(Boolean);
+      const activeStocks = scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || [];
+      const stocks = selectedSymbols.map(symbol => activeStocks.find(stock => stock.symbol === symbol)).filter(Boolean);
       target.innerHTML = `<div class="comparison-grid" style="--count:${stocks.length}">${stocks.map(stock => `
         <div class="comparison-column"><h3>${escapeHtml(stock.symbol)}</h3>
-          <div class="comparison-row"><div class="comparison-label">Score</div><div class="comparison-value" style="color:${scoreColor(stock.score)}">${Number(stock.score).toFixed(1)}/100</div></div>
+          <div class="comparison-row"><div class="comparison-label">Score</div><div class="comparison-value" style="color:${scoreColor(stock.score, stock.setup_mode)}">${Number(stock.score).toFixed(1)}/100</div></div>
           <div class="comparison-row"><div class="comparison-label">Recommendation</div><div class="comparison-value">${escapeHtml(stock.recommendation)}</div></div>
           <div class="comparison-row"><div class="comparison-label">Put-call ratio</div><div class="comparison-value">${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</div></div>
+          <div class="comparison-row"><div class="comparison-label">Sector relative</div><div class="comparison-value">${percent(stock.sector_relative_strength_pct)}</div></div>
+          <div class="comparison-row"><div class="comparison-label">Liquidity / slippage</div><div class="comparison-value">${escapeHtml(titleCase(stock.liquidity_tier))} · ${stock.estimated_slippage_bps ?? "N/A"} bps</div></div>
           <div class="comparison-row"><div class="comparison-label">Signals</div><div class="comparison-value">${(stock.reasons || []).map(escapeHtml).join(" · ") || "N/A"}</div></div>
-          <div class="comparison-row"><a href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}">Detailed analysis</a></div>
+          <div class="comparison-row"><a href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}&mode=${encodeURIComponent(stock.setup_mode || setupMode)}">Detailed analysis</a></div>
         </div>`).join("")}</div>`;
     }
 
@@ -293,7 +315,11 @@
           return;
         }
 
-        renderCandidates(scannerData.top_3 || []);
+        const universe = scannerData.universe;
+        document.getElementById("universeSummary").textContent = universe
+          ? `${universe.eligible_count ?? universe.scanned_count} eligible of ${universe.scanned_count} scanned · ${universe.source}`
+          : "Select two or three to compare";
+        renderCandidates(scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || []);
       } catch (error) {
         freshnessBadge.innerText = "Stale";
         freshnessBadge.className = "freshness freshness-stale";
@@ -318,6 +344,16 @@
       if (!input) return;
       if (input.checked && selectedSymbols.length >= 3) { input.checked = false; return; }
       selectedSymbols = input.checked ? [...selectedSymbols, input.dataset.compare] : selectedSymbols.filter(value => value !== input.dataset.compare);
+      renderComparison();
+    });
+    document.querySelector(".mode-switch").addEventListener("click", event => {
+      const button = event.target.closest("[data-mode]");
+      if (!button || !scannerData) return;
+      setupMode = button.dataset.mode;
+      selectedSymbols = [];
+      document.querySelectorAll("[data-mode]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
+      document.getElementById("candidateTitle").textContent = `Top ${setupMode} setups`;
+      renderCandidates(scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || []);
       renderComparison();
     });
     renderWatchlist();

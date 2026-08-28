@@ -14,6 +14,44 @@ EDITIONS = (
     {"scope": "Local", "hl": "en-IN", "gl": "IN", "ceid": "IN:en"},
     {"scope": "International", "hl": "en-US", "gl": "US", "ceid": "US:en"},
 )
+EVENT_KEYWORDS = {
+    "earnings": ("earnings", "results", "profit", "revenue", "guidance"),
+    "dividend": ("dividend", "ex-dividend", "record date"),
+    "corporate_action": (
+        "bonus issue", "stock split", "share split", "buyback", "rights issue",
+        "merger", "acquisition", "demerger", "open offer",
+    ),
+    "material_event": (
+        "fraud", "default", "insolvency", "bankruptcy", "regulator", "sebi",
+        "order win", "contract win", "promoter stake", "management change",
+    ),
+}
+
+
+def classify_news_article(article, symbol, company_name=None, now=None):
+    title = article["title"].casefold()
+    categories = [
+        category
+        for category, keywords in EVENT_KEYWORDS.items()
+        if any(keyword in title for keyword in keywords)
+    ]
+    symbol_match = symbol.casefold() in title
+    company_tokens = [
+        token for token in (company_name or "").casefold().split()
+        if len(token) >= 4
+    ]
+    company_match = any(token in title for token in company_tokens)
+    relevance_score = 2 + (3 if symbol_match else 0) + (2 if company_match else 0)
+    materiality_score = min(10, relevance_score + len(categories) * 3)
+    enriched = {
+        **article,
+        "relevance_score": relevance_score,
+        "materiality_score": materiality_score,
+        "materiality": "high" if materiality_score >= 8 else "medium" if materiality_score >= 5 else "low",
+        "event_categories": categories,
+        "potentially_material": materiality_score >= 5 and bool(categories),
+    }
+    return enriched
 
 
 def _published_at(entry):
@@ -89,13 +127,33 @@ def fetch_company_news(symbol, company_name=None, days=7, limit=20):
         elif unique[key]["scope"] != article["scope"]:
             unique[key]["scope"] = "Local & International"
 
+    classified = [
+        classify_news_article(article, symbol, company_name)
+        for article in unique.values()
+    ]
     ranked = sorted(
-        unique.values(),
-        key=lambda article: article["published_at"] or "",
+        classified,
+        key=lambda article: (
+            article["materiality_score"],
+            article["relevance_score"],
+            article["published_at"] or "",
+        ),
         reverse=True,
     )[:limit]
+    material_articles = [article for article in ranked if article["potentially_material"]]
+    categories = sorted({
+        category
+        for article in material_articles
+        for category in article["event_categories"]
+    })
     return {
         "articles": ranked,
+        "event_risk": {
+            "status": "unavailable" if errors and not ranked else "detected" if material_articles else "clear",
+            "detected": bool(material_articles),
+            "categories": categories,
+            "headline_count": len(material_articles),
+        },
         "errors": errors,
         "lookback_days": days,
         "sources": "Google News RSS (India and US editions)",

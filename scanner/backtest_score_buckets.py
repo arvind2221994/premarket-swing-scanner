@@ -51,6 +51,7 @@ def download_history(ticker, start, end):
 def to_analyzer_history(data):
     return pd.DataFrame(
         {
+            "OpnPric": data["Open"],
             "ClsPric": data["Close"],
             "HghPric": data["High"],
             "LwPric": data["Low"],

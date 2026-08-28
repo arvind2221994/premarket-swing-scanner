@@ -131,6 +131,7 @@ def analyze_cash(history):
     lows = history["LwPric"].astype(float)
     volumes = history["TtlTradgVol"].astype(float)
     latest = history.iloc[-1]
+    open_price = float(latest.get("OpnPric", latest["ClsPric"]))
     close = float(latest["ClsPric"])
     previous_close = float(history.iloc[-2]["ClsPric"])
     sma20 = float(closes.tail(20).mean())
@@ -140,6 +141,7 @@ def analyze_cash(history):
     average_volume = float(volumes.iloc[-21:-1].mean())
     volume_ratio = float(latest["TtlTradgVol"]) / average_volume
     prior_twenty_day_high = float(highs.iloc[-21:-1].max())
+    prior_twenty_day_low = float(lows.iloc[-21:-1].min())
     ten_day_low = float(lows.tail(10).min())
     twenty_day_low = float(lows.tail(20).min())
 
@@ -153,6 +155,19 @@ def analyze_cash(history):
         axis=1,
     ).max(axis=1)
     atr14 = float(true_ranges.tail(14).mean())
+    gap_pct = (open_price / previous_close - 1) * 100
+    gap_atr = (open_price - previous_close) / atr14 if atr14 > 0 else None
+    gap_up_extended = gap_atr is not None and gap_atr >= 1.25
+    traded_values = closes * volumes
+    average_traded_value_crore = float(traded_values.tail(20).mean() / 10_000_000)
+    if average_traded_value_crore >= 500:
+        liquidity_tier, estimated_slippage_bps = "high", 4
+    elif average_traded_value_crore >= 100:
+        liquidity_tier, estimated_slippage_bps = "good", 8
+    elif average_traded_value_crore >= 25:
+        liquidity_tier, estimated_slippage_bps = "moderate", 15
+    else:
+        liquidity_tier, estimated_slippage_bps = "low", 30
 
     recent_swing_low = None
     pivot_search_start = max(1, len(history) - 21)
@@ -162,6 +177,7 @@ def analyze_cash(history):
             break
     if recent_swing_low is None:
         recent_swing_low = float(lows.iloc[-11:-1].min())
+    recent_swing_high = float(highs.iloc[-11:-1].max())
 
     distance_from_sma20_atr = (close - sma20) / atr14 if atr14 > 0 else None
     distance_from_breakout_atr = (
@@ -196,6 +212,7 @@ def analyze_cash(history):
 
     return {
         "score": score,
+        "open": open_price,
         "close": close,
         "return_1d": return_1d,
         "return_5d": return_5d,
@@ -203,10 +220,19 @@ def analyze_cash(history):
         "sma50": sma50,
         "volume_ratio": volume_ratio,
         "prior_twenty_day_high": prior_twenty_day_high,
+        "prior_twenty_day_low": prior_twenty_day_low,
         "ten_day_low": ten_day_low,
         "twenty_day_low": twenty_day_low,
         "atr14": atr14,
+        "gap_pct": gap_pct,
+        "gap_atr": gap_atr,
+        "gap_up_extended": gap_up_extended,
+        "gap_down_extended": gap_atr is not None and gap_atr <= -1.25,
+        "average_traded_value_crore": average_traded_value_crore,
+        "liquidity_tier": liquidity_tier,
+        "estimated_slippage_bps": estimated_slippage_bps,
         "recent_swing_low": recent_swing_low,
+        "recent_swing_high": recent_swing_high,
         "distance_from_sma20_atr": distance_from_sma20_atr,
         "distance_from_breakout_atr": distance_from_breakout_atr,
         "signals": signals,
@@ -263,6 +289,21 @@ def _pcr_and_walls(options):
         else None
     )
     return pcr, call_wall, put_wall
+
+
+def _option_oi_profile(options):
+    if options.empty:
+        return []
+    profile = []
+    for strike, rows in options.groupby("StrkPric"):
+        call_oi = rows.loc[rows["OptnTp"] == "CE", "OpnIntrst"].astype(float).sum()
+        put_oi = rows.loc[rows["OptnTp"] == "PE", "OpnIntrst"].astype(float).sum()
+        profile.append({
+            "strike": float(strike),
+            "call_oi": float(call_oi),
+            "put_oi": float(put_oi),
+        })
+    return sorted(profile, key=lambda row: row["strike"])
 
 
 def _rollover_proxy(rows, previous_rows, expiries):
@@ -343,6 +384,7 @@ def analyze_fno(symbol, frames, ban_status=None):
         previous_rows, nearest_expiry, spot
     ) if not previous_rows.empty else (pd.DataFrame(), None)
     pcr, call_oi_wall, put_oi_wall = _pcr_and_walls(near_options)
+    option_oi_profile = _option_oi_profile(near_options)
     previous_pcr, _, _ = _pcr_and_walls(previous_near_options)
     pcr_change = (
         pcr - previous_pcr
@@ -389,6 +431,13 @@ def analyze_fno(symbol, frames, ban_status=None):
         symbol_rows, previous_rows, expiries
     )
     basis = float(future["ClsPric"]) - spot
+    futures_transactions = int(future["TtlNbOfTxsExctd"])
+    futures_liquidity_tier = (
+        "high" if futures_volume >= 5000 and futures_transactions >= 1000
+        else "good" if futures_volume >= 1000 and futures_transactions >= 250
+        else "moderate" if futures_volume >= 250 and futures_transactions >= 50
+        else "low"
+    )
 
     return {
         "score": futures_score * 0.65 + pcr_score * 0.35,
@@ -406,10 +455,12 @@ def analyze_fno(symbol, frames, ban_status=None):
         "near_atm_strike_count": int(near_options["StrkPric"].nunique()) if not near_options.empty else 0,
         "call_oi_wall": call_oi_wall,
         "put_oi_wall": put_oi_wall,
+        "option_oi_profile": option_oi_profile,
         "futures_volume": futures_volume,
         "futures_volume_change_pct": futures_volume_change_pct,
         "futures_traded_value": float(future["TtlTrfVal"]),
-        "futures_transactions": int(future["TtlNbOfTxsExctd"]),
+        "futures_transactions": futures_transactions,
+        "futures_liquidity_tier": futures_liquidity_tier,
         "front_volume_share_pct": front_volume_share_pct,
         "next_expiry_oi_share_pct": rollover_share,
         "next_expiry_oi_share_change_pp": rollover_change,
@@ -419,14 +470,43 @@ def analyze_fno(symbol, frames, ban_status=None):
     }
 
 
-def make_assessment(cash, fno, fundamental_score):
-    components = [(cash["score"], 0.8 if fno is None else 0.5)]
+def directional_cash_score(cash, mode):
+    if mode == "bullish":
+        return cash["score"]
+    score = 0
+    score += 25 if cash["close"] < cash["sma20"] else 0
+    score += 20 if cash["sma50"] is not None and cash["close"] < cash["sma50"] else 0
+    score += 15 if cash["sma50"] is not None and cash["sma20"] < cash["sma50"] else 0
+    score += 15 if cash["return_5d"] < 0 else 0
+    score += 15 if cash["volume_ratio"] >= 1.2 else 8 if cash["volume_ratio"] >= 0.8 else 0
+    score += 10 if cash["close"] <= cash["prior_twenty_day_low"] * 1.02 else 0
+    return score
+
+
+def directional_fno_score(fno, mode):
+    if fno is None or mode == "bullish":
+        return fno["score"] if fno is not None else None
+    futures_score = {
+        "Short build-up": 85,
+        "Long unwinding": 70,
+        "Short covering": 35,
+        "Long build-up": 20,
+    }.get(fno["build_up"], 50)
+    pcr = fno["pcr"]
+    pcr_score = 50 if pcr is None else 85 if pcr < 0.7 else 70 if pcr < 0.9 else 45 if pcr <= 1.3 else 25
+    return futures_score * 0.65 + pcr_score * 0.35
+
+
+def make_assessment(cash, fno, fundamental_score, mode="bullish"):
+    cash_score = directional_cash_score(cash, mode)
+    fno_score = directional_fno_score(fno, mode)
+    components = [(cash_score, 0.8 if fno is None else 0.5)]
     if fno is None:
-        if fundamental_score is not None:
+        if fundamental_score is not None and mode == "bullish":
             components.append((fundamental_score * 10, 0.2))
     else:
-        components.append((fno["score"], 0.35))
-        if fundamental_score is not None:
+        components.append((fno_score, 0.35))
+        if fundamental_score is not None and mode == "bullish":
             components.append((fundamental_score * 10, 0.15))
 
     total_weight = sum(weight for _, weight in components)
@@ -441,22 +521,26 @@ def make_assessment(cash, fno, fundamental_score):
     return round(score, 1), verdict
 
 
-def build_pros_cons(cash, fno, fundamental_score):
+def build_pros_cons(cash, fno, fundamental_score, mode="bullish"):
     pros = []
     cons = []
+    bullish = mode == "bullish"
 
-    (pros if cash["close"] > cash["sma20"] else cons).append(
+    trend_supports = cash["close"] > cash["sma20"] if bullish else cash["close"] < cash["sma20"]
+    (pros if trend_supports else cons).append(
         "Price is above the 20-session average"
         if cash["close"] > cash["sma20"]
         else "Price is below the 20-session average"
     )
     if cash["sma50"] is not None:
-        (pros if cash["close"] > cash["sma50"] else cons).append(
+        trend_supports = cash["close"] > cash["sma50"] if bullish else cash["close"] < cash["sma50"]
+        (pros if trend_supports else cons).append(
             "Price is above the 50-session average"
             if cash["close"] > cash["sma50"]
             else "Price is below the 50-session average"
         )
-    (pros if cash["return_5d"] > 0 else cons).append(
+    momentum_supports = cash["return_5d"] > 0 if bullish else cash["return_5d"] < 0
+    (pros if momentum_supports else cons).append(
         "Five-session momentum is positive"
         if cash["return_5d"] > 0
         else "Five-session momentum is negative"
@@ -466,39 +550,62 @@ def build_pros_cons(cash, fno, fundamental_score):
         if cash["volume_ratio"] >= 1.2
         else "Cash volume lacks a 1.2x expansion confirmation"
     )
+    directional_gap_extended = cash["gap_up_extended"] if bullish else cash["gap_down_extended"]
+    if directional_gap_extended:
+        cons.append(
+            f"Opening gap is extended at {abs(cash['gap_atr']):.1f} ATR; avoid chasing"
+        )
+    if cash["liquidity_tier"] == "low":
+        cons.append(
+            f"Low cash turnover implies about {cash['estimated_slippage_bps']} bps slippage"
+        )
+    else:
+        pros.append(
+            f"Cash liquidity is {cash['liquidity_tier']} with estimated slippage near "
+            f"{cash['estimated_slippage_bps']} bps"
+        )
 
     if fno is None:
         cons.append("No listed NSE F&O contract; derivatives confirmation is unavailable")
     else:
-        (pros if fno["build_up"] in {"Long build-up", "Short covering"} else cons).append(
+        favorable_builds = {"Long build-up", "Short covering"} if bullish else {"Short build-up", "Long unwinding"}
+        (pros if fno["build_up"] in favorable_builds else cons).append(
             f"Futures positioning shows {fno['build_up'].lower()}"
         )
         if fno["pcr"] is None:
             cons.append("Near-ATM put-call ratio is unavailable")
-        elif 0.9 <= fno["pcr"] <= 1.3:
+        elif bullish and 0.9 <= fno["pcr"] <= 1.3:
             pros.append("Near-ATM PCR is in the balanced bullish range of 0.9-1.3")
+        elif not bullish and fno["pcr"] < 0.9:
+            pros.append("Near-ATM PCR is call-heavy and supports the bearish setup")
         else:
-            cons.append("Near-ATM PCR is outside the balanced bullish range of 0.9-1.3")
+            cons.append(f"Near-ATM PCR does not support the {mode} setup")
         if fno["ban_status"]["is_banned"] is True:
             cons.append("The stock is currently in the NSE F&O ban list")
+        if fno["futures_liquidity_tier"] == "low":
+            cons.append("Front-month futures liquidity is low")
 
-    if fundamental_score is None:
+    if fundamental_score is None and bullish:
         cons.append("Fundamental data is incomplete and excluded from the composite")
-    elif fundamental_score >= 6:
+    elif bullish and fundamental_score >= 6:
         pros.append("Fundamental score is at least 6/10")
-    elif fundamental_score < 5:
+    elif bullish and fundamental_score < 5:
         cons.append("Fundamental score is below 5/10")
+    elif not bullish and fundamental_score is not None and fundamental_score >= 6:
+        cons.append("Strong fundamentals may oppose the bearish setup")
+    elif not bullish and fundamental_score is not None and fundamental_score < 5:
+        pros.append("Weak fundamentals are consistent with the bearish setup")
 
     return pros, cons
 
 
 def build_daily_change(current_score, current_pros, current_cons, previous_date,
-                       previous_cash, previous_fno, fundamental_score):
+                       previous_cash, previous_fno, fundamental_score, mode="bullish"):
     previous_score, _ = make_assessment(
-        previous_cash, previous_fno, fundamental_score
+        previous_cash, previous_fno, fundamental_score, mode
     )
     previous_pros, previous_cons = build_pros_cons(
-        previous_cash, previous_fno, fundamental_score
+        previous_cash, previous_fno, fundamental_score, mode
     )
     return {
         "previous_date": previous_date.isoformat(),
@@ -511,16 +618,59 @@ def build_daily_change(current_score, current_pros, current_cons, previous_date,
     }
 
 
-def build_trade_plan(cash, score):
+def build_trade_plan(cash, score, mode="bullish"):
     atr = cash["atr14"]
     if atr <= 0:
         return None
+
+    if mode == "bearish":
+        breakdown_level = cash["prior_twenty_day_low"] - atr * 0.1
+        entry_valid = (
+            score >= 75
+            and cash["close"] <= breakdown_level
+            and cash["volume_ratio"] >= 1.2
+            and not cash["gap_down_extended"]
+            and cash["liquidity_tier"] != "low"
+        )
+        entry_high = min(breakdown_level, cash["close"] + atr * 0.25) if entry_valid else breakdown_level
+        entry_low = cash["close"] - atr * 0.25 if entry_valid else breakdown_level - atr * 0.5
+        entry_reference = entry_low
+        stop_loss = max(
+            entry_high + atr * 0.5,
+            min(entry_reference + atr * 1.5, cash["recent_swing_high"] + atr * 0.25),
+        )
+        risk_per_share = stop_loss - entry_reference
+        return {
+            "direction": "short",
+            "status": (
+                "Entry valid now" if entry_valid
+                else "Wait for bounce" if cash["gap_down_extended"]
+                else "Wait for breakdown"
+            ),
+            "entry_valid": entry_valid,
+            "entry_low": round(entry_low, 2),
+            "entry_high": round(entry_high, 2),
+            "entry_reference": round(entry_reference, 2),
+            "stop_loss": round(stop_loss, 2),
+            "risk_per_share": round(risk_per_share, 2),
+            "targets": [
+                round(entry_reference - risk_per_share * 1.5, 2),
+                round(entry_reference - risk_per_share * 2.5, 2),
+            ],
+            "risk_reward_ratio": 2.5,
+            "invalidation": (
+                f"Daily close above INR {stop_loss:.2f}, or a breakdown close back above "
+                f"INR {cash['prior_twenty_day_low']:.2f}."
+            ),
+        }
 
     breakout_level = cash["prior_twenty_day_high"] + atr * 0.1
     entry_valid = (
         score >= 75
         and cash["close"] >= breakout_level
         and cash["volume_ratio"] >= 1.2
+        and not cash["gap_up_extended"]
+        and cash["liquidity_tier"] != "low"
     )
     if entry_valid:
         entry_low = max(breakout_level, cash["close"] - atr * 0.25)
@@ -547,7 +697,12 @@ def build_trade_plan(cash, score):
         )
     )
     return {
-        "status": "Entry valid now" if entry_valid else "Wait for breakout",
+        "direction": "long",
+        "status": (
+            "Entry valid now" if entry_valid
+            else "Wait for pullback" if cash["gap_up_extended"]
+            else "Wait for breakout"
+        ),
         "entry_valid": entry_valid,
         "entry_low": round(entry_low, 2),
         "entry_high": round(entry_high, 2),
@@ -560,10 +715,12 @@ def build_trade_plan(cash, score):
     }
 
 
-def build_symbol_report(symbol):
+def build_symbol_report(symbol, mode="bullish"):
     clean_symbol = symbol.strip().upper()
     if not re.fullmatch(r"[A-Z0-9&-]{1,20}", clean_symbol):
         raise ValueError("Enter a valid NSE ticker symbol")
+    if mode not in {"bullish", "bearish"}:
+        raise ValueError("Enter a valid setup mode")
 
     with requests.Session() as session:
         history = load_recent_symbol_history(session, clean_symbol, sessions=51)
@@ -578,9 +735,15 @@ def build_symbol_report(symbol):
     fundamental_score = fundamental_result["score"]
     fundamental_tags = fundamental_result["tags"]
     news = fetch_company_news(clean_symbol, fundamentals.get("name"))
-    score, verdict = make_assessment(cash, fno, fundamental_score)
-    pros, cons = build_pros_cons(cash, fno, fundamental_score)
-    trade_plan = build_trade_plan(cash, score)
+    score, verdict = make_assessment(cash, fno, fundamental_score, mode)
+    pros, cons = build_pros_cons(cash, fno, fundamental_score, mode)
+    event_risk = news.get("event_risk", {})
+    if event_risk.get("detected"):
+        labels = ", ".join(category.replace("_", " ") for category in event_risk["categories"])
+        cons.append(
+            f"Potentially material event headlines detected: {labels}"
+        )
+    trade_plan = build_trade_plan(cash, score, mode)
     daily_change = None
     if len(history) >= 51:
         previous_history = history.iloc[:-1].reset_index(drop=True)
@@ -596,24 +759,28 @@ def build_symbol_report(symbol):
                 previous_cash,
                 previous_fno,
                 fundamental_score,
+                mode,
             )
 
     cash_weight = 0.8 if fno is None else 0.5
     fno_weight = 0.35 if fno is not None else 0
-    fundamental_weight = (
+    fundamental_weight = 0 if mode == "bearish" else (
         0.2 if fno is None and fundamental_score is not None
         else 0.15 if fundamental_score is not None
         else 0
     )
+    cash_score = directional_cash_score(cash, mode)
+    fno_score = directional_fno_score(fno, mode)
     weighted_total = (
-        cash["score"] * cash_weight
-        + (fno["score"] * fno_weight if fno is not None else 0)
+        cash_score * cash_weight
+        + (fno_score * fno_weight if fno is not None else 0)
         + (fundamental_score * 10 * fundamental_weight if fundamental_score is not None else 0)
     )
     total_weight = cash_weight + fno_weight + fundamental_weight
 
     return {
         "symbol": clean_symbol,
+        "setup_mode": mode,
         "data_through": latest_date.isoformat(),
         "score": score,
         "verdict": verdict,
@@ -628,9 +795,9 @@ def build_symbol_report(symbol):
         "daily_change": daily_change,
         "trade_plan": trade_plan,
         "calculation": {
-            "cash_score": cash["score"],
+            "cash_score": cash_score,
             "cash_weight": cash_weight,
-            "fno_score": fno["score"] if fno is not None else None,
+            "fno_score": fno_score,
             "fno_weight": fno_weight,
             "fundamental_score_100": (
                 fundamental_score * 10 if fundamental_score is not None else None

@@ -196,17 +196,21 @@ def ticker_suggestions():
 @app.get("/api/analyze/<symbol>")
 def analyze(symbol):
     clean_symbol = symbol.strip().upper()
-    cached = report_cache.get(clean_symbol)
+    mode = request.args.get("mode", "bullish").strip().lower()
+    if mode not in {"bullish", "bearish"}:
+        return jsonify({"error": "Setup mode must be bullish or bearish."}), 400
+    cache_key = (clean_symbol, mode)
+    cached = report_cache.get(cache_key)
     if cached is not None:
         return jsonify({**cached, "cached": True})
 
     try:
         with analysis_lock:
-            cached = report_cache.get(clean_symbol)
+            cached = report_cache.get(cache_key)
             if cached is not None:
                 return jsonify({**cached, "cached": True})
-            report = build_symbol_report(clean_symbol)
-            report_cache.set(clean_symbol, report)
+            report = build_symbol_report(clean_symbol, mode)
+            report_cache.set(cache_key, report)
             record_report_health(report)
         return jsonify({**report, "cached": False})
     except ValueError as error:

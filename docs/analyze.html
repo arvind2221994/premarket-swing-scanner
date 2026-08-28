@@ -325,6 +325,12 @@
     .metric { min-width: 0; }
     .metric-label { color: var(--muted); font-size: 12px; margin-bottom: 3px; }
     .metric-value { font: 600 18px/1.25 "Space Grotesk", sans-serif; overflow-wrap: anywhere; }
+    .option-walls { display:grid; gap:9px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
+    .wall-row { display:grid; grid-template-columns:62px minmax(0,1fr) minmax(0,1fr); gap:8px; align-items:center; }
+    .wall-strike { color:var(--muted); font-size:12px; text-align:right; }
+    .wall-track { height:18px; background:var(--paper); overflow:hidden; }
+    .wall-bar { min-width:2px; height:100%; } .wall-bar.call { margin-left:auto; background:var(--red); } .wall-bar.put { background:var(--green); }
+    .wall-legend { display:flex; justify-content:space-between; color:var(--muted); font-size:11px; }
 
     table { width: 100%; border-collapse: collapse; margin-top: 14px; }
     th, td { padding: 11px 8px; text-align: right; border-bottom: 1px solid var(--line); }
@@ -365,6 +371,9 @@
       font-size: 12px;
       font-weight: 700;
     }
+    .news-badges { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
+    .materiality-badge { padding:3px 6px; border-radius:3px; background:var(--amber-soft); color:var(--amber); font-size:11px; font-weight:700; text-transform:capitalize; }
+    .materiality-badge.high { background:var(--red-soft); color:var(--red); }
 
     .news-title {
       color: var(--ink);
@@ -479,7 +488,7 @@
 
       <div class="three-column">
         <section class="panel"><h2>Cash trend</h2><div id="cashMetrics" class="metric-grid"></div></section>
-        <section class="panel"><h2>F&amp;O positioning</h2><div id="fnoMetrics" class="metric-grid"></div></section>
+        <section class="panel"><h2>F&amp;O positioning</h2><div id="fnoMetrics" class="metric-grid"></div><div id="optionWalls" class="option-walls"></div></section>
         <section class="panel"><h2>Fundamentals</h2><div id="fundamentalMetrics" class="metric-grid"></div></section>
       </div>
 
@@ -525,6 +534,8 @@
     const recentElement = document.getElementById("recentStocks");
     const recentList = document.getElementById("recentList");
     const recentStorageKey = "swing-scanner-recent-tickers";
+    const initialParams = new URLSearchParams(location.search);
+    const setupMode = initialParams.get("mode") === "bearish" ? "bearish" : "bullish";
     let confirmedTicker = null;
     let suggestionTimer = null;
     let suggestionRequest = null;
@@ -623,13 +634,33 @@
               <article class="news-item">
                 <span class="news-scope">${escapeHtml(article.scope)}</span>
                 <div>
+                  <div class="news-badges">${article.potentially_material ? `<span class="materiality-badge ${escapeHtml(article.materiality)}">${escapeHtml(article.materiality)} materiality</span>` : ""}${(article.event_categories || []).map(category => `<span class="materiality-badge">${escapeHtml(category.replaceAll("_", " "))}</span>`).join("")}</div>
                   <a class="news-title" href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(article.title)}</a>
-                  <p class="news-meta">${escapeHtml(article.publisher)} · ${escapeHtml(published)}</p>
+                  <p class="news-meta">${escapeHtml(article.publisher)} · ${escapeHtml(published)} · Relevance ${article.relevance_score ?? "N/A"}/7</p>
                 </div>
               </article>
             `;
           }).join("")
         : '<p class="meta">No matching recent articles were found.</p>';
+    }
+
+    function renderOptionWalls(fno) {
+      const target = document.getElementById("optionWalls");
+      const profile = fno?.option_oi_profile || [];
+      if (!profile.length) {
+        target.innerHTML = '<p class="meta">Option wall profile unavailable.</p>';
+        return;
+      }
+      const maximum = Math.max(...profile.flatMap(row => [row.call_oi, row.put_oi]), 1);
+      target.innerHTML = `
+        <div class="wall-legend"><span>Call OI resistance</span><span>Put OI support</span></div>
+        ${profile.map(row => `
+          <div class="wall-row" title="Strike ${number(row.strike, 0)} · Call OI ${number(row.call_oi, 0)} · Put OI ${number(row.put_oi, 0)}">
+            <span class="wall-strike">${number(row.strike, 0)}</span>
+            <div class="wall-track"><div class="wall-bar call" style="width:${row.call_oi / maximum * 100}%"></div></div>
+            <div class="wall-track"><div class="wall-bar put" style="width:${row.put_oi / maximum * 100}%"></div></div>
+          </div>`).join("")}
+        <p class="meta">Largest call wall: ${number(fno.call_oi_wall, 0)} · Largest put wall: ${number(fno.put_oi_wall, 0)}</p>`;
     }
 
     function renderDailyChange(change) {
@@ -695,7 +726,7 @@
       if (!Number.isFinite(atr) || atr <= 0) return null;
 
       const breakoutLevel = cash.prior_twenty_day_high + atr * 0.1;
-      const entryValid = score >= 75 && cash.close >= breakoutLevel && cash.volume_ratio >= 1.2;
+      const entryValid = score >= 75 && cash.close >= breakoutLevel && cash.volume_ratio >= 1.2 && !cash.gap_up_extended && cash.liquidity_tier !== "low";
       const entryLow = entryValid
         ? Math.max(breakoutLevel, cash.close - atr * 0.25)
         : breakoutLevel;
@@ -708,7 +739,7 @@
       const round = value => Math.round(value * 100) / 100;
 
       return {
-        status: entryValid ? "Entry valid now" : "Wait for breakout",
+        status: entryValid ? "Entry valid now" : cash.gap_up_extended ? "Wait for pullback" : "Wait for breakout",
         entry_valid: entryValid,
         entry_low: round(entryLow),
         entry_high: round(entryHigh),
@@ -752,15 +783,16 @@
       const fundamentals = data.fundamentals;
       const assessment = data.fundamental_assessment;
       const calculation = data.calculation;
-      const scoreColor = data.score >= 75 ? "var(--green)" : data.score >= 60 ? "var(--amber)" : "var(--red)";
-      const badgeBackground = data.score >= 75 ? "var(--green-soft)" : data.score >= 60 ? "var(--amber-soft)" : "var(--red-soft)";
+      const bearish = (data.setup_mode || setupMode) === "bearish";
+      const scoreColor = data.score >= 75 ? (bearish ? "var(--red)" : "var(--green)") : data.score >= 60 ? "var(--amber)" : "var(--muted)";
+      const badgeBackground = data.score >= 75 ? (bearish ? "var(--red-soft)" : "var(--green-soft)") : data.score >= 60 ? "var(--amber-soft)" : "var(--paper)";
 
       const ring = document.getElementById("scoreRing");
       ring.style.setProperty("--score", Math.max(0, Math.min(100, data.score)));
       ring.style.setProperty("--score-color", scoreColor);
       document.getElementById("scoreValue").textContent = number(data.score, 1);
       document.getElementById("reportDate").textContent = `Data through ${data.data_through}`;
-      document.getElementById("reportTitle").textContent = `${data.symbol} swing-trade assessment`;
+      document.getElementById("reportTitle").textContent = `${data.symbol} ${data.setup_mode || setupMode} swing-trade assessment`;
       document.getElementById("verdict").textContent = data.verdict;
       const confidence = document.getElementById("confidence");
       confidence.textContent = `${data.confidence} confidence`;
@@ -768,7 +800,7 @@
       confidence.style.setProperty("--badge-bg", badgeBackground);
       document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
       renderDailyChange(data.daily_change);
-      renderTradePlan(data.trade_plan || deriveTradePlan(cash, data.score));
+      renderTradePlan(data.trade_plan || (bearish ? null : deriveTradePlan(cash, data.score)));
 
       list("pros", data.pros, "No strong supporting evidence detected.");
       list("cons", data.cons, "No material risk flags detected by this model.");
@@ -788,8 +820,11 @@
         ["Open-interest change", signed(fno.oi_change_pct)],
         ["Near-ATM PCR", number(fno.pcr)],
         ["PCR trend", fno.pcr_trend],
-        ["Futures basis", signed(fno.basis_pct)]
+        ["Futures basis", signed(fno.basis_pct)],
+        ["Futures liquidity", fno.futures_liquidity_tier],
+        ["Call / put wall", `${number(fno.call_oi_wall, 0)} / ${number(fno.put_oi_wall, 0)}`]
       ] : [["Availability", "No listed NSE F&O contract"]]);
+      renderOptionWalls(fno);
 
       metrics("fundamentalMetrics", [
         ["P/E", number(fundamentals.pe_ratio)],
@@ -806,7 +841,11 @@
         ["Prior 20-day high", currency(cash.prior_twenty_day_high)],
         ["10-day low", currency(cash.ten_day_low)],
         ["Distance from SMA20", `${signed(cash.distance_from_sma20_atr, "")} ATR`],
-        ["Distance from breakout", `${signed(cash.distance_from_breakout_atr, "")} ATR`]
+        ["Distance from breakout", `${signed(cash.distance_from_breakout_atr, "")} ATR`],
+        ["Opening gap", `${signed(cash.gap_pct)} · ${signed(cash.gap_atr, "")} ATR${cash.gap_up_extended ? " · Extended" : ""}`],
+        ["Average cash turnover", cash.average_traded_value_crore == null ? "N/A" : `₹${number(cash.average_traded_value_crore, 1)} crore`],
+        ["Liquidity / slippage", `${cash.liquidity_tier || "N/A"} · ${cash.estimated_slippage_bps ?? "N/A"} bps`],
+        ["Event risk", data.news?.event_risk?.status === "unavailable" ? "News evidence unavailable" : data.news?.event_risk?.detected ? data.news.event_risk.categories.join(", ").replaceAll("_", " ") : "None detected"]
       ]);
 
       const components = [
@@ -832,14 +871,14 @@
       status.textContent = "Downloading NSE sessions and calculating the report. The first run can take up to two minutes.";
 
       try {
-        const response = await fetch(`${API_BASE}/api/analyze/${encodeURIComponent(ticker)}`);
+        const response = await fetch(`${API_BASE}/api/analyze/${encodeURIComponent(ticker)}?mode=${encodeURIComponent(setupMode)}`);
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Analysis failed");
         renderReport(data);
         rememberTicker(data.symbol);
         status.className = "status";
         status.textContent = "";
-        history.replaceState(null, "", `?ticker=${encodeURIComponent(ticker)}`);
+        history.replaceState(null, "", `?ticker=${encodeURIComponent(ticker)}&mode=${encodeURIComponent(setupMode)}`);
       } catch (error) {
         status.className = "status error";
         status.textContent = error.message.includes("Failed to fetch")
@@ -915,7 +954,7 @@
 
     renderRecentTickers();
 
-    const initialTicker = new URLSearchParams(location.search).get("ticker");
+    const initialTicker = initialParams.get("ticker");
     if (initialTicker) {
       input.value = initialTicker;
       if (/^[A-Za-z0-9&-]{1,20}$/.test(initialTicker)) {
