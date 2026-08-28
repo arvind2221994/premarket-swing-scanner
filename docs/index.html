@@ -26,8 +26,9 @@
     .intro { margin:0; } .section-header { align-items:baseline; margin:30px 0 14px; } .section-note { margin:0; font-size:13px; }
     .intro-actions { display:flex; align-items:center; gap:10px; }
     .action-button { display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 18px; border:1px solid var(--ink); border-radius:6px; font-weight:600; text-decoration:none; white-space:nowrap; }
-    .refresh-button { background:var(--surface); color:var(--ink); }
+    .refresh-button { background:var(--surface); color:var(--ink); font:inherit; cursor:pointer; }
     .refresh-button:hover { border-color:var(--green); color:var(--green); }
+    .refresh-button:disabled { cursor:wait; opacity:.65; }
     .analyze-button { background:var(--ink); color:#fff; }
     .analyze-button:hover { border-color:var(--green); background:var(--green); }
     .status-bar { padding:14px 16px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
@@ -93,7 +94,7 @@
 <body>
   <header><div class="header-inner"><div class="brand">Spiderman trading</div><nav><a href="./analyze.html">Stock analysis</a></nav></div></header>
   <main>
-    <div class="intro-row"><div><h1>Market dashboard</h1><p class="intro">Pre-market context and ranked NSE swing candidates.</p></div><div class="intro-actions"><a class="action-button refresh-button" href="https://github.com/arvind2221994/premarket-swing-scanner/actions/workflows/refresh-scanner.yml" target="_blank" rel="noopener">Refresh data</a><a class="action-button analyze-button" href="./analyze.html">Analyze another stock</a></div></div>
+    <div class="intro-row"><div><h1>Market dashboard</h1><p class="intro">Pre-market context and ranked NSE swing candidates.</p></div><div class="intro-actions"><button id="refreshData" class="action-button refresh-button" type="button">Refresh market data</button><a class="action-button analyze-button" href="./analyze.html">Analyze another stock</a></div></div>
     <div class="status-bar"><span id="freshness" class="freshness freshness-stale">Checking freshness</span><p id="generatedAt" class="meta"></p></div>
     <section><div class="section-header"><h2>Market conditions</h2><p class="section-note">Environment for long swing trades</p></div><div id="marketConditionSummary"></div><div class="conditions-grid" id="marketConditions"></div></section>
     <section><div class="section-header"><h2>Watchlist</h2><p class="section-note">Stored on this device</p></div><div id="watchlist" class="watchlist"></div></section>
@@ -105,6 +106,7 @@
   <div id="metricTooltip" class="metric-tooltip" role="tooltip" hidden></div>
 
   <script>
+    const API_BASE = "https://premarket-swing-scanner.onrender.com";
     const watchlistKey = "swing-scanner-watchlist";
     let scannerData = null;
     let selectedSymbols = [];
@@ -338,6 +340,34 @@
         </div>`).join("")}</div>`;
     }
 
+    function loadScannerDataFromSnapshot(snapshot) {
+      const freshnessBadge = document.getElementById("freshness");
+      const container = document.getElementById("topPicks");
+      scannerData = snapshot;
+      const freshness = getFreshness(scannerData);
+
+      freshnessBadge.innerText = freshness.label;
+      freshnessBadge.className = `freshness ${freshness.className}`;
+
+      document.getElementById("generatedAt").innerText =
+        `Generated ${scannerData.generated_at_ist} IST · Market data ${scannerData.data_as_of || "unknown"}`;
+
+      renderMarketConditions(scannerData.market_context);
+      renderBacktest(scannerData.backtest);
+
+      if (freshness.stale) {
+        container.innerHTML = '<div class="freshness-warning">Recommendations are hidden because the scanner data is more than one trading session old.</div>';
+        document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable while recommendations are stale.</p>';
+        return;
+      }
+
+      const universe = scannerData.universe;
+      document.getElementById("universeSummary").textContent = universe
+        ? `${universe.eligible_count ?? universe.scanned_count} eligible of ${universe.scanned_count} scanned · ${universe.source}`
+        : "Select two or three to compare";
+      renderCandidates(scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || []);
+    }
+
     async function loadScannerData() {
       const freshnessBadge = document.getElementById("freshness");
       const container = document.getElementById("topPicks");
@@ -345,35 +375,50 @@
       try {
         const response = await fetch("./data/latest.json?ts=" + Date.now(), { cache: "no-store" });
         if (!response.ok) throw new Error(`Scanner data request failed: ${response.status}`);
-        scannerData = await response.json();
-        const freshness = getFreshness(scannerData);
-
-        freshnessBadge.innerText = freshness.label;
-        freshnessBadge.className = `freshness ${freshness.className}`;
-
-        document.getElementById("generatedAt").innerText =
-          `Generated ${scannerData.generated_at_ist} IST · Market data ${scannerData.data_as_of || "unknown"}`;
-
-        renderMarketConditions(scannerData.market_context);
-        renderBacktest(scannerData.backtest);
-
-        if (freshness.stale) {
-          container.innerHTML = '<div class="freshness-warning">Recommendations are hidden because the scanner data is more than one trading session old.</div>';
-          document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable while recommendations are stale.</p>';
-          return;
-        }
-
-        const universe = scannerData.universe;
-        document.getElementById("universeSummary").textContent = universe
-          ? `${universe.eligible_count ?? universe.scanned_count} eligible of ${universe.scanned_count} scanned · ${universe.source}`
-          : "Select two or three to compare";
-        renderCandidates(scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || []);
+        loadScannerDataFromSnapshot(await response.json());
       } catch (error) {
         freshnessBadge.innerText = "Stale";
         freshnessBadge.className = "freshness freshness-stale";
         container.innerHTML = '<div class="freshness-warning">Recommendations are unavailable because current scanner data could not be verified.</div>';
         document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable.</p>';
         console.error(error);
+      }
+    }
+
+    async function refreshScannerData() {
+      const refreshButton = document.getElementById("refreshData");
+      refreshButton.disabled = true;
+      refreshButton.textContent = "Starting refresh…";
+
+      try {
+        const startResponse = await fetch(`${API_BASE}/api/refresh`, { method: "POST" });
+        if (![202, 409, 429].includes(startResponse.status)) {
+          throw new Error(`Refresh request failed: ${startResponse.status}`);
+        }
+
+        let refresh = await startResponse.json();
+        refreshButton.textContent = refresh.status === "running" ? "Refreshing…" : "Loading latest…";
+
+        while (refresh.status === "running") {
+          await new Promise(resolve => setTimeout(resolve, 5000));
+          const statusResponse = await fetch(`${API_BASE}/api/refresh`, { cache: "no-store" });
+          if (!statusResponse.ok) throw new Error(`Refresh status request failed: ${statusResponse.status}`);
+          refresh = await statusResponse.json();
+        }
+
+        if (refresh.status === "failed") throw new Error(refresh.error);
+
+        const dataResponse = await fetch(`${API_BASE}/api/scanner-data?ts=${Date.now()}`, { cache: "no-store" });
+        if (!dataResponse.ok) throw new Error(`Scanner data request failed: ${dataResponse.status}`);
+        scannerData = await dataResponse.json();
+        await loadScannerDataFromSnapshot(scannerData);
+      } catch (error) {
+        refreshButton.textContent = "Refresh failed";
+        console.error(error);
+        await new Promise(resolve => setTimeout(resolve, 2500));
+      } finally {
+        refreshButton.disabled = false;
+        refreshButton.textContent = "Refresh market data";
       }
     }
 
@@ -404,6 +449,7 @@
       renderCandidates(scannerData.top_setups?.[setupMode] || (setupMode === "bullish" ? scannerData.top_3 : []) || []);
       renderComparison();
     });
+    document.getElementById("refreshData").addEventListener("click", refreshScannerData);
     renderWatchlist();
     loadScannerData();
   </script>

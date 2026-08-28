@@ -1,6 +1,7 @@
 import json
 import os
 from datetime import date, datetime, timedelta
+from pathlib import Path
 
 import pandas as pd
 import pytz
@@ -23,6 +24,7 @@ from resilience import UpstreamUnavailableError
 
 DEFAULT_SYMBOLS = ("RELIANCE", "ICICIBANK", "TCS")
 DEFAULT_UNIVERSE_SIZE = 15
+LATEST_DATA_PATH = Path(__file__).resolve().parent.parent / "docs" / "data" / "latest.json"
 MIN_CASH_TURNOVER_CRORE = float(os.getenv("MIN_CASH_TURNOVER_CRORE", "25"))
 MIN_FUTURES_VOLUME = int(os.getenv("MIN_FUTURES_VOLUME", "250"))
 SECTOR_BY_SYMBOL = {
@@ -186,7 +188,7 @@ def load_stock_universe():
     return stocks, data_as_of
 
 
-def main():
+def main(output_path=LATEST_DATA_PATH):
     ist = pytz.timezone("Asia/Kolkata")
     now = datetime.now(ist)
 
@@ -256,12 +258,14 @@ def main():
         },
     }
 
-    os.makedirs("docs/data", exist_ok=True)
+    output_path = Path(output_path)
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = output_path.with_suffix(f"{output_path.suffix}.tmp")
+    with temporary_path.open("w", encoding="utf-8") as file:
+        json.dump(output, file, indent=2)
+    os.replace(temporary_path, output_path)
 
-    with open("docs/data/latest.json", "w") as f:
-        json.dump(output, f, indent=2)
-
-    print("Generated docs/data/latest.json")
+    print(f"Generated {output_path}")
 
 
 if __name__ == "__main__":

@@ -11,3 +11,5 @@ services:
         value: 3.12.7
       - key: REPORT_CACHE_SECONDS
         value: 3600
+      - key: REFRESH_COOLDOWN_SECONDS
+        value: 900

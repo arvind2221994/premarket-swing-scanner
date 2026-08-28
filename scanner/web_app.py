@@ -6,7 +6,9 @@ from pathlib import Path
 
 import requests
 from flask import Flask, jsonify, request
+from werkzeug.exceptions import NotFound
 
+import scanner as scanner_generator
 from fno_trade_analyzer import build_symbol_report
 from resilience import BoundedTTLCache, UpstreamUnavailableError, call_with_resilience
 
@@ -16,6 +18,7 @@ CACHE_SECONDS = int(os.getenv("REPORT_CACHE_SECONDS", "3600"))
 TICKER_SEARCH_CACHE_SECONDS = 86400
 REPORT_CACHE_MAX_SIZE = int(os.getenv("REPORT_CACHE_MAX_SIZE", "128"))
 TICKER_SEARCH_CACHE_MAX_SIZE = int(os.getenv("TICKER_SEARCH_CACHE_MAX_SIZE", "256"))
+REFRESH_COOLDOWN_SECONDS = int(os.getenv("REFRESH_COOLDOWN_SECONDS", "900"))
 YAHOO_SEARCH_URL = "https://query1.finance.yahoo.com/v1/finance/search"
 CURATED_TICKERS = (
     {"symbol": "ARVSMART", "name": "Arvind SmartSpaces Limited"},
@@ -34,6 +37,14 @@ ticker_search_cache = BoundedTTLCache(
 )
 analysis_lock = threading.Lock()
 health_lock = threading.Lock()
+refresh_lock = threading.Lock()
+last_refresh_started_at = 0.0
+refresh_state = {
+    "status": "idle",
+    "started_at": None,
+    "completed_at": None,
+    "error": None,
+}
 dependency_health = {
     name: {
         "status": "unknown",
@@ -89,6 +100,26 @@ def record_analysis_failure(error):
         record_dependency("nse", "unhealthy", "NSE is temporarily unavailable.")
     elif "yahoo" in source:
         record_dependency("yahoo", "unhealthy", "Yahoo Finance is temporarily unavailable.")
+
+
+def run_scanner_refresh():
+    try:
+        scanner_generator.main()
+    except Exception:
+        app.logger.exception("Scanner refresh failed")
+        with refresh_lock:
+            refresh_state.update({
+                "status": "failed",
+                "completed_at": utc_now(),
+                "error": "Scanner refresh failed. Please try again later.",
+            })
+    else:
+        with refresh_lock:
+            refresh_state.update({
+                "status": "succeeded",
+                "completed_at": utc_now(),
+                "error": None,
+            })
 
 
 def normalize_search_text(value):
@@ -191,6 +222,56 @@ def ticker_suggestions():
     suggestions = search_tickers(query)
     ticker_search_cache.set(cache_key, suggestions)
     return jsonify({"suggestions": suggestions})
+
+
+@app.get("/api/scanner-data")
+def scanner_data():
+    try:
+        response = app.send_static_file("data/latest.json")
+        response.headers["Cache-Control"] = "no-store"
+        return response
+    except (FileNotFoundError, NotFound):
+        return jsonify({"error": "Scanner data is not available yet."}), 503
+
+
+@app.get("/api/refresh")
+def refresh_status():
+    with refresh_lock:
+        return jsonify(dict(refresh_state))
+
+
+@app.post("/api/refresh")
+def refresh_scanner_data():
+    global last_refresh_started_at
+
+    now = time.time()
+    with refresh_lock:
+        if refresh_state["status"] == "running":
+            return jsonify({**refresh_state, "message": "A scanner refresh is already running."}), 409
+
+        retry_after = max(0, int(REFRESH_COOLDOWN_SECONDS - (now - last_refresh_started_at)))
+        if retry_after:
+            return jsonify({
+                **refresh_state,
+                "message": "Scanner data was refreshed recently.",
+                "retry_after_seconds": retry_after,
+            }), 429
+
+        last_refresh_started_at = now
+        refresh_state.update({
+            "status": "running",
+            "started_at": utc_now(),
+            "completed_at": None,
+            "error": None,
+        })
+        thread = threading.Thread(
+            target=run_scanner_refresh,
+            name="scanner-refresh",
+            daemon=True,
+        )
+        thread.start()
+
+    return jsonify(dict(refresh_state)), 202
 
 
 @app.get("/api/analyze/<symbol>")

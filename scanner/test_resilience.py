@@ -1,5 +1,7 @@
 import json
 import sys
+import tempfile
+import time
 import unittest
 from pathlib import Path
 from unittest.mock import patch
@@ -120,6 +122,101 @@ class ApiErrorSanitizationTests(unittest.TestCase):
         self.assertEqual(bearish.get_json()["setup_mode"], "bearish")
         self.assertTrue(cached_bullish.get_json()["cached"])
         self.assertEqual(builder.call_count, 2)
+
+
+class RefreshApiTests(unittest.TestCase):
+    def setUp(self):
+        self.client = web_app.app.test_client()
+        web_app.last_refresh_started_at = 0.0
+        web_app.refresh_state.update({
+            "status": "idle",
+            "started_at": None,
+            "completed_at": None,
+            "error": None,
+        })
+
+    def test_starts_one_background_refresh(self):
+        with patch.object(web_app.threading, "Thread") as thread:
+            started = self.client.post("/api/refresh")
+            duplicate = self.client.post("/api/refresh")
+
+        self.assertEqual(started.status_code, 202)
+        self.assertEqual(started.get_json()["status"], "running")
+        self.assertEqual(thread.call_args.kwargs["target"], web_app.run_scanner_refresh)
+        self.assertTrue(thread.call_args.kwargs["daemon"])
+        thread.return_value.start.assert_called_once_with()
+        self.assertEqual(duplicate.status_code, 409)
+        self.assertEqual(duplicate.get_json()["message"], "A scanner refresh is already running.")
+
+    def test_returns_current_refresh_status(self):
+        web_app.refresh_state.update({
+            "status": "succeeded",
+            "started_at": "2026-08-28T10:00:00+00:00",
+            "completed_at": "2026-08-28T10:05:00+00:00",
+            "error": None,
+        })
+
+        response = self.client.get("/api/refresh")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), web_app.refresh_state)
+
+    def test_refresh_worker_generates_data_and_marks_success(self):
+        with patch.object(web_app.scanner_generator, "main") as generate:
+            web_app.run_scanner_refresh()
+
+        generate.assert_called_once_with()
+        self.assertEqual(web_app.refresh_state["status"], "succeeded")
+        self.assertIsNotNone(web_app.refresh_state["completed_at"])
+        self.assertIsNone(web_app.refresh_state["error"])
+
+    def test_rate_limits_recent_refresh(self):
+        web_app.last_refresh_started_at = time.time()
+
+        response = self.client.post("/api/refresh")
+
+        self.assertEqual(response.status_code, 429)
+        self.assertGreater(response.get_json()["retry_after_seconds"], 0)
+
+    def test_refresh_failure_is_sanitized(self):
+        secret = "https://provider.example/private?token=secret-value"
+        with patch.object(web_app.scanner_generator, "main", side_effect=RuntimeError(secret)):
+            web_app.run_scanner_refresh()
+
+        response = self.client.get("/api/refresh")
+        self.assertEqual(response.get_json()["status"], "failed")
+        self.assertNotIn(secret, response.get_data(as_text=True))
+
+
+class ScannerDataApiTests(unittest.TestCase):
+    def setUp(self):
+        self.client = web_app.app.test_client()
+        self.original_static_folder = web_app.app.static_folder
+        self.temporary_directory = tempfile.TemporaryDirectory()
+        web_app.app.static_folder = self.temporary_directory.name
+
+    def tearDown(self):
+        web_app.app.static_folder = self.original_static_folder
+        self.temporary_directory.cleanup()
+
+    def test_returns_latest_scanner_snapshot_without_caching(self):
+        data_directory = Path(self.temporary_directory.name) / "data"
+        data_directory.mkdir()
+        snapshot = {"generated_at_ist": "2026-08-28 15:45:00", "top_3": []}
+        (data_directory / "latest.json").write_text(json.dumps(snapshot), encoding="utf-8")
+
+        response = self.client.get("/api/scanner-data")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.get_json(), snapshot)
+        self.assertEqual(response.headers["Cache-Control"], "no-store")
+        response.close()
+
+    def test_returns_service_unavailable_when_snapshot_is_missing(self):
+        response = self.client.get("/api/scanner-data")
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json(), {"error": "Scanner data is not available yet."})
 
 
 if __name__ == "__main__":
