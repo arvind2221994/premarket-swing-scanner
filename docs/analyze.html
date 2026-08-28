@@ -188,7 +188,7 @@
 
     .summary {
       display: grid;
-      grid-template-columns: 190px minmax(0, 1fr);
+      grid-template-columns: 190px minmax(0, 1fr) auto;
       gap: 30px;
       align-items: center;
       padding: 26px;
@@ -242,6 +242,53 @@
     }
 
     .meta { color: var(--muted); font-size: 14px; }
+
+    .summary-action {
+      min-height: 42px;
+      align-self: center;
+      justify-self: end;
+      padding: 0 16px;
+      border: 1px solid var(--ink);
+      background: transparent;
+      color: var(--ink);
+    }
+
+    .summary-action:hover, .summary-action:focus-visible {
+      background: var(--ink);
+      color: white;
+    }
+
+    .score-dialog {
+      width: min(680px, calc(100% - 32px));
+      max-height: calc(100vh - 48px);
+      padding: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: var(--surface);
+      color: var(--ink);
+      box-shadow: 0 24px 70px rgba(23, 33, 28, 0.28);
+    }
+
+    .score-dialog::backdrop { background: rgba(23, 33, 28, 0.58); }
+    .dialog-header { display: flex; align-items: center; justify-content: space-between; gap: 20px; padding: 20px 22px; border-bottom: 1px solid var(--line); }
+    .dialog-body { padding: 8px 22px 22px; overflow: auto; }
+    .dialog-close {
+      display: grid;
+      place-items: center;
+      flex: 0 0 36px;
+      width: 36px;
+      height: 36px;
+      min-height: 36px;
+      padding: 0;
+      border: 1px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 22px;
+      line-height: 1;
+    }
+    .dialog-close:hover, .dialog-close:focus-visible { border-color: var(--ink); background: var(--paper); }
+    .dialog-table-wrap { overflow-x: auto; }
+    body:has(.score-dialog[open]) { overflow: hidden; }
 
     .daily-change {
       margin-top: 18px;
@@ -445,6 +492,7 @@
       main { padding-top: 26px; }
       form { grid-template-columns: 1fr; }
       .summary { grid-template-columns: 1fr; text-align: center; }
+      .summary-action { align-self: center; justify-self: end; }
       .two-column, .three-column { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .change-header { align-items: flex-start; flex-direction: column; }
@@ -498,6 +546,7 @@
           <span id="confidence" class="badge"></span>
           <p id="cacheStatus" class="meta"></p>
         </div>
+        <button id="scoringRubricButton" class="summary-action" type="button" aria-haspopup="dialog" aria-controls="scoreDialog">Scoring rubric</button>
       </section>
 
       <section class="daily-change" aria-labelledby="dailyChangeTitle">
@@ -539,22 +588,12 @@
         <section class="panel"><h2>Fundamentals</h2><div id="fundamentalMetrics" class="metric-grid"></div></section>
       </div>
 
-      <div class="two-column">
-        <section class="panel">
-          <h2>Composite calculation</h2>
-          <table>
-            <thead><tr><th>Component</th><th>Score</th><th>Weight</th><th>Points</th></tr></thead>
-            <tbody id="calculationRows"></tbody>
-          </table>
-          <p id="formula" class="formula"></p>
-        </section>
-        <section class="panel">
-          <h2>Technical levels</h2>
-          <div id="riskMetrics" class="metric-grid"></div>
-          <h3 style="margin-top: 22px">Fundamental observations</h3>
-          <ul id="fundamentalTags"></ul>
-        </section>
-      </div>
+      <section class="panel" style="margin-top: 18px">
+        <h2>Technical levels</h2>
+        <div id="riskMetrics" class="metric-grid"></div>
+        <h3 style="margin-top: 22px">Fundamental observations</h3>
+        <ul id="fundamentalTags"></ul>
+      </section>
 
       <section class="panel news-panel">
         <div class="news-header">
@@ -567,6 +606,23 @@
 
       <p class="disclaimer">Educational analysis only. Market data can be delayed or unavailable. This is not financial advice; use independent research, position sizing, and a stop-loss.</p>
     </div>
+
+    <dialog id="scoreDialog" class="score-dialog" aria-labelledby="scoreDialogTitle">
+      <div class="dialog-header">
+        <h2 id="scoreDialogTitle">Scoring rubric</h2>
+        <button id="closeScoreDialog" class="dialog-close" type="button" aria-label="Close scoring rubric">&times;</button>
+      </div>
+      <div class="dialog-body">
+        <p class="meta">The final score combines each available signal using the active weights below.</p>
+        <div class="dialog-table-wrap">
+          <table>
+            <thead><tr><th>Component</th><th>Score</th><th>Weight</th><th>Points</th></tr></thead>
+            <tbody id="calculationRows"></tbody>
+          </table>
+        </div>
+        <p id="formula" class="formula"></p>
+      </div>
+    </dialog>
   </main>
 
   <script>
@@ -580,6 +636,8 @@
     const suggestionsElement = document.getElementById("tickerSuggestions");
     const recentElement = document.getElementById("recentStocks");
     const recentList = document.getElementById("recentList");
+    const scoreDialog = document.getElementById("scoreDialog");
+    const scoringRubricButton = document.getElementById("scoringRubricButton");
     const recentStorageKey = "swing-scanner-recent-tickers";
     const initialParams = new URLSearchParams(location.search);
     const setupMode = initialParams.get("mode") === "bearish" ? "bearish" : "bullish";
@@ -1026,6 +1084,16 @@
 
     document.addEventListener("click", event => {
       if (!event.target.closest(".ticker-field")) closeSuggestions();
+    });
+
+    scoringRubricButton.addEventListener("click", () => scoreDialog.showModal());
+    document.getElementById("closeScoreDialog").addEventListener("click", () => scoreDialog.close());
+    scoreDialog.addEventListener("cancel", event => {
+      event.preventDefault();
+      scoreDialog.close();
+    });
+    scoreDialog.addEventListener("click", event => {
+      if (event.target === scoreDialog) scoreDialog.close();
     });
 
     input.addEventListener("keydown", event => {
