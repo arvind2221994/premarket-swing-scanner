@@ -9,6 +9,7 @@ from flask import Flask, jsonify, request
 from werkzeug.exceptions import NotFound
 
 import scanner as scanner_generator
+from economic_times_news import fetch_economic_times_news
 from fno_trade_analyzer import build_symbol_report
 from resilience import BoundedTTLCache, UpstreamUnavailableError, call_with_resilience
 
@@ -16,8 +17,10 @@ from resilience import BoundedTTLCache, UpstreamUnavailableError, call_with_resi
 DOCS_DIR = Path(__file__).resolve().parent.parent / "docs"
 CACHE_SECONDS = int(os.getenv("REPORT_CACHE_SECONDS", "3600"))
 TICKER_SEARCH_CACHE_SECONDS = 86400
+ECONOMIC_TIMES_CACHE_SECONDS = int(os.getenv("ECONOMIC_TIMES_CACHE_SECONDS", "900"))
 REPORT_CACHE_MAX_SIZE = int(os.getenv("REPORT_CACHE_MAX_SIZE", "128"))
 TICKER_SEARCH_CACHE_MAX_SIZE = int(os.getenv("TICKER_SEARCH_CACHE_MAX_SIZE", "256"))
+ECONOMIC_TIMES_CACHE_MAX_SIZE = int(os.getenv("ECONOMIC_TIMES_CACHE_MAX_SIZE", "128"))
 REFRESH_COOLDOWN_SECONDS = int(os.getenv("REFRESH_COOLDOWN_SECONDS", "900"))
 YAHOO_SEARCH_URL = "https://query1.finance.yahoo.com/v1/finance/search"
 CURATED_TICKERS = (
@@ -34,6 +37,10 @@ report_cache = BoundedTTLCache(REPORT_CACHE_MAX_SIZE, CACHE_SECONDS)
 ticker_search_cache = BoundedTTLCache(
     TICKER_SEARCH_CACHE_MAX_SIZE,
     TICKER_SEARCH_CACHE_SECONDS,
+)
+economic_times_cache = BoundedTTLCache(
+    ECONOMIC_TIMES_CACHE_MAX_SIZE,
+    ECONOMIC_TIMES_CACHE_SECONDS,
 )
 analysis_lock = threading.Lock()
 health_lock = threading.Lock()
@@ -52,7 +59,9 @@ dependency_health = {
         "last_failure_at": None,
         "error": None,
     }
-    for name in ("analysis", "nse", "screener", "yahoo", "google_news")
+    for name in (
+        "analysis", "nse", "screener", "yahoo", "google_news", "economic_times"
+    )
 }
 
 
@@ -181,6 +190,9 @@ def search_tickers(query):
 
 @app.after_request
 def add_cors_headers(response):
+    if request.path == "/api/news/economic-times":
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        return response
     origin = request.headers.get("Origin")
     if origin in ALLOWED_ORIGINS:
         response.headers["Access-Control-Allow-Origin"] = origin
@@ -222,6 +234,46 @@ def ticker_suggestions():
     suggestions = search_tickers(query)
     ticker_search_cache.set(cache_key, suggestions)
     return jsonify({"suggestions": suggestions})
+
+
+@app.get("/api/news/economic-times")
+def economic_times_news():
+    query = request.args.get("q", "").strip()
+    if len(query) < 2 or len(query) > 80:
+        return jsonify({"error": "q must contain between 2 and 80 characters."}), 400
+
+    try:
+        days = int(request.args.get("days", "7"))
+        limit = int(request.args.get("limit", "20"))
+    except ValueError:
+        return jsonify({"error": "days and limit must be integers."}), 400
+    if not 1 <= days <= 30:
+        return jsonify({"error": "days must be between 1 and 30."}), 400
+    if not 1 <= limit <= 50:
+        return jsonify({"error": "limit must be between 1 and 50."}), 400
+
+    cache_key = (query.casefold(), days, limit)
+    cached = economic_times_cache.get(cache_key)
+    if cached is not None:
+        return jsonify({**cached, "cached": True})
+
+    result = fetch_economic_times_news(query, days=days, limit=limit)
+    if result["errors"] and not result["articles"]:
+        record_dependency(
+            "economic_times",
+            "unhealthy",
+            "The Economic Times is temporarily unavailable.",
+        )
+        return jsonify({**result, "cached": False}), 502
+
+    record_dependency(
+        "economic_times",
+        "degraded" if result["errors"] else "healthy",
+        "; ".join(result["errors"]) or None,
+        succeeded=bool(result["articles"]),
+    )
+    economic_times_cache.set(cache_key, result)
+    return jsonify({**result, "cached": False})
 
 
 @app.get("/api/scanner-data")

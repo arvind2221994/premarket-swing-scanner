@@ -13,3 +13,5 @@ services:
         value: 3600
       - key: REFRESH_COOLDOWN_SECONDS
         value: 900
+      - key: ECONOMIC_TIMES_CACHE_SECONDS
+        value: 900

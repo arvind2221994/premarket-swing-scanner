@@ -219,5 +219,84 @@ class ScannerDataApiTests(unittest.TestCase):
         self.assertEqual(response.get_json(), {"error": "Scanner data is not available yet."})
 
 
+class EconomicTimesNewsApiTests(unittest.TestCase):
+    def setUp(self):
+        self.client = web_app.app.test_client()
+        web_app.economic_times_cache = BoundedTTLCache(max_size=4, ttl_seconds=60)
+
+    @patch.object(web_app, "fetch_economic_times_news")
+    def test_returns_and_caches_news_for_valid_query(self, fetch_news):
+        fetch_news.return_value = {
+            "query": "TCS",
+            "articles": [{"title": "TCS reports quarterly results"}],
+            "errors": [],
+            "lookback_days": 3,
+            "sources": "The Economic Times",
+            "topic_url": "https://economictimes.indiatimes.com/topic/tcs",
+        }
+
+        first = self.client.get("/api/news/economic-times?q=TCS&days=3&limit=5")
+        second = self.client.get("/api/news/economic-times?q=TCS&days=3&limit=5")
+
+        self.assertEqual(first.status_code, 200)
+        self.assertFalse(first.get_json()["cached"])
+        self.assertTrue(second.get_json()["cached"])
+        fetch_news.assert_called_once_with("TCS", days=3, limit=5)
+
+    def test_rejects_invalid_query_parameters(self):
+        cases = (
+            "/api/news/economic-times",
+            "/api/news/economic-times?q=TCS&days=abc",
+            "/api/news/economic-times?q=TCS&days=31",
+            "/api/news/economic-times?q=TCS&limit=51",
+        )
+
+        for url in cases:
+            with self.subTest(url=url):
+                self.assertEqual(self.client.get(url).status_code, 400)
+
+    @patch.object(web_app, "fetch_economic_times_news")
+    def test_returns_sanitized_bad_gateway_when_source_fails(self, fetch_news):
+        fetch_news.return_value = {
+            "query": "TCS",
+            "articles": [],
+            "errors": ["The Economic Times news is temporarily unavailable."],
+            "lookback_days": 7,
+            "sources": "The Economic Times",
+            "topic_url": "https://economictimes.indiatimes.com/topic/tcs",
+        }
+
+        response = self.client.get(
+            "/api/news/economic-times?q=TCS",
+            headers={"Origin": "https://example-client.test"},
+        )
+
+        self.assertEqual(response.status_code, 502)
+        self.assertEqual(response.headers["Access-Control-Allow-Origin"], "*")
+        self.assertEqual(
+            response.get_json()["errors"],
+            ["The Economic Times news is temporarily unavailable."],
+        )
+
+    @patch.object(web_app, "fetch_economic_times_news")
+    def test_allows_browser_calls_from_any_origin(self, fetch_news):
+        fetch_news.return_value = {
+            "query": "banking",
+            "articles": [],
+            "errors": [],
+            "lookback_days": 7,
+            "sources": "The Economic Times",
+            "topic_url": "https://economictimes.indiatimes.com/topic/banking",
+        }
+
+        response = self.client.get(
+            "/api/news/economic-times?q=banking",
+            headers={"Origin": "https://example-client.test"},
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Access-Control-Allow-Origin"], "*")
+
+
 if __name__ == "__main__":
     unittest.main()
