@@ -10,8 +10,18 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fundamentals import fetch_screener_data
 from fno_trade_analyzer import _option_oi_profile, analyze_cash, build_trade_plan
-from market_context import SECTOR_TICKERS, build_market_context
+import backtest_score_buckets
+import global_cues
+from fallback import _history_frame, _parse_archive_rows, _trend_snapshot
+from market_context import (
+    SECTOR_TICKERS,
+    assess_long_swing_environment,
+    build_market_context,
+    recover_unavailable_nse_trends,
+    recover_unavailable_sector_trends,
+)
 from news import classify_news_article
+from resilience import UpstreamUnavailableError
 from scoring import calculate_stock_score, score_detailed_report
 
 scanner_spec = importlib.util.spec_from_file_location(
@@ -69,6 +79,195 @@ class MarketContextTests(unittest.TestCase):
         fetch_trends.assert_called_once_with(tickers)
         self.assertEqual(context["macro"]["usd_inr"]["ticker"], "INR=X")
         self.assertEqual(context["macro"]["wti_crude"]["ticker"], "CL=F")
+
+    def test_sparse_sector_evidence_does_not_make_environment_supportive(self):
+        sectors = {
+            f"Sector {index}": {"trend": "bullish" if index < 2 else "unavailable"}
+            for index in range(8)
+        }
+
+        environment = assess_long_swing_environment(
+            {"trend": "mixed"},
+            {"close": 12},
+            {"advance_pct": 43},
+            sectors,
+            62,
+        )
+
+        self.assertEqual(environment["condition"], "mixed")
+        self.assertEqual(environment["score"], 1)
+        self.assertEqual(environment["available_sector_count"], 2)
+        self.assertFalse(environment["sector_coverage_sufficient"])
+        self.assertNotIn("More tracked sectors are bullish than bearish", environment["reasons"])
+
+    def test_sector_direction_counts_when_half_are_available(self):
+        sectors = {
+            f"Sector {index}": {
+                "trend": "bullish" if index < 3 else "mixed" if index == 3 else "unavailable"
+            }
+            for index in range(8)
+        }
+
+        environment = assess_long_swing_environment(
+            {"trend": "mixed"}, {"close": None}, {"advance_pct": None}, sectors, 50
+        )
+
+        self.assertEqual(environment["score"], 1)
+        self.assertTrue(environment["sector_coverage_sufficient"])
+
+    @patch("market_context.fetch_nse_sector_trends")
+    def test_recovers_only_unavailable_yahoo_sectors(self, fetch_fallback):
+        trends = {
+            ticker: {"trend": "mixed", "source": "Yahoo Finance"}
+            for ticker in SECTOR_TICKERS.values()
+        }
+        trends[SECTOR_TICKERS["Nifty IT"]] = {
+            "trend": "unavailable",
+            "source": "Yahoo Finance",
+        }
+        fetch_fallback.return_value = {
+            "Nifty IT": {"trend": "bullish", "source": "NSE India index archives"}
+        }
+
+        recovered = recover_unavailable_sector_trends(trends)
+
+        fetch_fallback.assert_called_once_with(["Nifty IT"])
+        self.assertEqual(recovered[SECTOR_TICKERS["Nifty IT"]]["trend"], "bullish")
+        self.assertEqual(
+            recovered[SECTOR_TICKERS["Nifty Bank"]]["source"], "Yahoo Finance"
+        )
+
+    def test_nse_fallback_builds_compatible_trend_snapshot(self):
+        observations = [
+            (pd.Timestamp("2026-01-01").date() + pd.Timedelta(days=index), 100 + index)
+            for index in range(50)
+        ]
+
+        snapshot = _trend_snapshot("NIFTY IT", observations, "2026-08-28T00:00:00Z")
+
+        self.assertEqual(snapshot["trend"], "bullish")
+        self.assertEqual(snapshot["source"], "NSE India index archives")
+        self.assertEqual(snapshot["close"], 149)
+        self.assertIsNotNone(snapshot["sma50"])
+
+    def test_nse_fallback_parses_official_archive_columns(self):
+        trade_date = pd.Timestamp("2026-08-27").date()
+        content = (
+            "Index Name,Index Date,Open Index Value,Closing Index Value\n"
+            'NIFTY IT,27-08-2026,"42,000.00","42,500.50"\n'
+            'NIFTY BANK,27-08-2026,"50,000.00","50,100.00"\n'
+        )
+
+        rows = _parse_archive_rows(content, {"NIFTY IT"}, trade_date)
+
+        self.assertEqual(rows, {"NIFTY IT": (trade_date, 42500.5)})
+
+    @patch("market_context.fetch_nse_sector_trends")
+    def test_preserves_fallback_failure_details(self, fetch_fallback):
+        trends = {
+            ticker: {"trend": "mixed", "source": "Yahoo Finance"}
+            for ticker in SECTOR_TICKERS.values()
+        }
+        ticker = SECTOR_TICKERS["Nifty IT"]
+        trends[ticker] = {"trend": "unavailable", "source": "Yahoo Finance"}
+        fetch_fallback.return_value = {
+            "Nifty IT": {
+                "trend": "unavailable",
+                "source": "NSE India index archives",
+                "error": "Fewer than 50 NSE index closes were available.",
+            }
+        }
+
+        recover_unavailable_sector_trends(trends)
+
+        self.assertEqual(trends[ticker]["fallback_source"], "NSE India index archives")
+        self.assertIn("Fewer than 50", trends[ticker]["fallback_error"])
+
+    @patch("market_context.fetch_stooq_trend")
+    @patch("market_context.fetch_frankfurter_usdinr_trend")
+    def test_recovers_unavailable_market_signals(self, fetch_fx, fetch_crude):
+        from market_context import recover_unavailable_market_trends
+
+        trends = {
+            ticker: {"trend": "unavailable", "source": "Yahoo Finance"}
+            for ticker in ("INR=X", "CL=F")
+        }
+        fetch_fx.return_value = {"trend": "bearish", "source": "Frankfurter"}
+        fetch_crude.return_value = {"trend": "mixed", "source": "Stooq"}
+
+        recover_unavailable_market_trends(trends)
+
+        self.assertEqual(trends["INR=X"]["source"], "Frankfurter")
+        self.assertEqual(trends["CL=F"]["source"], "Stooq")
+
+    @patch("market_context.fetch_nse_index_trends")
+    def test_recovers_indian_indices_and_sectors_in_one_nse_pass(self, fetch_nse):
+        trends = {
+            ticker: {"trend": "mixed", "source": "Yahoo Finance"}
+            for ticker in ("^NSEI", "^INDIAVIX", *SECTOR_TICKERS.values())
+        }
+        trends["^NSEI"]["trend"] = "unavailable"
+        sector_ticker = SECTOR_TICKERS["Nifty IT"]
+        trends[sector_ticker]["trend"] = "unavailable"
+        fetch_nse.return_value = {
+            "^NSEI": {"trend": "bullish", "source": "NSE"},
+            sector_ticker: {"trend": "bullish", "source": "NSE"},
+        }
+
+        recover_unavailable_nse_trends(trends)
+
+        fetch_nse.assert_called_once()
+        requested = fetch_nse.call_args.args[0]
+        self.assertEqual(set(requested), {"^NSEI", sector_ticker})
+
+    def test_nse_history_parser_accepts_api_field_names(self):
+        frame = _history_frame([{
+            "CH_TIMESTAMP": "27-08-2026",
+            "CH_OPENING_PRICE": "1,000.00",
+            "CH_TRADE_HIGH_PRICE": "1,020.00",
+            "CH_TRADE_LOW_PRICE": "990.00",
+            "CH_CLOSING_PRICE": "1,010.00",
+            "CH_TOT_TRADED_QTY": "50,000",
+        }], index_history=False)
+
+        self.assertEqual(float(frame["Close"].iloc[0]), 1010)
+        self.assertEqual(float(frame["Volume"].iloc[0]), 50000)
+
+
+class YahooFallbackTests(unittest.TestCase):
+    @patch("global_cues.fetch_stooq_change_snapshot")
+    @patch("global_cues.call_with_resilience", side_effect=global_cues.UpstreamUnavailableError("Yahoo"))
+    def test_global_cue_uses_stooq_when_yahoo_fails(self, _, fetch_stooq):
+        fetch_stooq.return_value = {
+            "change_pct": 1.25,
+            "source": "Stooq",
+            "observed_at": "2026-08-27",
+            "fetched_at": "2026-08-28",
+        }
+
+        snapshot = global_cues.get_change_snapshot("^GSPC")
+
+        self.assertEqual(snapshot["change_pct"], 1.25)
+        self.assertEqual(snapshot["source"], "Stooq")
+
+    @patch("backtest_score_buckets.fetch_stooq_history")
+    @patch("backtest_score_buckets.fetch_nse_history")
+    @patch("backtest_score_buckets.call_with_resilience", side_effect=UpstreamUnavailableError("Yahoo"))
+    def test_backtest_uses_nse_history_when_yahoo_fails(
+        self, _, fetch_nse, fetch_stooq
+    ):
+        dates = pd.date_range("2026-01-01", periods=50)
+        fetch_nse.return_value = pd.DataFrame({
+            "Open": range(50), "High": range(1, 51), "Low": range(50),
+            "Close": range(1, 51), "Volume": [100] * 50,
+        }, index=dates)
+
+        history = backtest_score_buckets.download_history(
+            "TEST.NS", "2026-01-01", "2026-04-01"
+        )
+
+        self.assertEqual(len(history), 50)
+        fetch_stooq.assert_not_called()
 
 
 class UniverseTests(unittest.TestCase):

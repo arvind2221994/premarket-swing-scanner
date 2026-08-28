@@ -3,6 +3,7 @@ from datetime import datetime, timezone
 import requests
 import yfinance as yf
 
+from fallback import fetch_stooq_change_snapshot
 from resilience import UpstreamUnavailableError, call_with_resilience
 
 
@@ -36,13 +37,19 @@ def get_change_snapshot(ticker):
             "source": "Yahoo Finance",
         }
     except (UpstreamUnavailableError, KeyError, TypeError, ValueError, IndexError):
-        return {
+        unavailable = {
             "change_pct": None,
             "observed_at": None,
             "fetched_at": fetched_at,
             "source": "Yahoo Finance",
             "error": "Yahoo Finance data is temporarily unavailable.",
         }
+        fallback = fetch_stooq_change_snapshot(ticker)
+        if fallback.get("change_pct") is not None:
+            return fallback
+        unavailable["fallback_source"] = fallback.get("source")
+        unavailable["fallback_error"] = fallback.get("error")
+        return unavailable
 
 
 def get_change_pct(ticker):

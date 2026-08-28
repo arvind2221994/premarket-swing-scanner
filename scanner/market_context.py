@@ -1,9 +1,19 @@
 import json
+import math
 from datetime import datetime, timezone
 
 import requests
 import yfinance as yf
 
+from fallback import (
+    NSE_MARKET_INDEX_NAMES,
+    NSE_SECTOR_INDEX_NAMES,
+    fetch_frankfurter_usdinr_trend,
+    fetch_nse_index_trends,
+    fetch_nse_market_trends,
+    fetch_nse_sector_trends,
+    fetch_stooq_trend,
+)
 from global_cues import fetch_global_cues
 from resilience import UpstreamUnavailableError, call_with_resilience
 from scoring import score_global_cues
@@ -135,6 +145,62 @@ def fetch_yahoo_trends(tickers):
     return trends
 
 
+def recover_unavailable_sector_trends(trends):
+    unavailable_sectors = [
+        sector for sector, ticker in SECTOR_TICKERS.items()
+        if trends[ticker].get("trend") == "unavailable"
+    ]
+    if not unavailable_sectors:
+        return trends
+
+    fallback_trends = fetch_nse_sector_trends(unavailable_sectors)
+    for sector, fallback_trend in fallback_trends.items():
+        ticker = SECTOR_TICKERS[sector]
+        if fallback_trend.get("trend") != "unavailable":
+            trends[ticker] = fallback_trend
+        else:
+            trends[ticker]["fallback_source"] = fallback_trend.get("source")
+            trends[ticker]["fallback_error"] = fallback_trend.get("error")
+    return trends
+
+
+def recover_unavailable_nse_trends(trends):
+    requested = {
+        ticker: NSE_MARKET_INDEX_NAMES[ticker]
+        for ticker in ("^NSEI", "^INDIAVIX")
+        if trends[ticker].get("trend") == "unavailable"
+    }
+    requested.update({
+        ticker: NSE_SECTOR_INDEX_NAMES[sector]
+        for sector, ticker in SECTOR_TICKERS.items()
+        if trends[ticker].get("trend") == "unavailable"
+    })
+    replacements = fetch_nse_index_trends(requested)
+    for ticker, fallback_trend in replacements.items():
+        if fallback_trend.get("trend") != "unavailable":
+            trends[ticker] = fallback_trend
+        else:
+            trends[ticker]["fallback_source"] = fallback_trend.get("source")
+            trends[ticker]["fallback_error"] = fallback_trend.get("error")
+    return trends
+
+
+def recover_unavailable_market_trends(trends):
+    replacements = {}
+    if trends["INR=X"].get("trend") == "unavailable":
+        replacements["INR=X"] = fetch_frankfurter_usdinr_trend()
+    if trends["CL=F"].get("trend") == "unavailable":
+        replacements["CL=F"] = fetch_stooq_trend("CL=F")
+
+    for ticker, fallback_trend in replacements.items():
+        if fallback_trend.get("trend") != "unavailable":
+            trends[ticker] = fallback_trend
+        else:
+            trends[ticker]["fallback_source"] = fallback_trend.get("source")
+            trends[ticker]["fallback_error"] = fallback_trend.get("error")
+    return trends
+
+
 def _as_int(value):
     return int(str(value).replace(",", ""))
 
@@ -228,10 +294,15 @@ def assess_long_swing_environment(nifty, vix, breadth, sectors, global_score):
     sector_trends = [sector.get("trend") for sector in sectors.values()]
     bullish_sectors = sector_trends.count("bullish")
     bearish_sectors = sector_trends.count("bearish")
-    if bullish_sectors > bearish_sectors:
+    available_sectors = sum(
+        trend in {"bullish", "bearish", "mixed"} for trend in sector_trends
+    )
+    minimum_sector_coverage = math.ceil(len(sector_trends) / 2)
+    sector_coverage_sufficient = available_sectors >= minimum_sector_coverage
+    if sector_coverage_sufficient and bullish_sectors > bearish_sectors:
         score += 1
         reasons.append("More tracked sectors are bullish than bearish")
-    elif bearish_sectors > bullish_sectors:
+    elif sector_coverage_sufficient and bearish_sectors > bullish_sectors:
         score -= 1
         reasons.append("More tracked sectors are bearish than bullish")
 
@@ -258,7 +329,9 @@ def assess_long_swing_environment(nifty, vix, breadth, sectors, global_score):
         "reasons": reasons,
         "bullish_sector_count": bullish_sectors,
         "bearish_sector_count": bearish_sectors,
+        "available_sector_count": available_sectors,
         "tracked_sector_count": len(sector_trends),
+        "sector_coverage_sufficient": sector_coverage_sufficient,
     }
 
 
@@ -273,6 +346,8 @@ def build_market_context(global_cues=None):
         "CL=F",
     ]
     trends = fetch_yahoo_trends(trend_tickers)
+    recover_unavailable_nse_trends(trends)
+    recover_unavailable_market_trends(trends)
     nifty = trends["^NSEI"]
     vix = trends["^INDIAVIX"]
     breadth = fetch_market_breadth()

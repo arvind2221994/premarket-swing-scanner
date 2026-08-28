@@ -5,6 +5,7 @@ from datetime import datetime, timezone
 import pandas as pd
 import yfinance as yf
 
+from fallback import fetch_nse_history, fetch_stooq_history
 from fno_trade_analyzer import analyze_cash
 from resilience import UpstreamUnavailableError, call_with_resilience
 
@@ -40,11 +41,18 @@ def download_history(ticker, start, end):
             progress=False,
             multi_level_index=False,
         )
-        if data is None or data.empty:
-            raise ValueError("No Yahoo Finance history returned")
+        if data is None or len(data) < 50:
+            raise ValueError("Incomplete Yahoo Finance history returned")
         return data
 
-    data = call_with_resilience("Yahoo Finance", download_ticker_history)
+    try:
+        data = call_with_resilience("Yahoo Finance", download_ticker_history)
+    except UpstreamUnavailableError:
+        data = fetch_nse_history(ticker, start, end)
+        if data.empty:
+            data = fetch_stooq_history(ticker, start, end)
+        if len(data) < 50:
+            raise UpstreamUnavailableError("Yahoo Finance, NSE, and Stooq historical data")
     return data.dropna(subset=["Open", "High", "Low", "Close", "Volume"])
 
 
@@ -172,7 +180,7 @@ def run_backtest(symbols, start, end, horizon):
     return {
         "generated_at": datetime.now(timezone.utc).isoformat(),
         "score_scope": "cash_technical_heuristic_only",
-        "source": "Yahoo Finance adjusted daily history",
+        "source": "Yahoo Finance history with NSE and Stooq fallback",
         "symbols": symbols,
         "start": start,
         "end": end,
