@@ -25,6 +25,8 @@ def score_futures(price_change_pct, oi_change_pct, mode="bullish"):
 
 
 def score_pcr(pcr, mode="bullish"):
+    if pcr is None:
+        return 50, "PCR unavailable"
     if mode == "bearish":
         if pcr < 0.7:
             return 85, "Call-heavy positioning supports bearish setup"
@@ -237,5 +239,58 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         "event_categories": stock.get("event_categories", []),
         "call_oi_wall": stock.get("call_oi_wall"),
         "put_oi_wall": stock.get("put_oi_wall"),
-        "reasons": reasons
+        "reasons": reasons,
+        "calculation": {
+            "fno_score": round(fno_score, 2),
+            "fno_weight": 0.35,
+            "trend_score": round(trend_score, 2),
+            "trend_weight": 0.20,
+            "volume_score": round(volume_score, 2),
+            "volume_weight": 0.10,
+            "global_score": round(global_score, 2),
+            "global_weight": 0.10,
+            "relative_score": round(relative_score, 2),
+            "relative_weight": 0.10,
+            "risk_score": round(risk_score, 2),
+            "risk_weight": 0.15,
+            "weighted_total": round(final_score, 2),
+            "total_weight": 1.0,
+            "formula": "weighted component total",
+        },
     }
+
+
+def score_detailed_report(symbol, cash, fno, global_data, mode="bullish",
+                          sector=None, sector_relative_strength_pct=None,
+                          event_risk=False, event_risk_status="clear",
+                          event_categories=None):
+    volume_ratio = cash.get("volume_ratio", 1)
+    stock = {
+        "symbol": symbol,
+        "futures_price_change_pct": fno["futures_price_change"] if fno else 0,
+        "futures_oi_change_pct": fno["oi_change_pct"] if fno else 0,
+        "pcr": fno["pcr"] if fno else None,
+        "close": cash["close"],
+        "dma20": cash["sma20"],
+        "dma50": cash["sma50"],
+        "return_5d": cash["return_5d"],
+        "volume": volume_ratio,
+        "avg_volume": 1,
+        "sector": sector,
+        "sector_relative_strength_pct": sector_relative_strength_pct,
+        "in_fo_ban": bool(fno and fno["ban_status"]["is_banned"] is True),
+        "event_risk": event_risk,
+        "event_risk_status": event_risk_status,
+        "event_categories": event_categories or [],
+        "gap_pct": cash.get("gap_pct"),
+        "gap_atr": cash.get("gap_atr"),
+        "liquidity_filter_pass": (
+            cash.get("liquidity_tier") != "low"
+            and (not fno or fno.get("futures_liquidity_tier") != "low")
+        ),
+        "liquidity_tier": cash.get("liquidity_tier"),
+        "estimated_slippage_bps": cash.get("estimated_slippage_bps"),
+        "call_oi_wall": fno.get("call_oi_wall") if fno else None,
+        "put_oi_wall": fno.get("put_oi_wall") if fno else None,
+    }
+    return calculate_stock_score(stock, global_data, mode)

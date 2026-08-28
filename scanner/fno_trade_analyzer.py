@@ -8,8 +8,10 @@ import pandas as pd
 import requests
 
 from fundamentals import calculate_fundamental_score, fetch_screener_data
+from global_cues import fetch_global_cues
 from news import fetch_company_news
 from resilience import UpstreamUnavailableError, call_with_resilience
+from scoring import score_detailed_report
 
 
 ARCHIVE_URL = (
@@ -600,10 +602,11 @@ def build_pros_cons(cash, fno, fundamental_score, mode="bullish"):
 
 
 def build_daily_change(current_score, current_pros, current_cons, previous_date,
-                       previous_cash, previous_fno, fundamental_score, mode="bullish"):
-    previous_score, _ = make_assessment(
-        previous_cash, previous_fno, fundamental_score, mode
-    )
+                       previous_cash, previous_fno, fundamental_score,
+                       global_cues, symbol, mode="bullish"):
+    previous_score = score_detailed_report(
+        symbol, previous_cash, previous_fno, global_cues, mode
+    )["score"]
     previous_pros, previous_cons = build_pros_cons(
         previous_cash, previous_fno, fundamental_score, mode
     )
@@ -735,9 +738,25 @@ def build_symbol_report(symbol, mode="bullish"):
     fundamental_score = fundamental_result["score"]
     fundamental_tags = fundamental_result["tags"]
     news = fetch_company_news(clean_symbol, fundamentals.get("name"))
-    score, verdict = make_assessment(cash, fno, fundamental_score, mode)
-    pros, cons = build_pros_cons(cash, fno, fundamental_score, mode)
     event_risk = news.get("event_risk", {})
+    global_cues = fetch_global_cues()
+    assessment = score_detailed_report(
+        clean_symbol,
+        cash,
+        fno,
+        global_cues,
+        mode,
+        event_risk=event_risk.get("detected", False),
+        event_risk_status=event_risk.get("status", "clear"),
+        event_categories=event_risk.get("categories", []),
+    )
+    score = assessment["score"]
+    verdict = (
+        "FAVORABLE SETUP" if score >= 75
+        else "WATCH FOR CONFIRMATION" if score >= 60
+        else "AVOID NEW ENTRY"
+    )
+    pros, cons = build_pros_cons(cash, fno, fundamental_score, mode)
     if event_risk.get("detected"):
         labels = ", ".join(category.replace("_", " ") for category in event_risk["categories"])
         cons.append(
@@ -759,24 +778,10 @@ def build_symbol_report(symbol, mode="bullish"):
                 previous_cash,
                 previous_fno,
                 fundamental_score,
+                global_cues,
+                clean_symbol,
                 mode,
             )
-
-    cash_weight = 0.8 if fno is None else 0.5
-    fno_weight = 0.35 if fno is not None else 0
-    fundamental_weight = 0 if mode == "bearish" else (
-        0.2 if fno is None and fundamental_score is not None
-        else 0.15 if fundamental_score is not None
-        else 0
-    )
-    cash_score = directional_cash_score(cash, mode)
-    fno_score = directional_fno_score(fno, mode)
-    weighted_total = (
-        cash_score * cash_weight
-        + (fno_score * fno_weight if fno is not None else 0)
-        + (fundamental_score * 10 * fundamental_weight if fundamental_score is not None else 0)
-    )
-    total_weight = cash_weight + fno_weight + fundamental_weight
 
     return {
         "symbol": clean_symbol,
@@ -794,19 +799,7 @@ def build_symbol_report(symbol, mode="bullish"):
         "cons": cons,
         "daily_change": daily_change,
         "trade_plan": trade_plan,
-        "calculation": {
-            "cash_score": cash_score,
-            "cash_weight": cash_weight,
-            "fno_score": fno_score,
-            "fno_weight": fno_weight,
-            "fundamental_score_100": (
-                fundamental_score * 10 if fundamental_score is not None else None
-            ),
-            "fundamental_weight": fundamental_weight,
-            "weighted_total": weighted_total,
-            "total_weight": total_weight,
-            "formula": "weighted component total / active component weight",
-        },
+        "calculation": assessment["calculation"],
         "disclaimer": "Educational analysis only. Not financial advice.",
     }
 

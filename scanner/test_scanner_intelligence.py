@@ -12,7 +12,7 @@ from fundamentals import fetch_screener_data
 from fno_trade_analyzer import _option_oi_profile, analyze_cash, build_trade_plan
 from market_context import SECTOR_TICKERS, build_market_context
 from news import classify_news_article
-from scoring import calculate_stock_score
+from scoring import calculate_stock_score, score_detailed_report
 
 scanner_spec = importlib.util.spec_from_file_location(
     "scanner_job", Path(__file__).resolve().parent / "scanner.py"
@@ -212,6 +212,70 @@ class IntelligenceScoringTests(unittest.TestCase):
 
         self.assertLess(extended, baseline)
         self.assertLess(illiquid, baseline)
+
+    def test_dashboard_and_detailed_report_use_identical_scoring(self):
+        dashboard_stock = self.stock()
+        dashboard_stock.update({
+            "sector": "Nifty Test",
+            "liquidity_tier": "high",
+            "estimated_slippage_bps": 5,
+            "event_risk": False,
+        })
+        cash = {
+            "close": 110,
+            "sma20": 100,
+            "sma50": 90,
+            "return_5d": 2,
+            "volume_ratio": 1.2,
+            "gap_pct": 0,
+            "gap_atr": 0,
+            "liquidity_tier": "high",
+            "estimated_slippage_bps": 5,
+        }
+        fno = {
+            "futures_price_change": 1,
+            "oi_change_pct": 1,
+            "pcr": 1,
+            "ban_status": {"is_banned": False},
+            "futures_liquidity_tier": "high",
+            "call_oi_wall": 120,
+            "put_oi_wall": 100,
+        }
+        global_cues = {"nasdaq_change_pct": 1.2}
+
+        dashboard = calculate_stock_score(dashboard_stock, global_cues, "bullish")
+        detailed = score_detailed_report(
+            "TEST",
+            cash,
+            fno,
+            global_cues,
+            "bullish",
+            sector="Nifty Test",
+            sector_relative_strength_pct=2,
+        )
+
+        self.assertEqual(detailed["score"], dashboard["score"])
+        self.assertEqual(detailed["recommendation"], dashboard["recommendation"])
+        self.assertEqual(detailed["calculation"], dashboard["calculation"])
+
+    def test_detailed_scoring_handles_missing_fno_data(self):
+        cash = {
+            "close": 110,
+            "sma20": 100,
+            "sma50": 90,
+            "return_5d": 2,
+            "volume_ratio": 1.2,
+            "gap_pct": 0,
+            "gap_atr": 0,
+            "liquidity_tier": "high",
+            "estimated_slippage_bps": 5,
+        }
+
+        result = score_detailed_report("TEST", cash, None, {}, "bullish")
+
+        self.assertIsInstance(result["score"], float)
+        self.assertEqual(result["pcr"], None)
+        self.assertIn("PCR unavailable", result["reasons"])
 
 
 class NewsIntelligenceTests(unittest.TestCase):
