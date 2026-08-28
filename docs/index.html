@@ -43,7 +43,13 @@
     .condition-badge { color:var(--condition-color); font-weight:700; text-transform:capitalize; white-space:nowrap; }
     .conditions-grid { display:grid; grid-template-columns:repeat(7,minmax(130px,1fr)); border:1px solid var(--line); border-radius:8px; background:var(--surface); overflow-x:auto; }
     .condition-item { min-width:130px; padding:16px; border-right:1px solid var(--line); } .condition-item:last-child { border:0; }
-    .condition-label { color:var(--muted); font-size:11px; } .condition-value { margin-top:5px; font:600 17px/1.25 "Space Grotesk",sans-serif; overflow-wrap:anywhere; } .condition-detail { margin-top:4px; color:var(--muted); font-size:11px; }
+    .condition-label { display:flex; align-items:center; gap:5px; color:var(--muted); font-size:11px; }
+    .metric-help { display:inline-grid; place-items:center; flex:0 0 16px; width:16px; height:16px; min-height:16px; padding:0; border:1px solid var(--muted); border-radius:50%; background:var(--surface); color:var(--muted); font:700 10px/1 "IBM Plex Sans",sans-serif; cursor:help; }
+    .metric-help:hover,.metric-help:focus { border-color:var(--blue); outline:none; background:rgba(23,105,170,.08); color:var(--blue); }
+    .metric-help:focus-visible { box-shadow:0 0 0 3px rgba(23,105,170,.18); }
+    .metric-tooltip { position:fixed; z-index:100; width:min(280px,calc(100vw - 24px)); padding:9px 10px; border:1px solid var(--line); border-radius:6px; background:var(--ink); box-shadow:0 8px 24px rgba(23,33,28,.2); color:#fff; font:12px/1.4 "IBM Plex Sans",sans-serif; pointer-events:none; }
+    .metric-tooltip[hidden] { display:none; }
+    .condition-value { margin-top:5px; font:600 17px/1.25 "Space Grotesk",sans-serif; overflow-wrap:anywhere; } .condition-detail { margin-top:4px; color:var(--muted); font-size:11px; }
     .candidate-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
     .mode-switch { display:inline-flex; padding:3px; border:1px solid var(--line); border-radius:6px; background:var(--surface); }
     .mode-button { min-height:34px; padding:0 12px; border:0; border-radius:4px; background:transparent; color:var(--muted); font-weight:600; }
@@ -96,6 +102,7 @@
     <section><div class="section-header"><h2>Historical calibration</h2><p id="backtestHorizon" class="section-note">Cash technical score</p></div><div id="backtest" class="calibration"><p class="meta">Calibration data is unavailable until the next scanner refresh.</p></div></section>
     <p class="disclaimer">Educational scanner only. Market data can be delayed or unavailable. This is not financial advice.</p>
   </main>
+  <div id="metricTooltip" class="metric-tooltip" role="tooltip" hidden></div>
 
   <script>
     const watchlistKey = "swing-scanner-watchlist";
@@ -212,18 +219,55 @@
       const crude = context.macro?.wti_crude || {};
       const global = context.global_cues || {};
       const items = [
-        ["Nifty regime", titleCase(nifty.trend), percent(nifty.daily_change_pct)],
-        ["India VIX", vix.close == null ? "N/A" : Number(vix.close).toFixed(2), percent(vix.daily_change_pct)],
-        ["Market breadth", percent(breadth.advance_pct), breadth.universe || "NSE breadth unavailable"],
-        ["Sector trends", `${sectors.bullish_sector_count ?? 0} bullish`, `${sectors.bearish_sector_count ?? 0} bearish of ${sectors.tracked_sector_count ?? 0}`],
-        ["USD / INR", titleCase(usd.trend), percent(usd.daily_change_pct)],
-        ["WTI crude", titleCase(crude.trend), percent(crude.daily_change_pct)],
-        ["Global sentiment", global.score == null ? "N/A" : `${global.score}/100`, (global.reasons || []).join(" · ") || "Neutral cues"]
+        ["Nifty regime", titleCase(nifty.trend), percent(nifty.daily_change_pct), "The recent direction of the Nifty 50. A bullish regime supports long setups; a bearish regime calls for more caution. The detail is today's index change."],
+        ["India VIX", vix.close == null ? "N/A" : Number(vix.close).toFixed(2), percent(vix.daily_change_pct), "The market's expected near-term volatility. Lower or falling VIX suggests calmer conditions; high or rising VIX implies wider swings, so consider smaller positions and wider risk buffers."],
+        ["Market breadth", percent(breadth.advance_pct), breadth.universe || "NSE breadth unavailable", "The percentage of tracked stocks advancing. Above 50% indicates broad participation and makes an index move more credible; below 50% means strength is concentrated or the market is weak."],
+        ["Sector trends", `${sectors.bullish_sector_count ?? 0} bullish`, `${sectors.bearish_sector_count ?? 0} bearish of ${sectors.tracked_sector_count ?? 0}`, "Counts how many tracked sectors are trending bullish or bearish. Broad sector strength supports long trades; favor stocks in bullish sectors and be selective when few sectors participate."],
+        ["USD / INR", titleCase(usd.trend), percent(usd.daily_change_pct), "The US dollar's trend against the rupee. A rising pair means a weaker rupee, which can pressure importers but help exporters. Use it as a sector-specific risk cue, not a standalone signal."],
+        ["WTI crude", titleCase(crude.trend), percent(crude.daily_change_pct), "The trend in global crude-oil prices. Rising crude can raise costs for India and oil-consuming sectors; falling crude is generally supportive. Check the stock's sensitivity before acting."],
+        ["Global sentiment", global.score == null ? "N/A" : `${global.score}/100`, (global.reasons || []).join(" · ") || "Neutral cues", "A 0-100 summary of major overseas market cues. Scores above 50 are supportive and below 50 are adverse; use it to adjust conviction, not to override the stock setup."]
       ];
-      document.getElementById("marketConditions").innerHTML = items.map(([label, value, detail]) => `
-        <div class="condition-item"><div class="condition-label">${escapeHtml(label)}</div><div class="condition-value">${escapeHtml(value)}</div><div class="condition-detail">${escapeHtml(detail)}</div></div>
+      document.getElementById("marketConditions").innerHTML = items.map(([label, value, detail, tooltip]) => `
+        <div class="condition-item"><div class="condition-label">${escapeHtml(label)}<button class="metric-help" type="button" aria-label="${escapeHtml(`${label}: ${tooltip}`)}" aria-describedby="metricTooltip" data-tooltip="${escapeHtml(tooltip)}">i</button></div><div class="condition-value">${escapeHtml(value)}</div><div class="condition-detail">${escapeHtml(detail)}</div></div>
       `).join("");
     }
+
+    const metricTooltip = document.getElementById("metricTooltip");
+    function showMetricTooltip(button) {
+      metricTooltip.textContent = button.dataset.tooltip;
+      metricTooltip.hidden = false;
+      const trigger = button.getBoundingClientRect();
+      const tooltip = metricTooltip.getBoundingClientRect();
+      const left = Math.min(window.innerWidth - tooltip.width - 12, Math.max(12, trigger.left + trigger.width / 2 - tooltip.width / 2));
+      const top = trigger.top > tooltip.height + 12 ? trigger.top - tooltip.height - 8 : trigger.bottom + 8;
+      metricTooltip.style.left = `${left}px`;
+      metricTooltip.style.top = `${top}px`;
+    }
+
+    function hideMetricTooltip() {
+      metricTooltip.hidden = true;
+    }
+
+    document.addEventListener("pointerover", event => {
+      const button = event.target.closest?.(".metric-help");
+      if (button) showMetricTooltip(button);
+    });
+    document.addEventListener("pointerout", event => {
+      const button = event.target.closest?.(".metric-help");
+      if (button && document.activeElement !== button) hideMetricTooltip();
+    });
+    document.addEventListener("focusin", event => {
+      if (event.target.matches?.(".metric-help")) showMetricTooltip(event.target);
+    });
+    document.addEventListener("focusout", event => {
+      if (event.target.matches?.(".metric-help")) hideMetricTooltip();
+    });
+    document.addEventListener("keydown", event => {
+      if (event.key === "Escape" && !metricTooltip.hidden) {
+        hideMetricTooltip();
+        document.activeElement?.blur();
+      }
+    });
 
     function renderBacktest(backtest) {
       const target = document.getElementById("backtest");
