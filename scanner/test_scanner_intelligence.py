@@ -435,6 +435,31 @@ class IntelligenceScoringTests(unittest.TestCase):
             calculate_stock_score(bearish, {}, "bullish")["score"],
         )
 
+    def test_scored_row_preserves_universe_metrics(self):
+        stock = self.stock()
+
+        result = calculate_stock_score(stock, {}, "bullish")
+
+        self.assertEqual(result["futures_price_change_pct"], 1)
+        self.assertEqual(result["futures_oi_change_pct"], 1)
+        self.assertEqual(result["return_5d"], 2)
+
+    def test_bearish_global_reasons_describe_directional_impact(self):
+        global_cues = {
+            "nasdaq_change_pct": 2,
+            "spx_change_pct": 2,
+            "dow_change_pct": -2,
+            "gift_nifty_change_pct": -1,
+        }
+
+        result = calculate_stock_score(self.stock(), global_cues, "bearish")
+
+        self.assertIn("NASDAQ strongly positive opposes bearish setup", result["reasons"])
+        self.assertIn("S&P 500 positive opposes bearish setup", result["reasons"])
+        self.assertIn("Dow Jones negative supports bearish setup", result["reasons"])
+        self.assertIn("GIFT Nifty negative supports bearish setup", result["reasons"])
+        self.assertEqual(result["calculation"]["global_score"], 51)
+
     def test_directional_gap_and_liquidity_reduce_score(self):
         stock = self.stock()
         baseline = calculate_stock_score(stock, {}, "bullish")["score"]

@@ -81,9 +81,18 @@ def score_volume(volume, avg_volume):
     return 35, "Weak volume"
 
 
-def score_global_cues(global_data):
+def score_global_cues(global_data, mode="bullish"):
+    if mode not in {"bullish", "bearish"}:
+        raise ValueError("mode must be bullish or bearish")
     score = 50
     reasons = []
+    bearish = mode == "bearish"
+
+    def cue_reason(label, direction):
+        if not bearish:
+            return f"{label} {direction}"
+        impact = "supports" if direction == "negative" else "opposes"
+        return f"{label} {direction} {impact} bearish setup"
 
     nasdaq = global_data.get("nasdaq_change_pct")
     spx = global_data.get("spx_change_pct")
@@ -93,36 +102,37 @@ def score_global_cues(global_data):
     if nasdaq is not None:
         if nasdaq > 1:
             score += 12
-            reasons.append("NASDAQ strongly positive")
+            reasons.append(cue_reason("NASDAQ strongly", "positive"))
         elif nasdaq < -1:
             score -= 12
-            reasons.append("NASDAQ strongly negative")
+            reasons.append(cue_reason("NASDAQ strongly", "negative"))
 
     if spx is not None:
         if spx > 1:
             score += 10
-            reasons.append("S&P 500 positive")
+            reasons.append(cue_reason("S&P 500", "positive"))
         elif spx < -1:
             score -= 10
-            reasons.append("S&P 500 negative")
+            reasons.append(cue_reason("S&P 500", "negative"))
 
     if dow is not None:
         if dow > 1:
             score += 8
-            reasons.append("Dow Jones positive")
+            reasons.append(cue_reason("Dow Jones", "positive"))
         elif dow < -1:
             score -= 8
-            reasons.append("Dow Jones negative")
+            reasons.append(cue_reason("Dow Jones", "negative"))
 
     if gift is not None:
         if gift > 0.5:
             score += 15
-            reasons.append("GIFT Nifty positive")
+            reasons.append(cue_reason("GIFT Nifty", "positive"))
         elif gift < -0.5:
             score -= 15
-            reasons.append("GIFT Nifty negative")
+            reasons.append(cue_reason("GIFT Nifty", "negative"))
 
-    return clamp(score), reasons
+    score = clamp(score)
+    return (100 - score if bearish else score), reasons
 
 
 def calculate_stock_score(stock, global_data, mode="bullish"):
@@ -151,9 +161,7 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         stock["avg_volume"]
     )
 
-    global_score, global_reasons = score_global_cues(global_data)
-    if mode == "bearish":
-        global_score = 100 - global_score
+    global_score, global_reasons = score_global_cues(global_data, mode)
 
     relative_strength = stock.get("sector_relative_strength_pct")
     if relative_strength is None:
@@ -226,7 +234,10 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         "setup_mode": mode,
         "score": round(final_score, 2),
         "recommendation": recommendation,
+        "futures_price_change_pct": stock["futures_price_change_pct"],
+        "futures_oi_change_pct": stock["futures_oi_change_pct"],
         "pcr": stock["pcr"],
+        "return_5d": stock["return_5d"],
         "sector": stock.get("sector"),
         "sector_relative_strength_pct": relative_strength,
         "gap_pct": stock.get("gap_pct"),
