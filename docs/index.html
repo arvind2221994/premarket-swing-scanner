@@ -87,7 +87,7 @@
     .regime-table { width:100%; border-collapse:collapse; } .regime-table th,.regime-table td { padding:11px 8px; border-top:1px solid var(--line); text-align:right; }
     .regime-table th:first-child,.regime-table td:first-child { text-align:left; } .regime-table th { color:var(--muted); font-size:11px; }
     .universe-table-wrap { overflow-x:auto; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
-    .universe-table { width:100%; min-width:1120px; border-collapse:collapse; }
+    .universe-table { width:100%; min-width:1480px; border-collapse:collapse; }
     .universe-table th,.universe-table td { padding:12px 10px; border-bottom:1px solid var(--line); text-align:right; white-space:nowrap; }
     .universe-table th:first-child,.universe-table td:first-child,.universe-table th:nth-child(4),.universe-table td:nth-child(4) { text-align:left; }
     .universe-table tbody tr:last-child td { border-bottom:0; }
@@ -261,6 +261,7 @@
     }
 
     const titleCase = value => value ? value.charAt(0).toUpperCase() + value.slice(1) : "Unavailable";
+    const formatCategory = value => titleCase(String(value).replaceAll("_", " "));
     const percent = value => value == null ? "N/A" : `${Number(value).toFixed(1)}%`;
     function renderMarketConditions(context) {
       if (!context) {
@@ -369,13 +370,14 @@
       ["rank", "Rank"], ["symbol", "Symbol"], ["score", "Score"], ["recommendation", "Recommendation"],
       ["futures_price_change_pct", "Futures"], ["futures_oi_change_pct", "OI change"], ["pcr", "PCR"],
       ["return_5d", "5-day"], ["sector_relative_strength_pct", "Sector relative"], ["estimated_slippage_bps", "Slippage"],
-      ["gap_pct", "Gap"], ["event_risk", "Event risk"]
+      ["gap_pct", "Gap"], ["data_as_of", "Data date"], ["in_fo_ban", "F&O ban"],
+      ["evidence_completeness_pct", "Evidence"], ["event_risk", "Event risk"], ["event_categories", "Categories"]
     ];
 
     function filterUniverse(stocks) {
       const query = universeQuery.trim().toLocaleUpperCase();
       return stocks.filter(stock => {
-        const searchable = `${stock.symbol || ""} ${stock.sector || ""} ${stock.recommendation || ""}`.toLocaleUpperCase();
+        const searchable = `${stock.symbol || ""} ${stock.sector || ""} ${stock.recommendation || ""} ${(stock.event_categories || []).map(formatCategory).join(" ")}`.toLocaleUpperCase();
         const score = Number(stock.score);
         const recommendationMatches = recommendationFilter === "all"
           || (recommendationFilter === "high" && score >= 75)
@@ -435,7 +437,11 @@
             <td>${stock.pcr == null ? "N/A" : Number(stock.pcr).toFixed(2)}</td><td>${percent(stock.return_5d)}</td>
             <td>${percent(stock.sector_relative_strength_pct)}</td><td>${stock.estimated_slippage_bps == null ? "N/A" : `${stock.estimated_slippage_bps} bps`}</td>
             <td class="${stock.gap_extended ? "risk-flag" : ""}">${percent(stock.gap_pct)}</td>
+            <td>${escapeHtml(stock.data_as_of)}</td>
+            <td class="${stock.in_fo_ban ? "risk-flag" : ""}">${stock.in_fo_ban == null ? "Unavailable" : stock.in_fo_ban ? "Banned" : "No"}</td>
+            <td title="${stock.evidence_available ?? 0} of ${stock.evidence_total ?? 0} inputs available">${stock.evidence_completeness_pct == null ? "N/A" : `${stock.evidence_completeness_pct}%`}</td>
             <td class="${stock.event_risk ? "risk-flag" : ""}">${stock.event_risk_status === "unavailable" ? "Unavailable" : stock.event_risk ? "Detected" : "None"}</td>
+            <td>${escapeHtml((stock.event_categories || []).map(formatCategory).join(", ") || "None")}</td>
             <td><div class="table-actions"><button class="watch-button" type="button" data-watch="${escapeHtml(stock.symbol)}" aria-pressed="false">Watch</button><label class="compare-label"><input class="compare-input" type="checkbox" data-compare="${escapeHtml(stock.symbol)}" ${selectedSymbols.includes(stock.symbol) ? "checked" : ""}>Compare</label></div></td>
           </tr>`).join("")}</tbody>
       </table></div>`;

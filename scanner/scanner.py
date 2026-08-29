@@ -168,8 +168,10 @@ def load_stock_universe():
                 cash["average_traded_value_crore"] >= MIN_CASH_TURNOVER_CRORE
                 and fno["futures_volume"] >= MIN_FUTURES_VOLUME
             )
+            symbol_cash_date = pd.to_datetime(history.iloc[-1]["TradDt"]).date()
             stocks.append({
                 "symbol": symbol,
+                "data_as_of": min(symbol_cash_date, latest_fno_date).isoformat(),
                 "futures_price_change_pct": fno["futures_price_change"],
                 "futures_oi_change_pct": fno["oi_change_pct"],
                 "pcr": fno["pcr"],
@@ -179,7 +181,7 @@ def load_stock_universe():
                 "return_5d": cash["return_5d"],
                 "volume": float(volumes.iloc[-1]),
                 "avg_volume": float(volumes.iloc[-21:-1].mean()),
-                "in_fo_ban": ban_status["is_banned"] is True,
+                "in_fo_ban": ban_status["is_banned"],
                 "gap_pct": cash["gap_pct"],
                 "gap_atr": cash["gap_atr"],
                 "liquidity_tier": cash["liquidity_tier"],

@@ -135,6 +135,22 @@ def score_global_cues(global_data, mode="bullish"):
     return (100 - score if bearish else score), reasons
 
 
+def evidence_completeness(stock, global_data):
+    values = [
+        stock.get("futures_price_change_pct"), stock.get("futures_oi_change_pct"),
+        stock.get("pcr"), stock.get("close"), stock.get("dma20"),
+        stock.get("dma50"), stock.get("return_5d"), stock.get("volume"),
+        stock.get("avg_volume"), stock.get("sector_relative_strength_pct"),
+        global_data.get("nasdaq_change_pct"), global_data.get("spx_change_pct"),
+        global_data.get("dow_change_pct"), global_data.get("gift_nifty_change_pct"),
+        stock.get("in_fo_ban"), stock.get("event_risk_status"),
+        stock.get("gap_atr"), stock.get("liquidity_filter_pass"),
+    ]
+    available = sum(value is not None for value in values)
+    total = len(values)
+    return available, total, round(available / total * 100)
+
+
 def calculate_stock_score(stock, global_data, mode="bullish"):
     if mode not in {"bullish", "bearish"}:
         raise ValueError("mode must be bullish or bearish")
@@ -229,8 +245,13 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
     else:
         recommendation = "Avoid"
 
+    evidence_available, evidence_total, evidence_completeness_pct = evidence_completeness(
+        stock, global_data
+    )
+
     return {
         "symbol": stock["symbol"],
+        "data_as_of": stock.get("data_as_of"),
         "setup_mode": mode,
         "score": round(final_score, 2),
         "recommendation": recommendation,
@@ -245,6 +266,10 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         "gap_extended": too_extended,
         "liquidity_tier": stock.get("liquidity_tier"),
         "estimated_slippage_bps": stock.get("estimated_slippage_bps"),
+        "in_fo_ban": stock.get("in_fo_ban"),
+        "evidence_available": evidence_available,
+        "evidence_total": evidence_total,
+        "evidence_completeness_pct": evidence_completeness_pct,
         "event_risk": stock.get("event_risk", False),
         "event_risk_status": stock.get("event_risk_status", "clear"),
         "event_categories": stock.get("event_categories", []),

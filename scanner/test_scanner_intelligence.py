@@ -411,6 +411,9 @@ class IntelligenceScoringTests(unittest.TestCase):
             "sector_relative_strength_pct": 2,
             "liquidity_filter_pass": True,
             "gap_atr": 0,
+            "data_as_of": "2026-08-28",
+            "in_fo_ban": False,
+            "event_risk_status": "clear",
         }
 
     def test_scores_bullish_and_bearish_modes_independently(self):
@@ -443,6 +446,24 @@ class IntelligenceScoringTests(unittest.TestCase):
         self.assertEqual(result["futures_price_change_pct"], 1)
         self.assertEqual(result["futures_oi_change_pct"], 1)
         self.assertEqual(result["return_5d"], 2)
+
+    def test_scored_row_includes_provenance_and_evidence_completeness(self):
+        stock = {**self.stock(), "event_categories": ["earnings", "dividend"]}
+        global_cues = {
+            "nasdaq_change_pct": 1,
+            "spx_change_pct": 1,
+            "dow_change_pct": 1,
+            "gift_nifty_change_pct": None,
+        }
+
+        result = calculate_stock_score(stock, global_cues, "bullish")
+
+        self.assertEqual(result["data_as_of"], "2026-08-28")
+        self.assertIs(result["in_fo_ban"], False)
+        self.assertEqual(result["event_categories"], ["earnings", "dividend"])
+        self.assertEqual(result["evidence_available"], 17)
+        self.assertEqual(result["evidence_total"], 18)
+        self.assertEqual(result["evidence_completeness_pct"], 94)
 
     def test_bearish_global_reasons_describe_directional_impact(self):
         global_cues = {
