@@ -4,25 +4,25 @@
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
   "global_cues": {
-    "nasdaq_change_pct": NaN,
-    "spx_change_pct": NaN,
-    "dow_change_pct": NaN,
+    "nasdaq_change_pct": null,
+    "spx_change_pct": null,
+    "dow_change_pct": null,
     "gift_nifty_change_pct": -0.12,
     "source_metadata": {
       "nasdaq": {
-        "change_pct": NaN,
+        "change_pct": null,
         "observed_at": "2026-08-28T00:00:00",
         "fetched_at": "2026-08-29T05:38:33.562863+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
-        "change_pct": NaN,
+        "change_pct": null,
         "observed_at": "2026-08-28T00:00:00",
         "fetched_at": "2026-08-29T05:38:33.910154+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
-        "change_pct": NaN,
+        "change_pct": null,
         "observed_at": "2026-08-28T00:00:00",
         "fetched_at": "2026-08-29T05:38:34.056971+00:00",
         "source": "Yahoo Finance"
@@ -197,25 +197,25 @@
       }
     },
     "global_cues": {
-      "nasdaq_change_pct": NaN,
-      "spx_change_pct": NaN,
-      "dow_change_pct": NaN,
+      "nasdaq_change_pct": null,
+      "spx_change_pct": null,
+      "dow_change_pct": null,
       "gift_nifty_change_pct": -0.12,
       "source_metadata": {
         "nasdaq": {
-          "change_pct": NaN,
+          "change_pct": null,
           "observed_at": "2026-08-28T00:00:00",
           "fetched_at": "2026-08-29T05:38:33.562863+00:00",
           "source": "Yahoo Finance"
         },
         "spx": {
-          "change_pct": NaN,
+          "change_pct": null,
           "observed_at": "2026-08-28T00:00:00",
           "fetched_at": "2026-08-29T05:38:33.910154+00:00",
           "source": "Yahoo Finance"
         },
         "dow": {
-          "change_pct": NaN,
+          "change_pct": null,
           "observed_at": "2026-08-28T00:00:00",
           "fetched_at": "2026-08-29T05:38:34.056971+00:00",
           "source": "Yahoo Finance"

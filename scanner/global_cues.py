@@ -1,4 +1,5 @@
 from datetime import datetime, timezone
+import math
 
 import requests
 import yfinance as yf
@@ -29,6 +30,8 @@ def get_change_snapshot(ticker):
 
         prev_close = float(data["Close"].iloc[-2])
         latest_close = float(data["Close"].iloc[-1])
+        if not math.isfinite(prev_close) or not math.isfinite(latest_close) or prev_close == 0:
+            raise ValueError("Yahoo Finance returned invalid close values")
 
         return {
             "change_pct": round(((latest_close - prev_close) / prev_close) * 100, 2),

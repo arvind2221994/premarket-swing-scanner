@@ -1,4 +1,5 @@
 import json
+import math
 import os
 from datetime import date, datetime, timedelta
 from pathlib import Path
@@ -44,6 +45,16 @@ SECTOR_BY_SYMBOL = {
     "POWERGRID": "Nifty Energy", "COALINDIA": "Nifty Energy", "BPCL": "Nifty Energy",
     "DLF": "Nifty Realty", "GODREJPROP": "Nifty Realty", "OBEROIRLTY": "Nifty Realty",
 }
+
+
+def sanitize_json_value(value):
+    if isinstance(value, float) and not math.isfinite(value):
+        return None
+    if isinstance(value, dict):
+        return {key: sanitize_json_value(item) for key, item in value.items()}
+    if isinstance(value, (list, tuple)):
+        return [sanitize_json_value(item) for item in value]
+    return value
 
 
 def configured_symbols():
@@ -262,7 +273,7 @@ def main(output_path=LATEST_DATA_PATH):
     output_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = output_path.with_suffix(f"{output_path.suffix}.tmp")
     with temporary_path.open("w", encoding="utf-8") as file:
-        json.dump(output, file, indent=2)
+        json.dump(sanitize_json_value(output), file, indent=2, allow_nan=False)
     os.replace(temporary_path, output_path)
 
     print(f"Generated {output_path}")

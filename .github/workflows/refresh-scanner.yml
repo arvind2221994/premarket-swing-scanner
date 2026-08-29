@@ -3,7 +3,7 @@ name: Refresh scanner and deploy Pages
 on:
   workflow_dispatch:
   schedule:
-    - cron: "0 3 * * 1-5"
+    - cron: "0 3 * * *"
 
 permissions:
   contents: write

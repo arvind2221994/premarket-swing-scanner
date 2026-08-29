@@ -1,4 +1,5 @@
 import importlib.util
+import json
 import sys
 import unittest
 from pathlib import Path
@@ -30,6 +31,7 @@ scanner_spec = importlib.util.spec_from_file_location(
 scanner_job = importlib.util.module_from_spec(scanner_spec)
 scanner_spec.loader.exec_module(scanner_job)
 add_sector_relative_strength = scanner_job.add_sector_relative_strength
+sanitize_json_value = scanner_job.sanitize_json_value
 select_liquid_fno_symbols = scanner_job.select_liquid_fno_symbols
 
 
@@ -236,6 +238,27 @@ class MarketContextTests(unittest.TestCase):
 
 class YahooFallbackTests(unittest.TestCase):
     @patch("global_cues.fetch_stooq_change_snapshot")
+    @patch("global_cues.call_with_resilience")
+    def test_global_cue_uses_stooq_for_non_finite_yahoo_closes(
+        self, request, fetch_stooq
+    ):
+        request.return_value = pd.DataFrame(
+            {"Close": [float("nan"), float("nan")]},
+            index=pd.date_range("2026-08-27", periods=2),
+        )
+        fetch_stooq.return_value = {
+            "change_pct": 1.25,
+            "source": "Stooq",
+            "observed_at": "2026-08-28",
+            "fetched_at": "2026-08-29",
+        }
+
+        snapshot = global_cues.get_change_snapshot("^GSPC")
+
+        self.assertEqual(snapshot["change_pct"], 1.25)
+        self.assertEqual(snapshot["source"], "Stooq")
+
+    @patch("global_cues.fetch_stooq_change_snapshot")
     @patch("global_cues.call_with_resilience", side_effect=global_cues.UpstreamUnavailableError("Yahoo"))
     def test_global_cue_uses_stooq_when_yahoo_fails(self, _, fetch_stooq):
         fetch_stooq.return_value = {
@@ -271,6 +294,15 @@ class YahooFallbackTests(unittest.TestCase):
 
 
 class UniverseTests(unittest.TestCase):
+    def test_sanitizes_non_finite_values_for_browser_json(self):
+        sanitized = sanitize_json_value({
+            "nested": [float("nan"), float("inf"), float("-inf"), 1.5],
+        })
+
+        encoded = json.dumps(sanitized, allow_nan=False)
+
+        self.assertEqual(json.loads(encoded), {"nested": [None, None, None, 1.5]})
+
     def test_selects_front_expiry_symbols_by_traded_value(self):
         frame = pd.DataFrame([
             {"FinInstrmTp": "STF", "TckrSymb": "LOW", "XpryDt": "2026-09-01", "TtlTrfVal": 10, "TtlTradgVol": 100},
