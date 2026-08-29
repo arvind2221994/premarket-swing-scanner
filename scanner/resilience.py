@@ -2,6 +2,7 @@ import os
 import threading
 import time
 from collections import OrderedDict
+from contextlib import contextmanager
 
 
 DEFAULT_RETRIES = int(os.getenv("UPSTREAM_RETRIES", "3"))
@@ -42,6 +43,31 @@ class BoundedTTLCache:
             self._items.move_to_end(key)
             while len(self._items) > self.max_size:
                 self._items.popitem(last=False)
+
+
+class KeyedLockPool:
+    def __init__(self):
+        self._items = {}
+        self._lock = threading.Lock()
+
+    @contextmanager
+    def acquire(self, key):
+        with self._lock:
+            item = self._items.setdefault(
+                key,
+                {"lock": threading.Lock(), "users": 0},
+            )
+            item["users"] += 1
+
+        item["lock"].acquire()
+        try:
+            yield
+        finally:
+            item["lock"].release()
+            with self._lock:
+                item["users"] -= 1
+                if item["users"] == 0 and self._items.get(key) is item:
+                    del self._items[key]
 
 
 class CircuitBreaker:

@@ -11,7 +11,12 @@ from werkzeug.exceptions import NotFound
 import scanner as scanner_generator
 from economic_times_news import fetch_economic_times_news
 from fno_trade_analyzer import build_symbol_report
-from resilience import BoundedTTLCache, UpstreamUnavailableError, call_with_resilience
+from resilience import (
+    BoundedTTLCache,
+    KeyedLockPool,
+    UpstreamUnavailableError,
+    call_with_resilience,
+)
 
 
 DOCS_DIR = Path(__file__).resolve().parent.parent / "docs"
@@ -42,7 +47,7 @@ economic_times_cache = BoundedTTLCache(
     ECONOMIC_TIMES_CACHE_MAX_SIZE,
     ECONOMIC_TIMES_CACHE_SECONDS,
 )
-analysis_lock = threading.Lock()
+analysis_locks = KeyedLockPool()
 health_lock = threading.Lock()
 refresh_lock = threading.Lock()
 last_refresh_started_at = 0.0
@@ -338,7 +343,7 @@ def analyze(symbol):
         return jsonify({**cached, "cached": True})
 
     try:
-        with analysis_lock:
+        with analysis_locks.acquire(cache_key):
             cached = report_cache.get(cache_key)
             if cached is not None:
                 return jsonify({**cached, "cached": True})

@@ -1,16 +1,21 @@
 import json
 import sys
 import tempfile
+import threading
 import time
 import unittest
+from datetime import date
 from pathlib import Path
 from unittest.mock import patch
 
+import pandas as pd
+
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
+import fno_trade_analyzer
 import resilience
 import web_app
-from resilience import BoundedTTLCache, CircuitBreaker, UpstreamUnavailableError
+from resilience import BoundedTTLCache, CircuitBreaker, KeyedLockPool, UpstreamUnavailableError
 
 
 class BoundedTTLCacheTests(unittest.TestCase):
@@ -31,6 +36,41 @@ class BoundedTTLCacheTests(unittest.TestCase):
         cache.set("ticker", {"score": 75}, now=5)
 
         self.assertIsNone(cache.get("ticker", now=15))
+
+
+class KeyedLockPoolTests(unittest.TestCase):
+    def test_same_key_is_serialized_and_different_keys_are_independent(self):
+        pool = KeyedLockPool()
+        first_entered = threading.Event()
+        release_first = threading.Event()
+        same_key_entered = threading.Event()
+        other_key_entered = threading.Event()
+
+        def hold_first():
+            with pool.acquire("TCS"):
+                first_entered.set()
+                release_first.wait(timeout=1)
+
+        def enter(key, event):
+            with pool.acquire(key):
+                event.set()
+
+        first = threading.Thread(target=hold_first)
+        duplicate = threading.Thread(target=enter, args=("TCS", same_key_entered))
+        independent = threading.Thread(target=enter, args=("INFY", other_key_entered))
+        first.start()
+        self.assertTrue(first_entered.wait(timeout=1))
+        duplicate.start()
+        independent.start()
+
+        self.assertTrue(other_key_entered.wait(timeout=1))
+        self.assertFalse(same_key_entered.wait(timeout=0.05))
+        release_first.set()
+        self.assertTrue(same_key_entered.wait(timeout=1))
+        first.join()
+        duplicate.join()
+        independent.join()
+        self.assertEqual(pool._items, {})
 
 
 class ResilienceTests(unittest.TestCase):
@@ -78,6 +118,7 @@ class ResilienceTests(unittest.TestCase):
 class ApiErrorSanitizationTests(unittest.TestCase):
     def setUp(self):
         web_app.report_cache = BoundedTTLCache(max_size=2, ttl_seconds=60)
+        web_app.analysis_locks = KeyedLockPool()
         for state in web_app.dependency_health.values():
             state.update({
                 "status": "unknown",
@@ -122,6 +163,140 @@ class ApiErrorSanitizationTests(unittest.TestCase):
         self.assertEqual(bearish.get_json()["setup_mode"], "bearish")
         self.assertTrue(cached_bullish.get_json()["cached"])
         self.assertEqual(builder.call_count, 2)
+
+    def test_different_symbols_are_analyzed_concurrently(self):
+        both_entered = threading.Event()
+        entered = []
+        entered_lock = threading.Lock()
+        overlapped = []
+        responses = []
+
+        def report(symbol, mode):
+            with entered_lock:
+                entered.append(symbol)
+                if len(entered) == 2:
+                    both_entered.set()
+            overlapped.append(both_entered.wait(timeout=0.2))
+            return {"symbol": symbol, "setup_mode": mode}
+
+        def request_report(symbol):
+            with web_app.app.test_client() as client:
+                responses.append(client.get(f"/api/analyze/{symbol}"))
+
+        with patch.object(web_app, "build_symbol_report", side_effect=report):
+            first = threading.Thread(target=request_report, args=("TCS",))
+            second = threading.Thread(target=request_report, args=("INFY",))
+            first.start()
+            second.start()
+            first.join()
+            second.join()
+
+        self.assertTrue(both_entered.is_set())
+        self.assertCountEqual(entered, ["TCS", "INFY"])
+        self.assertEqual(overlapped, [True, True])
+        self.assertTrue(all(response.status_code == 200 for response in responses))
+
+    def test_duplicate_report_requests_share_one_build(self):
+        build_started = threading.Event()
+        release_build = threading.Event()
+        responses = []
+
+        def report(symbol, mode):
+            build_started.set()
+            release_build.wait(timeout=1)
+            return {"symbol": symbol, "setup_mode": mode}
+
+        def request_report():
+            with web_app.app.test_client() as client:
+                responses.append(client.get("/api/analyze/TCS"))
+
+        with patch.object(web_app, "build_symbol_report", side_effect=report) as builder:
+            first = threading.Thread(target=request_report)
+            second = threading.Thread(target=request_report)
+            first.start()
+            self.assertTrue(build_started.wait(timeout=1))
+            second.start()
+            release_build.set()
+            first.join()
+            second.join()
+
+        self.assertEqual(builder.call_count, 1)
+        self.assertEqual(sorted(response.get_json()["cached"] for response in responses), [False, True])
+
+
+class AnalysisSourceCacheTests(unittest.TestCase):
+    def setUp(self):
+        fno_trade_analyzer.cash_history_cache = BoundedTTLCache(8, 60)
+        fno_trade_analyzer.fno_frames_cache = BoundedTTLCache(8, 60)
+        fno_trade_analyzer.ban_list_cache = BoundedTTLCache(8, 60)
+        fno_trade_analyzer.fundamentals_cache = BoundedTTLCache(8, 60)
+        fno_trade_analyzer.company_news_cache = BoundedTTLCache(8, 60)
+        fno_trade_analyzer.global_cues_cache = BoundedTTLCache(8, 60)
+        fno_trade_analyzer.source_locks = KeyedLockPool()
+
+    def test_each_source_is_cached_by_its_data_identity(self):
+        latest_date = date(2026, 8, 28)
+        history = pd.DataFrame([{"TradDt": latest_date.isoformat()}])
+        frames = [pd.DataFrame([{"TradDt": latest_date.isoformat()}])]
+        snapshot = {
+            "banned_symbols": {"TCS"},
+            "trade_date": latest_date.isoformat(),
+            "note": "Current ban list.",
+        }
+
+        with (
+            patch.object(fno_trade_analyzer, "load_recent_symbol_history", return_value=history) as cash_loader,
+            patch.object(fno_trade_analyzer, "load_recent_fno_frames", return_value=frames) as fno_loader,
+            patch.object(fno_trade_analyzer, "fetch_fno_ban_snapshot", return_value=snapshot) as ban_loader,
+            patch.object(fno_trade_analyzer, "fetch_screener_data", return_value={"name": "TCS"}) as fundamentals_loader,
+            patch.object(fno_trade_analyzer, "fetch_company_news", return_value={"articles": []}) as news_loader,
+            patch.object(fno_trade_analyzer, "fetch_global_cues", return_value={"spx_change_pct": 1}) as cues_loader,
+        ):
+            for _ in range(2):
+                fno_trade_analyzer.load_cached_symbol_history("TCS")
+                fno_trade_analyzer.load_cached_fno_frames(latest_date)
+                fno_trade_analyzer.load_cached_ban_status("TCS", latest_date)
+                fno_trade_analyzer.load_cached_fundamentals("TCS")
+                fno_trade_analyzer.load_cached_company_news("TCS")
+                fno_trade_analyzer.load_cached_global_cues()
+
+        for loader in (
+            cash_loader,
+            fno_loader,
+            ban_loader,
+            fundamentals_loader,
+            news_loader,
+            cues_loader,
+        ):
+            loader.assert_called_once()
+
+    def test_report_loads_independent_sources_concurrently(self):
+        latest_date = date(2026, 8, 28)
+        history = pd.DataFrame([{"TradDt": latest_date.isoformat()}])
+        all_started = threading.Barrier(5)
+
+        def concurrent_result(value):
+            all_started.wait(timeout=1)
+            return value
+
+        with (
+            patch.object(fno_trade_analyzer, "load_cached_symbol_history", return_value=history),
+            patch.object(fno_trade_analyzer, "load_cached_fno_frames", side_effect=lambda *_: concurrent_result([])),
+            patch.object(fno_trade_analyzer, "load_cached_ban_status", side_effect=lambda *_: concurrent_result({"is_banned": False})),
+            patch.object(fno_trade_analyzer, "load_cached_fundamentals", side_effect=lambda *_: concurrent_result({})),
+            patch.object(fno_trade_analyzer, "load_cached_company_news", side_effect=lambda *_: concurrent_result({"event_risk": {}})),
+            patch.object(fno_trade_analyzer, "load_cached_global_cues", side_effect=lambda: concurrent_result({})),
+            patch.object(fno_trade_analyzer, "analyze_cash", return_value={}),
+            patch.object(fno_trade_analyzer, "analyze_fno", return_value=None),
+            patch.object(fno_trade_analyzer, "calculate_fundamental_score", return_value={"score": None, "tags": []}),
+            patch.object(fno_trade_analyzer, "score_detailed_report", return_value={"score": 50, "calculation": {}}),
+            patch.object(fno_trade_analyzer, "build_pros_cons", return_value=([], [])),
+            patch.object(fno_trade_analyzer, "build_trade_plan", return_value=None),
+        ):
+            report = fno_trade_analyzer.build_symbol_report("TCS")
+
+        self.assertEqual(report["symbol"], "TCS")
+        self.assertEqual(report["data_through"], latest_date.isoformat())
 
 
 class RefreshApiTests(unittest.TestCase):

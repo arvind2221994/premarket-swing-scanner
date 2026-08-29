@@ -1,7 +1,10 @@
 import argparse
 import io
+import os
 import re
+import time
 import zipfile
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, timedelta
 
 import pandas as pd
@@ -10,7 +13,12 @@ import requests
 from fundamentals import calculate_fundamental_score, fetch_screener_data
 from global_cues import fetch_global_cues
 from news import fetch_company_news
-from resilience import UpstreamUnavailableError, call_with_resilience
+from resilience import (
+    BoundedTTLCache,
+    KeyedLockPool,
+    UpstreamUnavailableError,
+    call_with_resilience,
+)
 from scoring import score_detailed_report
 
 
@@ -20,6 +28,34 @@ ARCHIVE_URL = (
 )
 HEADERS = {"User-Agent": "Mozilla/5.0"}
 FNO_BAN_URL = "https://nsearchives.nseindia.com/content/fo/fo_secban.csv"
+NSE_CACHE_SECONDS = int(os.getenv("NSE_SOURCE_CACHE_SECONDS", "21600"))
+FUNDAMENTALS_CACHE_SECONDS = int(os.getenv("FUNDAMENTALS_CACHE_SECONDS", "86400"))
+NEWS_CACHE_SECONDS = int(os.getenv("NEWS_CACHE_SECONDS", "900"))
+GLOBAL_CUES_CACHE_SECONDS = int(os.getenv("GLOBAL_CUES_CACHE_SECONDS", "300"))
+SOURCE_CACHE_MAX_SIZE = int(os.getenv("SOURCE_CACHE_MAX_SIZE", "256"))
+
+cash_history_cache = BoundedTTLCache(SOURCE_CACHE_MAX_SIZE, NSE_CACHE_SECONDS)
+fno_frames_cache = BoundedTTLCache(16, NSE_CACHE_SECONDS)
+ban_list_cache = BoundedTTLCache(16, NSE_CACHE_SECONDS)
+fundamentals_cache = BoundedTTLCache(SOURCE_CACHE_MAX_SIZE, FUNDAMENTALS_CACHE_SECONDS)
+company_news_cache = BoundedTTLCache(SOURCE_CACHE_MAX_SIZE, NEWS_CACHE_SECONDS)
+global_cues_cache = BoundedTTLCache(4, GLOBAL_CUES_CACHE_SECONDS)
+source_locks = KeyedLockPool()
+
+
+def load_cached(cache, key, loader):
+    cached = cache.get(key)
+    if cached is not None:
+        return cached
+
+    lock_key = (id(cache), key)
+    with source_locks.acquire(lock_key):
+        cached = cache.get(key)
+        if cached is not None:
+            return cached
+        value = loader()
+        cache.set(key, value)
+        return value
 
 
 def download_bhavcopy(session, segment, trade_date):
@@ -90,6 +126,20 @@ def load_recent_fno_frames(session, latest_cash_date, sessions=2):
 
 
 def fetch_fno_ban_status(session, symbol):
+    snapshot = fetch_fno_ban_snapshot(session)
+    return {
+        "is_banned": (
+            None if snapshot["banned_symbols"] is None
+            else symbol in snapshot["banned_symbols"]
+        ),
+        "trade_date": snapshot["trade_date"],
+        "mwpl_utilization_pct": None,
+        "source": "NSE F&O security ban file",
+        "note": snapshot["note"],
+    }
+
+
+def fetch_fno_ban_snapshot(session):
     try:
         def request_ban_status():
             response = session.get(FNO_BAN_URL, headers=HEADERS, timeout=20)
@@ -100,10 +150,8 @@ def fetch_fno_ban_status(session, symbol):
         text = response.text.strip()
     except (requests.RequestException, UpstreamUnavailableError):
         return {
-            "is_banned": None,
+            "banned_symbols": None,
             "trade_date": None,
-            "mwpl_utilization_pct": None,
-            "source": "NSE F&O security ban file",
             "note": "Ban status is temporarily unavailable.",
         }
     date_match = re.search(r"Trade Date\s+(\d{1,2}-[A-Z]{3}-\d{4})", text, re.I)
@@ -119,12 +167,71 @@ def fetch_fno_ban_status(session, symbol):
         if value.strip() and value.strip().upper() != "NIL"
     }
     return {
-        "is_banned": symbol in banned_symbols,
+        "banned_symbols": banned_symbols,
         "trade_date": trade_date,
-        "mwpl_utilization_pct": None,
-        "source": "NSE F&O security ban file",
         "note": "Exact MWPL utilization is not published in this source.",
     }
+
+
+def load_cached_symbol_history(symbol, sessions=51):
+    cache_key = (symbol, date.today().isoformat(), sessions)
+
+    def loader():
+        with requests.Session() as session:
+            return load_recent_symbol_history(session, symbol, sessions=sessions)
+
+    return load_cached(cash_history_cache, cache_key, loader)
+
+
+def load_cached_fno_frames(latest_date, sessions=3):
+    cache_key = (latest_date.isoformat(), sessions)
+
+    def loader():
+        with requests.Session() as session:
+            return load_recent_fno_frames(session, latest_date, sessions=sessions)
+
+    return load_cached(fno_frames_cache, cache_key, loader)
+
+
+def load_cached_ban_status(symbol, latest_date):
+    cache_key = latest_date.isoformat()
+
+    def loader():
+        with requests.Session() as session:
+            return fetch_fno_ban_snapshot(session)
+
+    snapshot = load_cached(ban_list_cache, cache_key, loader)
+    return {
+        "is_banned": (
+            None if snapshot["banned_symbols"] is None
+            else symbol in snapshot["banned_symbols"]
+        ),
+        "trade_date": snapshot["trade_date"],
+        "mwpl_utilization_pct": None,
+        "source": "NSE F&O security ban file",
+        "note": snapshot["note"],
+    }
+
+
+def load_cached_fundamentals(symbol):
+    return load_cached(
+        fundamentals_cache,
+        symbol,
+        lambda: fetch_screener_data(symbol),
+    )
+
+
+def load_cached_company_news(symbol):
+    return load_cached(
+        company_news_cache,
+        symbol,
+        lambda: fetch_company_news(symbol),
+    )
+
+
+def load_cached_global_cues():
+    cache_key = int(time.time() // GLOBAL_CUES_CACHE_SECONDS)
+    return load_cached(global_cues_cache, cache_key, fetch_global_cues)
 
 
 def analyze_cash(history):
@@ -725,21 +832,32 @@ def build_symbol_report(symbol, mode="bullish"):
     if mode not in {"bullish", "bearish"}:
         raise ValueError("Enter a valid setup mode")
 
-    with requests.Session() as session:
-        history = load_recent_symbol_history(session, clean_symbol, sessions=51)
-        latest_date = pd.to_datetime(history.iloc[-1]["TradDt"]).date()
-        fno_frames = load_recent_fno_frames(session, latest_date, sessions=3)
-        ban_status = fetch_fno_ban_status(session, clean_symbol)
+    history = load_cached_symbol_history(clean_symbol, sessions=51)
+    latest_date = pd.to_datetime(history.iloc[-1]["TradDt"]).date()
+
+    with ThreadPoolExecutor(max_workers=5) as executor:
+        fno_frames_future = executor.submit(load_cached_fno_frames, latest_date, 3)
+        ban_status_future = executor.submit(
+            load_cached_ban_status,
+            clean_symbol,
+            latest_date,
+        )
+        fundamentals_future = executor.submit(load_cached_fundamentals, clean_symbol)
+        news_future = executor.submit(load_cached_company_news, clean_symbol)
+        global_cues_future = executor.submit(load_cached_global_cues)
+
+        fno_frames = fno_frames_future.result()
+        ban_status = ban_status_future.result()
+        fundamentals = fundamentals_future.result()
+        news = news_future.result()
+        global_cues = global_cues_future.result()
 
     cash = analyze_cash(history)
     fno = analyze_fno(clean_symbol, fno_frames, ban_status)
-    fundamentals = fetch_screener_data(clean_symbol)
     fundamental_result = calculate_fundamental_score(fundamentals)
     fundamental_score = fundamental_result["score"]
     fundamental_tags = fundamental_result["tags"]
-    news = fetch_company_news(clean_symbol, fundamentals.get("name"))
     event_risk = news.get("event_risk", {})
-    global_cues = fetch_global_cues()
     assessment = score_detailed_report(
         clean_symbol,
         cash,
