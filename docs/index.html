@@ -93,6 +93,13 @@
     .universe-table tbody tr:last-child td { border-bottom:0; }
     .universe-table tbody tr:hover { background:#f7f9f5; }
     .universe-table th { color:var(--muted); font-size:11px; }
+    .universe-controls { display:grid; grid-template-columns:minmax(220px,1fr) repeat(2,minmax(150px,auto)) auto; gap:10px; margin-bottom:10px; }
+    .universe-control { display:flex; flex-direction:column; gap:4px; color:var(--muted); font-size:11px; font-weight:600; }
+    .universe-control input,.universe-control select { min-height:40px; padding:0 11px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); font:14px "IBM Plex Sans",sans-serif; }
+    .universe-control input:focus,.universe-control select:focus { border-color:var(--blue); outline:3px solid rgba(23,105,170,.18); }
+    .clear-filters { align-self:end; min-height:40px; padding:0 13px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); font-weight:600; }
+    .clear-filters:hover,.clear-filters:focus-visible { border-color:var(--green); color:var(--green); }
+    .universe-results { min-height:20px; margin:0 0 8px; color:var(--muted); font-size:12px; }
     .sort-button { display:inline-flex; align-items:center; gap:5px; padding:2px; border:0; background:transparent; color:inherit; font:inherit; font-weight:600; }
     .sort-button:hover,.sort-button:focus-visible { color:var(--ink); }
     .sort-indicator { display:inline-block; width:10px; color:var(--green); }
@@ -112,8 +119,8 @@
     @keyframes skeleton-wave { to { transform:translateX(100%); } }
     @media(prefers-reduced-motion:reduce) { .skeleton::after,.refresh-button.is-refreshing .refresh-icon { animation:none; } }
     .disclaimer { margin-top:34px; color:var(--muted); font-size:13px; }
-    @media(max-width:820px) { .candidate-grid { grid-template-columns:1fr; } .cue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } }
-    @media(max-width:620px) { main { padding-top:26px; } .header-inner,.intro-row,.status-bar,.section-header,.condition-summary { align-items:flex-start; flex-direction:column; } .condition-reasons { text-align:left; } .intro-actions,.action-button { width:100%; } .intro-actions { flex-direction:column; } #dataStatus { text-align:left; } .comparison,.calibration { overflow-x:auto; } .comparison-grid { min-width:calc(var(--count) * 210px); } .regime-table { min-width:650px; } }
+    @media(max-width:820px) { .candidate-grid { grid-template-columns:1fr; } .cue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .universe-controls { grid-template-columns:1fr 1fr; } .universe-search { grid-column:1 / -1; } }
+    @media(max-width:620px) { main { padding-top:26px; } .header-inner,.intro-row,.status-bar,.section-header,.condition-summary { align-items:flex-start; flex-direction:column; } .condition-reasons { text-align:left; } .intro-actions,.action-button { width:100%; } .intro-actions { flex-direction:column; } #dataStatus { text-align:left; } .comparison,.calibration { overflow-x:auto; } .comparison-grid { min-width:calc(var(--count) * 210px); } .regime-table { min-width:650px; } .universe-controls { grid-template-columns:1fr; } .universe-search { grid-column:auto; } .clear-filters { width:100%; } }
   </style>
 </head>
 <body>
@@ -123,7 +130,7 @@
     <div class="status-bar"><time id="dataTimestamp" class="data-timestamp">Loading timestamp…</time><p id="dataStatus" class="meta" role="status" aria-live="polite"></p></div>
     <section><div class="section-header"><h2>Market conditions</h2><p class="section-note">Environment for long swing trades</p></div><div id="marketConditionSummary"></div><div class="conditions-grid" id="marketConditions"></div></section>
     <section><div class="section-header"><h2>Watchlist</h2><p class="section-note">Stored on this device</p></div><div id="watchlist" class="watchlist"></div></section>
-    <section><div class="section-header"><div><h2 id="candidateTitle">Bullish universe</h2><p id="universeSummary" class="section-note"></p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div id="topPicks"></div></section>
+    <section><div class="section-header"><div><h2 id="candidateTitle">Bullish universe</h2><p id="universeSummary" class="section-note"></p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div class="universe-controls"><label class="universe-control universe-search">Search<input id="universeSearch" type="search" placeholder="Symbol or sector" autocomplete="off"></label><label class="universe-control">Recommendation<select id="recommendationFilter"><option value="all">All recommendations</option><option value="high">High confidence</option><option value="moderate">Moderate</option><option value="watchlist">Watchlist only</option><option value="avoid">Avoid</option></select></label><label class="universe-control">Event risk<select id="eventRiskFilter"><option value="all">All risk states</option><option value="detected">Detected</option><option value="clear">None</option><option value="unavailable">Unavailable</option></select></label><button id="clearUniverseFilters" class="clear-filters" type="button">Clear filters</button></div><p id="universeResults" class="universe-results" role="status" aria-live="polite"></p><div id="topPicks"></div></section>
     <section><div class="section-header"><h2>Side-by-side comparison</h2><p id="comparisonCount" class="section-note">0 of 3 selected</p></div><div id="comparison" class="comparison"><p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p></div></section>
     <section><div class="section-header"><h2>Historical calibration</h2><p id="backtestHorizon" class="section-note">Cash technical score</p></div><div id="backtest" class="calibration"><p class="meta">Calibration data is unavailable until the next scanner refresh.</p></div></section>
     <p class="disclaimer">Educational scanner only. Market data can be delayed or unavailable. This is not financial advice.</p>
@@ -137,6 +144,9 @@
     let selectedSymbols = [];
     let setupMode = "bullish";
     let universeSort = { key: "score", direction: "desc" };
+    let universeQuery = "";
+    let recommendationFilter = "all";
+    let eventRiskFilter = "all";
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({"&":"&amp;","<":"&lt;",">":"&gt;","'":"&#39;",'"':"&quot;"})[character]);
 
     function parseScannerDate(value) {
@@ -362,10 +372,26 @@
       ["gap_pct", "Gap"], ["event_risk", "Event risk"]
     ];
 
+    function filterUniverse(stocks) {
+      const query = universeQuery.trim().toLocaleUpperCase();
+      return stocks.filter(stock => {
+        const searchable = `${stock.symbol || ""} ${stock.sector || ""} ${stock.recommendation || ""}`.toLocaleUpperCase();
+        const score = Number(stock.score);
+        const recommendationMatches = recommendationFilter === "all"
+          || (recommendationFilter === "high" && score >= 75)
+          || (recommendationFilter === "moderate" && score >= 60 && score < 75)
+          || (recommendationFilter === "watchlist" && score >= 50 && score < 60)
+          || (recommendationFilter === "avoid" && score < 50);
+        const riskState = stock.event_risk_status === "unavailable" ? "unavailable" : stock.event_risk ? "detected" : "clear";
+        return (!query || searchable.includes(query))
+          && recommendationMatches
+          && (eventRiskFilter === "all" || riskState === eventRiskFilter);
+      });
+    }
+
     function sortUniverse(stocks) {
-      const ranked = stocks.map((stock, index) => ({ ...stock, rank: index + 1 }));
       const multiplier = universeSort.direction === "asc" ? 1 : -1;
-      return ranked.sort((left, right) => {
+      return stocks.sort((left, right) => {
         const leftValue = left[universeSort.key];
         const rightValue = right[universeSort.key];
         if (leftValue == null) return rightValue == null ? 0 : 1;
@@ -386,10 +412,17 @@
 
     function renderCandidates(stocks) {
       if (!stocks.length) {
+        document.getElementById("universeResults").textContent = "0 candidates";
         document.getElementById("topPicks").innerHTML = '<div class="freshness-warning">This setup mode is unavailable until the next scanner refresh.</div>';
         return;
       }
-      const sortedStocks = sortUniverse(stocks);
+      const rankedStocks = stocks.map((stock, index) => ({ ...stock, rank: index + 1 }));
+      const sortedStocks = sortUniverse(filterUniverse(rankedStocks));
+      document.getElementById("universeResults").textContent = `Showing ${sortedStocks.length} of ${stocks.length} candidates`;
+      if (!sortedStocks.length) {
+        document.getElementById("topPicks").innerHTML = '<div class="freshness-warning">No candidates match the current search and filters.</div>';
+        return;
+      }
       document.getElementById("topPicks").innerHTML = `<div class="universe-table-wrap"><table class="universe-table">
         <thead><tr>${universeColumns.map(column => sortHeader(...column)).join("")}<th scope="col">Actions</th></tr></thead>
         <tbody>${sortedStocks.map(stock => `
@@ -550,6 +583,28 @@
       renderComparison();
     });
     document.getElementById("refreshData").addEventListener("click", refreshScannerData);
+    document.getElementById("universeSearch").addEventListener("input", event => {
+      universeQuery = event.target.value;
+      renderCandidates(scannerData?.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData?.all_results : []) || []);
+    });
+    document.getElementById("recommendationFilter").addEventListener("change", event => {
+      recommendationFilter = event.target.value;
+      renderCandidates(scannerData?.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData?.all_results : []) || []);
+    });
+    document.getElementById("eventRiskFilter").addEventListener("change", event => {
+      eventRiskFilter = event.target.value;
+      renderCandidates(scannerData?.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData?.all_results : []) || []);
+    });
+    document.getElementById("clearUniverseFilters").addEventListener("click", () => {
+      universeQuery = "";
+      recommendationFilter = "all";
+      eventRiskFilter = "all";
+      document.getElementById("universeSearch").value = "";
+      document.getElementById("recommendationFilter").value = "all";
+      document.getElementById("eventRiskFilter").value = "all";
+      renderCandidates(scannerData?.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData?.all_results : []) || []);
+      document.getElementById("universeSearch").focus();
+    });
     renderWatchlist();
     loadScannerData();
   </script>
