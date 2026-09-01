@@ -998,12 +998,12 @@
         : "No material risk flags detected by this model.");
 
       metrics("cashMetrics", [
-        ["Close", currency(cash.close)],
-        ["1-day return", signed(cash.return_1d)],
-        ["5-day return", signed(cash.return_5d)],
-        ["20-session average", currency(cash.sma20)],
-        ["50-session average", currency(cash.sma50)],
-        ["Volume / average", `${number(cash.volume_ratio)}x`]
+        ["Close", currency(cash.close), "The latest available NSE closing price for the security."],
+        ["1-day return", signed(cash.return_1d), "The percentage change from the previous session's close to the latest close."],
+        ["5-day return", signed(cash.return_5d), "The percentage change in closing price across the latest five trading sessions."],
+        ["20-session average", currency(cash.sma20), "The average closing price over the latest 20 trading sessions, used to assess the short-term trend."],
+        ["50-session average", currency(cash.sma50), "The average closing price over the latest 50 trading sessions, used to assess the medium-term trend."],
+        ["Volume / average", `${number(cash.volume_ratio)}x`, "The latest session's traded volume divided by its prior 20-session average. Values above 1.2x indicate volume expansion."]
       ]);
 
       metrics("fnoMetrics", fno ? [
