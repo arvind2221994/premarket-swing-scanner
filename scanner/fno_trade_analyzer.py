@@ -733,7 +733,12 @@ def build_daily_change(current_score, current_pros, current_cons, previous_date,
                        previous_cash, previous_fno, fundamental_score,
                        global_cues, symbol, mode="bullish"):
     previous_score = score_detailed_report(
-        symbol, previous_cash, previous_fno, global_cues, mode
+        symbol,
+        previous_cash,
+        previous_fno,
+        global_cues,
+        mode,
+        fundamental_score=fundamental_score,
     )["score"]
     previous_pros, previous_cons = build_pros_cons(
         previous_cash, previous_fno, fundamental_score, mode
@@ -888,6 +893,7 @@ def build_symbol_report(symbol, mode="bullish"):
         event_risk=event_risk.get("detected", False),
         event_risk_status=event_risk.get("status", "clear"),
         event_categories=event_risk.get("categories", []),
+        fundamental_score=fundamental_score,
     )
     score = assessment["score"]
     verdict = (

@@ -217,13 +217,30 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         risk_score = 0
         risk_reasons.append("Fails cash or futures liquidity filter")
 
+    fundamental_score = stock.get("fundamental_score")
+    fundamental_component = (
+        (100 - fundamental_score * 10) if mode == "bearish"
+        else fundamental_score * 10
+    ) if fundamental_score is not None else None
+    fundamental_weight = 0.10 if fundamental_component is not None else 0.0
+    existing_weight_scale = 1.0 - fundamental_weight
+    weights = {
+        "fno": 0.35 * existing_weight_scale,
+        "trend": 0.20 * existing_weight_scale,
+        "volume": 0.10 * existing_weight_scale,
+        "global": 0.10 * existing_weight_scale,
+        "relative": 0.10 * existing_weight_scale,
+        "risk": 0.15 * existing_weight_scale,
+        "fundamental": fundamental_weight,
+    }
     final_score = (
-        fno_score * 0.35
-        + trend_score * 0.20
-        + volume_score * 0.10
-        + global_score * 0.10
-        + relative_score * 0.10
-        + risk_score * 0.15
+        fno_score * weights["fno"]
+        + trend_score * weights["trend"]
+        + volume_score * weights["volume"]
+        + global_score * weights["global"]
+        + relative_score * weights["relative"]
+        + risk_score * weights["risk"]
+        + (fundamental_component or 0) * weights["fundamental"]
     )
 
     reasons = [
@@ -278,17 +295,22 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         "reasons": reasons,
         "calculation": {
             "fno_score": round(fno_score, 2),
-            "fno_weight": 0.35,
+            "fno_weight": weights["fno"],
             "trend_score": round(trend_score, 2),
-            "trend_weight": 0.20,
+            "trend_weight": weights["trend"],
             "volume_score": round(volume_score, 2),
-            "volume_weight": 0.10,
+            "volume_weight": weights["volume"],
             "global_score": round(global_score, 2),
-            "global_weight": 0.10,
+            "global_weight": weights["global"],
             "relative_score": round(relative_score, 2),
-            "relative_weight": 0.10,
+            "relative_weight": weights["relative"],
             "risk_score": round(risk_score, 2),
-            "risk_weight": 0.15,
+            "risk_weight": weights["risk"],
+            "fundamental_score": (
+                round(fundamental_component, 2)
+                if fundamental_component is not None else None
+            ),
+            "fundamental_weight": weights["fundamental"],
             "weighted_total": round(final_score, 2),
             "total_weight": 1.0,
             "formula": "weighted component total",
@@ -299,7 +321,7 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
 def score_detailed_report(symbol, cash, fno, global_data, mode="bullish",
                           sector=None, sector_relative_strength_pct=None,
                           event_risk=False, event_risk_status="clear",
-                          event_categories=None):
+                          event_categories=None, fundamental_score=None):
     volume_ratio = cash.get("volume_ratio", 1)
     stock = {
         "symbol": symbol,
@@ -318,6 +340,7 @@ def score_detailed_report(symbol, cash, fno, global_data, mode="bullish",
         "event_risk": event_risk,
         "event_risk_status": event_risk_status,
         "event_categories": event_categories or [],
+        "fundamental_score": fundamental_score,
         "gap_pct": cash.get("gap_pct"),
         "gap_atr": cash.get("gap_atr"),
         "liquidity_filter_pass": (

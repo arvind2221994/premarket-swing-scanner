@@ -476,6 +476,44 @@ class IntelligenceScoringTests(unittest.TestCase):
         self.assertIn("Price above 20 DMA", result["reasons"])
         self.assertNotIn("Price above 50 DMA", result["reasons"])
 
+    def test_fundamentals_contribute_ten_percent_when_available(self):
+        weak = calculate_stock_score(
+            {**self.stock(), "fundamental_score": 2}, {}, "bullish"
+        )
+        strong = calculate_stock_score(
+            {**self.stock(), "fundamental_score": 9}, {}, "bullish"
+        )
+
+        self.assertGreater(strong["score"], weak["score"])
+        self.assertEqual(strong["calculation"]["fundamental_score"], 90)
+        self.assertEqual(strong["calculation"]["fundamental_weight"], 0.10)
+        self.assertAlmostEqual(
+            sum(
+                value for key, value in strong["calculation"].items()
+                if key.endswith("_weight") and key != "total_weight"
+            ),
+            1.0,
+        )
+
+    def test_missing_fundamentals_preserve_existing_weights(self):
+        calculation = calculate_stock_score(
+            self.stock(), {}, "bullish"
+        )["calculation"]
+
+        self.assertIsNone(calculation["fundamental_score"])
+        self.assertEqual(calculation["fundamental_weight"], 0.0)
+        self.assertEqual(calculation["fno_weight"], 0.35)
+
+    def test_strong_fundamentals_oppose_bearish_setup(self):
+        weak = calculate_stock_score(
+            {**self.stock(), "fundamental_score": 2}, {}, "bearish"
+        )
+        strong = calculate_stock_score(
+            {**self.stock(), "fundamental_score": 9}, {}, "bearish"
+        )
+
+        self.assertGreater(weak["score"], strong["score"])
+
     def test_scored_row_includes_provenance_and_evidence_completeness(self):
         stock = {**self.stock(), "event_categories": ["earnings", "dividend"]}
         global_cues = {

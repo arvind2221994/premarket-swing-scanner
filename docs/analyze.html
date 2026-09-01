@@ -1038,7 +1038,8 @@
         ["Volume", calculation.volume_score, calculation.volume_weight],
         ["Global cues", calculation.global_score, calculation.global_weight],
         ["Sector relative", calculation.relative_score, calculation.relative_weight],
-        ["Risk", calculation.risk_score, calculation.risk_weight]
+        ["Risk", calculation.risk_score, calculation.risk_weight],
+        ["Fundamentals", calculation.fundamental_score, calculation.fundamental_weight]
       ].filter(([, score, weight]) => score != null && weight > 0);
       document.getElementById("calculationRows").innerHTML = components.map(([label, score, weight]) => `
         <tr><td>${escapeHtml(label)}</td><td>${number(score, 1)}</td><td>${number(weight * 100, 0)}%</td><td>${number(score * weight, 2)}</td></tr>
