@@ -9,7 +9,7 @@ import pandas as pd
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from fundamentals import fetch_screener_data
+from fundamentals import calculate_fundamental_score, fetch_screener_data
 from fno_trade_analyzer import _option_oi_profile, analyze_cash, build_trade_plan
 import backtest_score_buckets
 import global_cues
@@ -36,6 +36,27 @@ select_liquid_fno_symbols = scanner_job.select_liquid_fno_symbols
 
 
 class FundamentalDataTests(unittest.TestCase):
+    @patch("fundamentals.call_with_resilience")
+    def test_treats_empty_numeric_ratios_as_unavailable(self, request):
+        response = Mock(status_code=200)
+        response.text = """
+            <h1>Example Ltd</h1>
+            <ul id="top-ratios">
+              <li><span class="name">Current Price</span><span class="number"></span></li>
+              <li><span class="name">Stock P/E</span><span class="number">N/A</span></li>
+              <li><span class="name">ROCE</span><span class="number"></span></li>
+            </ul>
+        """
+        request.return_value = response
+
+        metrics = fetch_screener_data("EXAMPLE")
+        assessment = calculate_fundamental_score(metrics)
+
+        self.assertIsNone(metrics["current_price"])
+        self.assertIsNone(metrics["pe_ratio"])
+        self.assertIsNone(metrics["roce"])
+        self.assertIsNone(assessment["score"])
+
     @patch("fundamentals.call_with_resilience")
     def test_derives_debt_to_equity_from_latest_balance_sheet(self, request):
         response = Mock(status_code=200)
@@ -446,6 +467,14 @@ class IntelligenceScoringTests(unittest.TestCase):
         self.assertEqual(result["futures_price_change_pct"], 1)
         self.assertEqual(result["futures_oi_change_pct"], 1)
         self.assertEqual(result["return_5d"], 2)
+
+    def test_scores_available_trend_evidence_without_50_dma(self):
+        stock = {**self.stock(), "dma50": None}
+
+        result = calculate_stock_score(stock, {}, "bullish")
+
+        self.assertIn("Price above 20 DMA", result["reasons"])
+        self.assertNotIn("Price above 50 DMA", result["reasons"])
 
     def test_scored_row_includes_provenance_and_evidence_completeness(self):
         stock = {**self.stock(), "event_categories": ["earnings", "dividend"]}

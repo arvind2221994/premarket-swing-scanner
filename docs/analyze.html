@@ -350,6 +350,10 @@
     .two-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .three-column { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 
+    @media (min-width: 761px) {
+      .three-column.without-fundamentals { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
     .panel {
       background: var(--surface);
       border: 1px solid var(--line);
@@ -583,17 +587,19 @@
         <section class="panel negative"><h2>Risk factors</h2><ul id="cons"></ul></section>
       </div>
 
-      <div class="three-column">
+      <div id="analysisColumns" class="three-column">
         <section class="panel"><h2>Cash trend</h2><div id="cashMetrics" class="metric-grid"></div></section>
         <section class="panel"><h2>F&amp;O positioning</h2><div id="fnoMetrics" class="metric-grid"></div><div id="optionWalls" class="option-walls"></div></section>
-        <section class="panel"><h2>Fundamentals</h2><div id="fundamentalMetrics" class="metric-grid"></div></section>
+        <section id="fundamentalsPanel" class="panel"><h2>Fundamentals</h2><div id="fundamentalMetrics" class="metric-grid"></div></section>
       </div>
 
       <section class="panel" style="margin-top: 18px">
         <h2>Technical levels</h2>
         <div id="riskMetrics" class="metric-grid"></div>
-        <h3 style="margin-top: 22px">Fundamental observations</h3>
-        <ul id="fundamentalTags"></ul>
+        <div id="fundamentalObservations">
+          <h3 style="margin-top: 22px">Fundamental observations</h3>
+          <ul id="fundamentalTags"></ul>
+        </div>
       </section>
 
       <section class="panel news-panel">
@@ -956,11 +962,42 @@
       calculatePositionSize();
     }
 
+    function renderFundamentals(data) {
+      const panel = document.getElementById("fundamentalsPanel");
+      const observations = document.getElementById("fundamentalObservations");
+      const columns = document.getElementById("analysisColumns");
+      const fundamentals = data.fundamentals;
+      const assessment = data.fundamental_assessment;
+      const declaredAvailable = data.fundamentals_available;
+      let available = declaredAvailable == null
+        ? assessment?.score != null
+        : declaredAvailable === true;
+
+      try {
+        if (!available || !fundamentals || !assessment) throw new Error("Fundamentals unavailable");
+        metrics("fundamentalMetrics", [
+          ["P/E", number(fundamentals.pe_ratio), "Price-to-earnings ratio: share price divided by earnings per share. Compare it with similar companies."],
+          ["P/B", number(fundamentals.pb_ratio), "Price-to-book ratio: share price divided by book value per share. Lower values can indicate a cheaper valuation."],
+          ["ROCE", fundamentals.roce == null ? "N/A" : `${number(fundamentals.roce)}%`, "Return on capital employed: operating profit generated from the capital used by the business."],
+          ["ROE", fundamentals.roe == null ? "N/A" : `${number(fundamentals.roe)}%`, "Return on equity: profit generated from shareholders' equity."],
+          ["Debt / equity", number(fundamentals.de_ratio), "Borrowings divided by shareholders' equity. Lower values generally indicate less financial leverage."],
+          ["Score", `${number(assessment.score, 1)}/10`, "Composite fundamentals score based on valuation, returns, leverage, and dividend yield."]
+        ]);
+        list("fundamentalTags", assessment.tags, "No fundamental observations available.");
+      } catch (error) {
+        available = false;
+        document.getElementById("fundamentalMetrics").replaceChildren();
+        document.getElementById("fundamentalTags").replaceChildren();
+      }
+
+      panel.hidden = !available;
+      observations.hidden = !available;
+      columns.classList.toggle("without-fundamentals", !available);
+    }
+
     function renderReport(data) {
       const cash = data.cash;
       const fno = data.fno;
-      const fundamentals = data.fundamentals;
-      const assessment = data.fundamental_assessment;
       const calculation = data.calculation;
       const bearish = (data.setup_mode || setupMode) === "bearish";
       const scoreColor = data.score >= 75 ? (bearish ? "var(--red)" : "var(--green)") : data.score >= 60 ? "var(--amber)" : "var(--muted)";
@@ -1004,15 +1041,7 @@
         ["Call / put wall", `${number(fno.call_oi_wall, 0)} / ${number(fno.put_oi_wall, 0)}`]
       ] : [["Availability", "No listed NSE F&O contract"]]);
       renderOptionWalls(fno);
-
-      metrics("fundamentalMetrics", [
-        ["P/E", number(fundamentals.pe_ratio), "Price-to-earnings ratio: share price divided by earnings per share. Compare it with similar companies."],
-        ["P/B", number(fundamentals.pb_ratio), "Price-to-book ratio: share price divided by book value per share. Lower values can indicate a cheaper valuation."],
-        ["ROCE", fundamentals.roce == null ? "N/A" : `${number(fundamentals.roce)}%`, "Return on capital employed: operating profit generated from the capital used by the business."],
-        ["ROE", fundamentals.roe == null ? "N/A" : `${number(fundamentals.roe)}%`, "Return on equity: profit generated from shareholders' equity."],
-        ["Debt / equity", number(fundamentals.de_ratio), "Borrowings divided by shareholders' equity. Lower values generally indicate less financial leverage."],
-        ["Score", assessment.score == null ? "Excluded" : `${number(assessment.score, 1)}/10`, "Composite fundamentals score based on valuation, returns, leverage, and dividend yield. Missing data can exclude the score."]
-      ]);
+      renderFundamentals(data);
 
       metrics("riskMetrics", [
         ["ATR (14)", currency(cash.atr14), "Average True Range over 14 sessions. It estimates the stock's typical daily price movement and volatility."],
@@ -1039,7 +1068,6 @@
         <tr><td>${escapeHtml(label)}</td><td>${number(score, 1)}</td><td>${number(weight * 100, 0)}%</td><td>${number(score * weight, 2)}</td></tr>
       `).join("");
       document.getElementById("formula").textContent = `${number(calculation.weighted_total, 2)} weighted points ÷ ${number(calculation.total_weight, 2)} active weight = ${number(data.score, 1)}/100`;
-      list("fundamentalTags", assessment.tags, "No fundamental observations available.");
       renderNews(data.news);
 
       reportElement.hidden = false;

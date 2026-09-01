@@ -89,7 +89,14 @@ def record_dependency(name, status, error=None, succeeded=None):
 def record_report_health(report):
     record_dependency("analysis", "healthy")
     record_dependency("nse", "healthy")
-    record_dependency("screener", "healthy")
+    if report.get("fundamentals_status") == "unavailable":
+        record_dependency(
+            "screener",
+            "unhealthy",
+            "Screener is temporarily unavailable.",
+        )
+    else:
+        record_dependency("screener", "healthy")
 
     news_errors = report.get("news", {}).get("errors", [])
     if news_errors:

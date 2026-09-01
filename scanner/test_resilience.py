@@ -270,6 +270,18 @@ class AnalysisSourceCacheTests(unittest.TestCase):
         ):
             loader.assert_called_once()
 
+    def test_fundamental_failure_is_isolated_from_report(self):
+        with patch.object(
+            fno_trade_analyzer,
+            "load_cached_fundamentals",
+            side_effect=RuntimeError("unsupported fundamentals"),
+        ):
+            result = fno_trade_analyzer.load_fundamental_analysis("SILVERAXIS")
+
+        self.assertEqual(result["status"], "unavailable")
+        self.assertIsNone(result["metrics"])
+        self.assertIsNone(result["assessment"])
+
     def test_report_loads_independent_sources_concurrently(self):
         latest_date = date(2026, 8, 28)
         history = pd.DataFrame([{"TradDt": latest_date.isoformat()}])
@@ -297,6 +309,8 @@ class AnalysisSourceCacheTests(unittest.TestCase):
 
         self.assertEqual(report["symbol"], "TCS")
         self.assertEqual(report["data_through"], latest_date.isoformat())
+        self.assertFalse(report["fundamentals_available"])
+        self.assertEqual(report["fundamentals_status"], "insufficient_data")
 
 
 class RefreshApiTests(unittest.TestCase):

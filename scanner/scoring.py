@@ -51,11 +51,11 @@ def score_price_trend(close, dma20, dma50, ret_5d, mode="bullish"):
     reasons = []
     bearish = mode == "bearish"
 
-    if (close < dma20) if bearish else (close > dma20):
+    if dma20 is not None and ((close < dma20) if bearish else (close > dma20)):
         score += 35
         reasons.append(f"Price {'below' if bearish else 'above'} 20 DMA")
 
-    if (close < dma50) if bearish else (close > dma50):
+    if dma50 is not None and ((close < dma50) if bearish else (close > dma50)):
         score += 35
         reasons.append(f"Price {'below' if bearish else 'above'} 50 DMA")
 

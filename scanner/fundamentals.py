@@ -99,7 +99,7 @@ def fetch_screener_data(symbol: str) -> dict:
                 try:
                     raw_ratios[key] = float(val_text)
                 except ValueError:
-                    raw_ratios[key] = val_text
+                    raw_ratios[key] = None
 
     classification = {}
     for link in soup.select("#peers p.sub a[title]"):

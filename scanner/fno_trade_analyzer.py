@@ -1,5 +1,6 @@
 import argparse
 import io
+import logging
 import os
 import re
 import time
@@ -41,6 +42,7 @@ fundamentals_cache = BoundedTTLCache(SOURCE_CACHE_MAX_SIZE, FUNDAMENTALS_CACHE_S
 company_news_cache = BoundedTTLCache(SOURCE_CACHE_MAX_SIZE, NEWS_CACHE_SECONDS)
 global_cues_cache = BoundedTTLCache(4, GLOBAL_CUES_CACHE_SECONDS)
 source_locks = KeyedLockPool()
+logger = logging.getLogger(__name__)
 
 
 def load_cached(cache, key, loader):
@@ -219,6 +221,25 @@ def load_cached_fundamentals(symbol):
         symbol,
         lambda: fetch_screener_data(symbol),
     )
+
+
+def load_fundamental_analysis(symbol):
+    try:
+        fundamentals = load_cached_fundamentals(symbol)
+        assessment = calculate_fundamental_score(fundamentals)
+    except Exception:
+        logger.warning("Fundamental analysis failed for %s", symbol, exc_info=True)
+        return {
+            "metrics": None,
+            "assessment": None,
+            "status": "unavailable",
+        }
+
+    return {
+        "metrics": fundamentals,
+        "assessment": assessment,
+        "status": "available" if assessment["score"] is not None else "insufficient_data",
+    }
 
 
 def load_cached_company_news(symbol):
@@ -842,21 +863,21 @@ def build_symbol_report(symbol, mode="bullish"):
             clean_symbol,
             latest_date,
         )
-        fundamentals_future = executor.submit(load_cached_fundamentals, clean_symbol)
+        fundamentals_future = executor.submit(load_fundamental_analysis, clean_symbol)
         news_future = executor.submit(load_cached_company_news, clean_symbol)
         global_cues_future = executor.submit(load_cached_global_cues)
 
         fno_frames = fno_frames_future.result()
         ban_status = ban_status_future.result()
-        fundamentals = fundamentals_future.result()
+        fundamental_analysis = fundamentals_future.result()
         news = news_future.result()
         global_cues = global_cues_future.result()
 
     cash = analyze_cash(history)
     fno = analyze_fno(clean_symbol, fno_frames, ban_status)
-    fundamental_result = calculate_fundamental_score(fundamentals)
-    fundamental_score = fundamental_result["score"]
-    fundamental_tags = fundamental_result["tags"]
+    fundamentals = fundamental_analysis["metrics"]
+    fundamental_result = fundamental_analysis["assessment"]
+    fundamental_score = fundamental_result["score"] if fundamental_result else None
     event_risk = news.get("event_risk", {})
     assessment = score_detailed_report(
         clean_symbol,
@@ -912,6 +933,8 @@ def build_symbol_report(symbol, mode="bullish"):
         "fno": fno,
         "fundamentals": fundamentals,
         "fundamental_assessment": fundamental_result,
+        "fundamentals_available": fundamental_analysis["status"] == "available",
+        "fundamentals_status": fundamental_analysis["status"],
         "news": news,
         "pros": pros,
         "cons": cons,
