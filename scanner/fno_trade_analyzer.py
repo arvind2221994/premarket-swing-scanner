@@ -901,7 +901,7 @@ def build_symbol_report(symbol, mode="bullish"):
         cons.append(
             f"Potentially material event headlines detected: {labels}"
         )
-    trade_plan = build_trade_plan(cash, score, mode)
+    trade_plan = build_trade_plan(cash, score, mode) if score >= 60 else None
     daily_change = None
     if len(history) >= 51:
         previous_history = history.iloc[:-1].reset_index(drop=True)

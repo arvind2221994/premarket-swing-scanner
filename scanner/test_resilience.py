@@ -312,6 +312,31 @@ class AnalysisSourceCacheTests(unittest.TestCase):
         self.assertFalse(report["fundamentals_available"])
         self.assertEqual(report["fundamentals_status"], "insufficient_data")
 
+    def test_avoid_verdict_omits_trade_plan(self):
+        latest_date = date(2026, 8, 28)
+        history = pd.DataFrame([{"TradDt": latest_date.isoformat()}])
+
+        with (
+            patch.object(fno_trade_analyzer, "load_cached_symbol_history", return_value=history),
+            patch.object(fno_trade_analyzer, "load_cached_fno_frames", return_value=[]),
+            patch.object(fno_trade_analyzer, "load_cached_ban_status", return_value={"is_banned": False}),
+            patch.object(fno_trade_analyzer, "load_fundamental_analysis", return_value={"metrics": None, "assessment": None, "status": "unavailable"}),
+            patch.object(fno_trade_analyzer, "load_cached_company_news", return_value={"event_risk": {}}),
+            patch.object(fno_trade_analyzer, "load_cached_global_cues", return_value={}),
+            patch.object(fno_trade_analyzer, "analyze_cash", return_value={}),
+            patch.object(fno_trade_analyzer, "analyze_fno", return_value=None),
+            patch.object(fno_trade_analyzer, "score_detailed_report", return_value={"score": 42, "calculation": {}}),
+            patch.object(fno_trade_analyzer, "build_pros_cons", return_value=(["One positive"], ["One risk"])),
+            patch.object(fno_trade_analyzer, "build_trade_plan") as build_plan,
+        ):
+            report = fno_trade_analyzer.build_symbol_report("SILVERAXIS")
+
+        self.assertEqual(report["verdict"], "AVOID NEW ENTRY")
+        self.assertIsNone(report["trade_plan"])
+        self.assertEqual(report["pros"], ["One positive"])
+        self.assertEqual(report["cons"], ["One risk"])
+        build_plan.assert_not_called()
+
 
 class RefreshApiTests(unittest.TestCase):
     def setUp(self):

@@ -583,8 +583,8 @@
       </section>
 
       <div class="two-column">
-        <section class="panel positive"><h2>Supporting evidence</h2><ul id="pros"></ul></section>
-        <section class="panel negative"><h2>Risk factors</h2><ul id="cons"></ul></section>
+        <section class="panel positive"><h2 id="supportingEvidenceTitle">Supporting evidence</h2><ul id="pros"></ul></section>
+        <section class="panel negative"><h2 id="riskFactorsTitle">Risk factors</h2><ul id="cons"></ul></section>
       </div>
 
       <div id="analysisColumns" class="three-column">
@@ -906,39 +906,6 @@
       ].map(([label, value]) => `<div><div class="plan-label">${label}</div><div class="plan-value">${value}</div></div>`).join("");
     }
 
-    function deriveTradePlan(cash, score) {
-      const atr = Number(cash?.atr14);
-      if (!Number.isFinite(atr) || atr <= 0) return null;
-
-      const breakoutLevel = cash.prior_twenty_day_high + atr * 0.1;
-      const entryValid = score >= 75 && cash.close >= breakoutLevel && cash.volume_ratio >= 1.2 && !cash.gap_up_extended && cash.liquidity_tier !== "low";
-      const entryLow = entryValid
-        ? Math.max(breakoutLevel, cash.close - atr * 0.25)
-        : breakoutLevel;
-      const entryHigh = entryValid ? cash.close + atr * 0.25 : breakoutLevel + atr * 0.5;
-      const entryReference = entryHigh;
-      const atrStop = entryReference - atr * 1.5;
-      const structuralStop = cash.recent_swing_low - atr * 0.25;
-      const stopLoss = Math.min(Math.max(atrStop, structuralStop), entryLow - atr * 0.5);
-      const riskPerShare = entryReference - stopLoss;
-      const round = value => Math.round(value * 100) / 100;
-
-      return {
-        status: entryValid ? "Entry valid now" : cash.gap_up_extended ? "Wait for pullback" : "Wait for breakout",
-        entry_valid: entryValid,
-        entry_low: round(entryLow),
-        entry_high: round(entryHigh),
-        entry_reference: round(entryReference),
-        stop_loss: round(stopLoss),
-        risk_per_share: round(riskPerShare),
-        targets: [round(entryReference + riskPerShare * 1.5), round(entryReference + riskPerShare * 2.5)],
-        risk_reward_ratio: 2.5,
-        invalidation: entryValid
-          ? `Daily close below INR ${stopLoss.toFixed(2)}, or a breakout close back below INR ${cash.prior_twenty_day_high.toFixed(2)}.`
-          : `Daily close below the 20-session average at INR ${cash.sma20.toFixed(2)} before a favorable, volume-confirmed close above INR ${breakoutLevel.toFixed(2)}.`
-      };
-    }
-
     function renderTradePlan(plan) {
       const section = document.getElementById("tradePlan");
       if (!plan) {
@@ -1016,10 +983,19 @@
       confidence.style.setProperty("--badge-bg", badgeBackground);
       document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
       renderDailyChange(data.daily_change);
-      renderTradePlan(data.trade_plan || (bearish ? null : deriveTradePlan(cash, data.score)));
+      renderTradePlan(data.score >= 60 ? data.trade_plan : null);
 
-      list("pros", data.pros, "No strong supporting evidence detected.");
-      list("cons", data.cons, "No material risk flags detected by this model.");
+      const avoidingEntry = data.verdict === "AVOID NEW ENTRY";
+      document.getElementById("supportingEvidenceTitle").textContent = avoidingEntry
+        ? "Evidence in favor"
+        : "Supporting evidence";
+      document.getElementById("riskFactorsTitle").textContent = avoidingEntry
+        ? "Why avoid a new entry"
+        : "Risk factors";
+      list("pros", Array.isArray(data.pros) ? data.pros : [], "No evidence currently supports a new entry.");
+      list("cons", Array.isArray(data.cons) ? data.cons : [], avoidingEntry
+        ? "The score is below the entry threshold; review the scoring rubric for component details."
+        : "No material risk flags detected by this model.");
 
       metrics("cashMetrics", [
         ["Close", currency(cash.close)],
