@@ -1,5 +1,5 @@
 {
-  "generated_at_ist": "2026-09-05 12:59:18",
+  "generated_at_ist": "2026-09-06 13:13:04",
   "data_as_of": "2026-09-04",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
@@ -12,31 +12,31 @@
       "nasdaq": {
         "change_pct": -0.29,
         "observed_at": "2026-09-04T00:00:00",
-        "fetched_at": "2026-09-05T07:29:18.986592+00:00",
+        "fetched_at": "2026-09-06T07:43:04.149338+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
         "change_pct": -0.38,
         "observed_at": "2026-09-04T00:00:00",
-        "fetched_at": "2026-09-05T07:29:19.472099+00:00",
+        "fetched_at": "2026-09-06T07:43:04.366113+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
         "change_pct": -0.51,
         "observed_at": "2026-09-04T00:00:00",
-        "fetched_at": "2026-09-05T07:29:19.565449+00:00",
+        "fetched_at": "2026-09-06T07:43:04.542195+00:00",
         "source": "Yahoo Finance"
       },
       "gift_nifty": {
         "change_pct": -0.04,
         "observed_at": "05-Sep-2026 02:44:57",
-        "fetched_at": "2026-09-05T07:29:19.671739+00:00",
+        "fetched_at": "2026-09-06T07:43:04.625482+00:00",
         "source": "NSE International Exchange"
       }
     }
   },
   "market_context": {
-    "generated_at": "2026-09-05T07:33:56.768235+00:00",
+    "generated_at": "2026-09-06T07:43:31.745249+00:00",
     "nifty_50": {
       "ticker": "^NSEI",
       "close": 23897.6992,
@@ -46,7 +46,7 @@
       "sma50": 24204.274,
       "trend": "mixed",
       "observed_at": "2026-09-04T00:00:00",
-      "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+      "fetched_at": "2026-09-06T07:43:30.766370+00:00",
       "source": "Yahoo Finance"
     },
     "india_vix": {
@@ -58,7 +58,7 @@
       "sma50": 12.1682,
       "trend": "bearish",
       "observed_at": "2026-09-04T00:00:00",
-      "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+      "fetched_at": "2026-09-06T07:43:30.766370+00:00",
       "source": "Yahoo Finance"
     },
     "market_breadth": {
@@ -69,7 +69,7 @@
       "advance_decline_ratio": 0.87,
       "advance_pct": 46.5,
       "observed_at": "04-Sep-2026 15:30",
-      "fetched_at": "2026-09-05T07:33:56.312754+00:00",
+      "fetched_at": "2026-09-06T07:43:31.351097+00:00",
       "source": "NSE India allIndices"
     },
     "sector_indices": {
@@ -82,7 +82,7 @@
         "sma50": 57584.2179,
         "trend": "bearish",
         "observed_at": "2026-09-04T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty IT": {
@@ -94,7 +94,7 @@
         "sma50": 29777.4411,
         "trend": "mixed",
         "observed_at": "2026-09-04T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Auto": {
@@ -106,7 +106,7 @@
         "sma50": 26483.2659,
         "trend": "bullish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Pharma": {
@@ -118,7 +118,7 @@
         "sma50": 26193.3212,
         "trend": "mixed",
         "observed_at": "2026-09-04T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty FMCG": {
@@ -130,7 +130,7 @@
         "sma50": 49530.6799,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Metal": {
@@ -142,7 +142,7 @@
         "sma50": 12956.0361,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Energy": {
@@ -154,7 +154,7 @@
         "sma50": 39874.9911,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Realty": {
@@ -166,7 +166,7 @@
         "sma50": 816.09,
         "trend": "bullish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       }
     },
@@ -179,8 +179,8 @@
         "sma20": 95.2272,
         "sma50": 95.5479,
         "trend": "bearish",
-        "observed_at": "2026-09-05T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "observed_at": "2026-09-06T00:00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       },
       "wti_crude": {
@@ -192,7 +192,7 @@
         "sma50": 80.9568,
         "trend": "bullish",
         "observed_at": "2026-09-04T00:00:00",
-        "fetched_at": "2026-09-05T07:33:56.030795+00:00",
+        "fetched_at": "2026-09-06T07:43:30.766370+00:00",
         "source": "Yahoo Finance"
       }
     },
@@ -205,25 +205,25 @@
         "nasdaq": {
           "change_pct": -0.29,
           "observed_at": "2026-09-04T00:00:00",
-          "fetched_at": "2026-09-05T07:29:18.986592+00:00",
+          "fetched_at": "2026-09-06T07:43:04.149338+00:00",
           "source": "Yahoo Finance"
         },
         "spx": {
           "change_pct": -0.38,
           "observed_at": "2026-09-04T00:00:00",
-          "fetched_at": "2026-09-05T07:29:19.472099+00:00",
+          "fetched_at": "2026-09-06T07:43:04.366113+00:00",
           "source": "Yahoo Finance"
         },
         "dow": {
           "change_pct": -0.51,
           "observed_at": "2026-09-04T00:00:00",
-          "fetched_at": "2026-09-05T07:29:19.565449+00:00",
+          "fetched_at": "2026-09-06T07:43:04.542195+00:00",
           "source": "Yahoo Finance"
         },
         "gift_nifty": {
           "change_pct": -0.04,
           "observed_at": "05-Sep-2026 02:44:57",
-          "fetched_at": "2026-09-05T07:29:19.671739+00:00",
+          "fetched_at": "2026-09-06T07:43:04.625482+00:00",
           "source": "NSE International Exchange"
         }
       },
@@ -247,7 +247,7 @@
     }
   },
   "backtest": {
-    "generated_at": "2026-09-05T07:34:04.090501+00:00",
+    "generated_at": "2026-09-06T07:43:45.033144+00:00",
     "score_scope": "cash_technical_heuristic_only",
     "source": "Yahoo Finance history with NSE and Stooq fallback",
     "symbols": [
@@ -539,6 +539,7 @@
       "event_risk_status": "detected",
       "event_categories": [
         "corporate_action",
+        "dividend",
         "earnings",
         "material_event"
       ],
@@ -715,6 +716,7 @@
         "event_risk_status": "detected",
         "event_categories": [
           "corporate_action",
+          "dividend",
           "earnings",
           "material_event"
         ],
@@ -1067,6 +1069,7 @@
       "event_risk_status": "detected",
       "event_categories": [
         "corporate_action",
+        "dividend",
         "earnings",
         "material_event"
       ],
@@ -1164,6 +1167,60 @@
       }
     },
     {
+      "symbol": "ANGELONE",
+      "data_as_of": "2026-09-04",
+      "setup_mode": "bullish",
+      "score": 68.32,
+      "recommendation": "Moderate bullish swing candidate",
+      "futures_price_change_pct": 4.470342668290139,
+      "futures_oi_change_pct": -8.110419906687405,
+      "pcr": 0.5802106294391379,
+      "return_5d": 1.9727891156462674,
+      "sector": "Nifty 50 benchmark",
+      "sector_relative_strength_pct": 3.1227891156462673,
+      "gap_pct": 3.1818181818181968,
+      "gap_atr": 0.9262086513994929,
+      "gap_extended": false,
+      "liquidity_tier": "good",
+      "estimated_slippage_bps": 8,
+      "in_fo_ban": false,
+      "evidence_available": 18,
+      "evidence_total": 18,
+      "evidence_completeness_pct": 100,
+      "event_risk": false,
+      "event_risk_status": "clear",
+      "event_categories": [],
+      "call_oi_wall": 300.0,
+      "put_oi_wall": 300.0,
+      "reasons": [
+        "Short covering",
+        "Weak PCR",
+        "Strong volume expansion",
+        "Price above 20 DMA",
+        "Positive 5-day momentum",
+        "Outperforming sector by 3.1% over five sessions"
+      ],
+      "calculation": {
+        "fno_score": 52.0,
+        "fno_weight": 0.35,
+        "trend_score": 65,
+        "trend_weight": 0.2,
+        "volume_score": 90,
+        "volume_weight": 0.1,
+        "global_score": 50,
+        "global_weight": 0.1,
+        "relative_score": 81.23,
+        "relative_weight": 0.1,
+        "risk_score": 100,
+        "risk_weight": 0.15,
+        "fundamental_score": null,
+        "fundamental_weight": 0.0,
+        "weighted_total": 68.32,
+        "total_weight": 1.0,
+        "formula": "weighted component total"
+      }
+    },
+    {
       "symbol": "BSE",
       "data_as_of": "2026-09-04",
       "setup_mode": "bullish",
@@ -1217,64 +1274,6 @@
         "fundamental_score": null,
         "fundamental_weight": 0.0,
         "weighted_total": 64.69,
-        "total_weight": 1.0,
-        "formula": "weighted component total"
-      }
-    },
-    {
-      "symbol": "ANGELONE",
-      "data_as_of": "2026-09-04",
-      "setup_mode": "bullish",
-      "score": 63.82,
-      "recommendation": "Moderate bullish swing candidate",
-      "futures_price_change_pct": 4.470342668290139,
-      "futures_oi_change_pct": -8.110419906687405,
-      "pcr": 0.5802106294391379,
-      "return_5d": 1.9727891156462674,
-      "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": 3.1227891156462673,
-      "gap_pct": 3.1818181818181968,
-      "gap_atr": 0.9262086513994929,
-      "gap_extended": false,
-      "liquidity_tier": "good",
-      "estimated_slippage_bps": 8,
-      "in_fo_ban": false,
-      "evidence_available": 18,
-      "evidence_total": 18,
-      "evidence_completeness_pct": 100,
-      "event_risk": true,
-      "event_risk_status": "detected",
-      "event_categories": [
-        "dividend",
-        "earnings"
-      ],
-      "call_oi_wall": 300.0,
-      "put_oi_wall": 300.0,
-      "reasons": [
-        "Short covering",
-        "Weak PCR",
-        "Strong volume expansion",
-        "Price above 20 DMA",
-        "Positive 5-day momentum",
-        "Outperforming sector by 3.1% over five sessions",
-        "Event risk detected"
-      ],
-      "calculation": {
-        "fno_score": 52.0,
-        "fno_weight": 0.35,
-        "trend_score": 65,
-        "trend_weight": 0.2,
-        "volume_score": 90,
-        "volume_weight": 0.1,
-        "global_score": 50,
-        "global_weight": 0.1,
-        "relative_score": 81.23,
-        "relative_weight": 0.1,
-        "risk_score": 70,
-        "risk_weight": 0.15,
-        "fundamental_score": null,
-        "fundamental_weight": 0.0,
-        "weighted_total": 63.82,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1504,58 +1503,6 @@
       }
     },
     {
-      "symbol": "HDFCBANK",
-      "data_as_of": "2026-09-04",
-      "setup_mode": "bullish",
-      "score": 45.78,
-      "recommendation": "Avoid",
-      "futures_price_change_pct": 0.6089451949324642,
-      "futures_oi_change_pct": -0.930213820999759,
-      "pcr": 0.6198526171473339,
-      "return_5d": -1.1384145494932607,
-      "sector": "Nifty Bank",
-      "sector_relative_strength_pct": -0.9184145494932607,
-      "gap_pct": 0.24057171159697077,
-      "gap_atr": 0.13674231542660525,
-      "gap_extended": false,
-      "liquidity_tier": "high",
-      "estimated_slippage_bps": 4,
-      "in_fo_ban": false,
-      "evidence_available": 18,
-      "evidence_total": 18,
-      "evidence_completeness_pct": 100,
-      "event_risk": false,
-      "event_risk_status": "clear",
-      "event_categories": [],
-      "call_oi_wall": 750.0,
-      "put_oi_wall": 730.0,
-      "reasons": [
-        "Short covering",
-        "Weak PCR",
-        "Weak volume",
-        "Sector-relative momentum opposes bullish setup"
-      ],
-      "calculation": {
-        "fno_score": 52.0,
-        "fno_weight": 0.35,
-        "trend_score": 0,
-        "trend_weight": 0.2,
-        "volume_score": 35,
-        "volume_weight": 0.1,
-        "global_score": 50,
-        "global_weight": 0.1,
-        "relative_score": 40.82,
-        "relative_weight": 0.1,
-        "risk_score": 100,
-        "risk_weight": 0.15,
-        "fundamental_score": null,
-        "fundamental_weight": 0.0,
-        "weighted_total": 45.78,
-        "total_weight": 1.0,
-        "formula": "weighted component total"
-      }
-    },
-    {
       "symbol": "ADANIENT",
       "data_as_of": "2026-09-04",
       "setup_mode": "bullish",
@@ -1603,6 +1550,62 @@
         "fundamental_score": null,
         "fundamental_weight": 0.0,
         "weighted_total": 41.7,
+        "total_weight": 1.0,
+        "formula": "weighted component total"
+      }
+    },
+    {
+      "symbol": "HDFCBANK",
+      "data_as_of": "2026-09-04",
+      "setup_mode": "bullish",
+      "score": 41.28,
+      "recommendation": "Avoid",
+      "futures_price_change_pct": 0.6089451949324642,
+      "futures_oi_change_pct": -0.930213820999759,
+      "pcr": 0.6198526171473339,
+      "return_5d": -1.1384145494932607,
+      "sector": "Nifty Bank",
+      "sector_relative_strength_pct": -0.9184145494932607,
+      "gap_pct": 0.24057171159697077,
+      "gap_atr": 0.13674231542660525,
+      "gap_extended": false,
+      "liquidity_tier": "high",
+      "estimated_slippage_bps": 4,
+      "in_fo_ban": false,
+      "evidence_available": 18,
+      "evidence_total": 18,
+      "evidence_completeness_pct": 100,
+      "event_risk": true,
+      "event_risk_status": "detected",
+      "event_categories": [
+        "corporate_action",
+        "dividend"
+      ],
+      "call_oi_wall": 750.0,
+      "put_oi_wall": 730.0,
+      "reasons": [
+        "Short covering",
+        "Weak PCR",
+        "Weak volume",
+        "Sector-relative momentum opposes bullish setup",
+        "Event risk detected"
+      ],
+      "calculation": {
+        "fno_score": 52.0,
+        "fno_weight": 0.35,
+        "trend_score": 0,
+        "trend_weight": 0.2,
+        "volume_score": 35,
+        "volume_weight": 0.1,
+        "global_score": 50,
+        "global_weight": 0.1,
+        "relative_score": 40.82,
+        "relative_weight": 0.1,
+        "risk_score": 70,
+        "risk_weight": 0.15,
+        "fundamental_score": null,
+        "fundamental_weight": 0.0,
+        "weighted_total": 41.28,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1918,6 +1921,7 @@
         "event_risk_status": "detected",
         "event_categories": [
           "corporate_action",
+          "dividend",
           "earnings",
           "material_event"
         ],
@@ -2015,6 +2019,60 @@
         }
       },
       {
+        "symbol": "ANGELONE",
+        "data_as_of": "2026-09-04",
+        "setup_mode": "bullish",
+        "score": 68.32,
+        "recommendation": "Moderate bullish swing candidate",
+        "futures_price_change_pct": 4.470342668290139,
+        "futures_oi_change_pct": -8.110419906687405,
+        "pcr": 0.5802106294391379,
+        "return_5d": 1.9727891156462674,
+        "sector": "Nifty 50 benchmark",
+        "sector_relative_strength_pct": 3.1227891156462673,
+        "gap_pct": 3.1818181818181968,
+        "gap_atr": 0.9262086513994929,
+        "gap_extended": false,
+        "liquidity_tier": "good",
+        "estimated_slippage_bps": 8,
+        "in_fo_ban": false,
+        "evidence_available": 18,
+        "evidence_total": 18,
+        "evidence_completeness_pct": 100,
+        "event_risk": false,
+        "event_risk_status": "clear",
+        "event_categories": [],
+        "call_oi_wall": 300.0,
+        "put_oi_wall": 300.0,
+        "reasons": [
+          "Short covering",
+          "Weak PCR",
+          "Strong volume expansion",
+          "Price above 20 DMA",
+          "Positive 5-day momentum",
+          "Outperforming sector by 3.1% over five sessions"
+        ],
+        "calculation": {
+          "fno_score": 52.0,
+          "fno_weight": 0.35,
+          "trend_score": 65,
+          "trend_weight": 0.2,
+          "volume_score": 90,
+          "volume_weight": 0.1,
+          "global_score": 50,
+          "global_weight": 0.1,
+          "relative_score": 81.23,
+          "relative_weight": 0.1,
+          "risk_score": 100,
+          "risk_weight": 0.15,
+          "fundamental_score": null,
+          "fundamental_weight": 0.0,
+          "weighted_total": 68.32,
+          "total_weight": 1.0,
+          "formula": "weighted component total"
+        }
+      },
+      {
         "symbol": "BSE",
         "data_as_of": "2026-09-04",
         "setup_mode": "bullish",
@@ -2068,64 +2126,6 @@
           "fundamental_score": null,
           "fundamental_weight": 0.0,
           "weighted_total": 64.69,
-          "total_weight": 1.0,
-          "formula": "weighted component total"
-        }
-      },
-      {
-        "symbol": "ANGELONE",
-        "data_as_of": "2026-09-04",
-        "setup_mode": "bullish",
-        "score": 63.82,
-        "recommendation": "Moderate bullish swing candidate",
-        "futures_price_change_pct": 4.470342668290139,
-        "futures_oi_change_pct": -8.110419906687405,
-        "pcr": 0.5802106294391379,
-        "return_5d": 1.9727891156462674,
-        "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 3.1227891156462673,
-        "gap_pct": 3.1818181818181968,
-        "gap_atr": 0.9262086513994929,
-        "gap_extended": false,
-        "liquidity_tier": "good",
-        "estimated_slippage_bps": 8,
-        "in_fo_ban": false,
-        "evidence_available": 18,
-        "evidence_total": 18,
-        "evidence_completeness_pct": 100,
-        "event_risk": true,
-        "event_risk_status": "detected",
-        "event_categories": [
-          "dividend",
-          "earnings"
-        ],
-        "call_oi_wall": 300.0,
-        "put_oi_wall": 300.0,
-        "reasons": [
-          "Short covering",
-          "Weak PCR",
-          "Strong volume expansion",
-          "Price above 20 DMA",
-          "Positive 5-day momentum",
-          "Outperforming sector by 3.1% over five sessions",
-          "Event risk detected"
-        ],
-        "calculation": {
-          "fno_score": 52.0,
-          "fno_weight": 0.35,
-          "trend_score": 65,
-          "trend_weight": 0.2,
-          "volume_score": 90,
-          "volume_weight": 0.1,
-          "global_score": 50,
-          "global_weight": 0.1,
-          "relative_score": 81.23,
-          "relative_weight": 0.1,
-          "risk_score": 70,
-          "risk_weight": 0.15,
-          "fundamental_score": null,
-          "fundamental_weight": 0.0,
-          "weighted_total": 63.82,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2355,58 +2355,6 @@
         }
       },
       {
-        "symbol": "HDFCBANK",
-        "data_as_of": "2026-09-04",
-        "setup_mode": "bullish",
-        "score": 45.78,
-        "recommendation": "Avoid",
-        "futures_price_change_pct": 0.6089451949324642,
-        "futures_oi_change_pct": -0.930213820999759,
-        "pcr": 0.6198526171473339,
-        "return_5d": -1.1384145494932607,
-        "sector": "Nifty Bank",
-        "sector_relative_strength_pct": -0.9184145494932607,
-        "gap_pct": 0.24057171159697077,
-        "gap_atr": 0.13674231542660525,
-        "gap_extended": false,
-        "liquidity_tier": "high",
-        "estimated_slippage_bps": 4,
-        "in_fo_ban": false,
-        "evidence_available": 18,
-        "evidence_total": 18,
-        "evidence_completeness_pct": 100,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
-        "call_oi_wall": 750.0,
-        "put_oi_wall": 730.0,
-        "reasons": [
-          "Short covering",
-          "Weak PCR",
-          "Weak volume",
-          "Sector-relative momentum opposes bullish setup"
-        ],
-        "calculation": {
-          "fno_score": 52.0,
-          "fno_weight": 0.35,
-          "trend_score": 0,
-          "trend_weight": 0.2,
-          "volume_score": 35,
-          "volume_weight": 0.1,
-          "global_score": 50,
-          "global_weight": 0.1,
-          "relative_score": 40.82,
-          "relative_weight": 0.1,
-          "risk_score": 100,
-          "risk_weight": 0.15,
-          "fundamental_score": null,
-          "fundamental_weight": 0.0,
-          "weighted_total": 45.78,
-          "total_weight": 1.0,
-          "formula": "weighted component total"
-        }
-      },
-      {
         "symbol": "ADANIENT",
         "data_as_of": "2026-09-04",
         "setup_mode": "bullish",
@@ -2454,6 +2402,62 @@
           "fundamental_score": null,
           "fundamental_weight": 0.0,
           "weighted_total": 41.7,
+          "total_weight": 1.0,
+          "formula": "weighted component total"
+        }
+      },
+      {
+        "symbol": "HDFCBANK",
+        "data_as_of": "2026-09-04",
+        "setup_mode": "bullish",
+        "score": 41.28,
+        "recommendation": "Avoid",
+        "futures_price_change_pct": 0.6089451949324642,
+        "futures_oi_change_pct": -0.930213820999759,
+        "pcr": 0.6198526171473339,
+        "return_5d": -1.1384145494932607,
+        "sector": "Nifty Bank",
+        "sector_relative_strength_pct": -0.9184145494932607,
+        "gap_pct": 0.24057171159697077,
+        "gap_atr": 0.13674231542660525,
+        "gap_extended": false,
+        "liquidity_tier": "high",
+        "estimated_slippage_bps": 4,
+        "in_fo_ban": false,
+        "evidence_available": 18,
+        "evidence_total": 18,
+        "evidence_completeness_pct": 100,
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "corporate_action",
+          "dividend"
+        ],
+        "call_oi_wall": 750.0,
+        "put_oi_wall": 730.0,
+        "reasons": [
+          "Short covering",
+          "Weak PCR",
+          "Weak volume",
+          "Sector-relative momentum opposes bullish setup",
+          "Event risk detected"
+        ],
+        "calculation": {
+          "fno_score": 52.0,
+          "fno_weight": 0.35,
+          "trend_score": 0,
+          "trend_weight": 0.2,
+          "volume_score": 35,
+          "volume_weight": 0.1,
+          "global_score": 50,
+          "global_weight": 0.1,
+          "relative_score": 40.82,
+          "relative_weight": 0.1,
+          "risk_score": 70,
+          "risk_weight": 0.15,
+          "fundamental_score": null,
+          "fundamental_weight": 0.0,
+          "weighted_total": 41.28,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2864,61 +2868,6 @@
         }
       },
       {
-        "symbol": "HDFCBANK",
-        "data_as_of": "2026-09-04",
-        "setup_mode": "bearish",
-        "score": 68.67,
-        "recommendation": "Moderate bearish swing candidate",
-        "futures_price_change_pct": 0.6089451949324642,
-        "futures_oi_change_pct": -0.930213820999759,
-        "pcr": 0.6198526171473339,
-        "return_5d": -1.1384145494932607,
-        "sector": "Nifty Bank",
-        "sector_relative_strength_pct": -0.9184145494932607,
-        "gap_pct": 0.24057171159697077,
-        "gap_atr": 0.13674231542660525,
-        "gap_extended": false,
-        "liquidity_tier": "high",
-        "estimated_slippage_bps": 4,
-        "in_fo_ban": false,
-        "evidence_available": 18,
-        "evidence_total": 18,
-        "evidence_completeness_pct": 100,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
-        "call_oi_wall": 750.0,
-        "put_oi_wall": 730.0,
-        "reasons": [
-          "Short covering opposes bearish setup",
-          "Call-heavy positioning supports bearish setup",
-          "Weak volume",
-          "Price below 20 DMA",
-          "Price below 50 DMA",
-          "Negative 5-day momentum",
-          "Underperforming sector by 0.9% over five sessions"
-        ],
-        "calculation": {
-          "fno_score": 55.0,
-          "fno_weight": 0.35,
-          "trend_score": 100,
-          "trend_weight": 0.2,
-          "volume_score": 35,
-          "volume_weight": 0.1,
-          "global_score": 50,
-          "global_weight": 0.1,
-          "relative_score": 59.18,
-          "relative_weight": 0.1,
-          "risk_score": 100,
-          "risk_weight": 0.15,
-          "fundamental_score": null,
-          "fundamental_weight": 0.0,
-          "weighted_total": 68.67,
-          "total_weight": 1.0,
-          "formula": "weighted component total"
-        }
-      },
-      {
         "symbol": "ICICIBANK",
         "data_as_of": "2026-09-04",
         "setup_mode": "bearish",
@@ -2968,6 +2917,118 @@
           "fundamental_score": null,
           "fundamental_weight": 0.0,
           "weighted_total": 66.75,
+          "total_weight": 1.0,
+          "formula": "weighted component total"
+        }
+      },
+      {
+        "symbol": "HDFCBANK",
+        "data_as_of": "2026-09-04",
+        "setup_mode": "bearish",
+        "score": 64.17,
+        "recommendation": "Moderate bearish swing candidate",
+        "futures_price_change_pct": 0.6089451949324642,
+        "futures_oi_change_pct": -0.930213820999759,
+        "pcr": 0.6198526171473339,
+        "return_5d": -1.1384145494932607,
+        "sector": "Nifty Bank",
+        "sector_relative_strength_pct": -0.9184145494932607,
+        "gap_pct": 0.24057171159697077,
+        "gap_atr": 0.13674231542660525,
+        "gap_extended": false,
+        "liquidity_tier": "high",
+        "estimated_slippage_bps": 4,
+        "in_fo_ban": false,
+        "evidence_available": 18,
+        "evidence_total": 18,
+        "evidence_completeness_pct": 100,
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "corporate_action",
+          "dividend"
+        ],
+        "call_oi_wall": 750.0,
+        "put_oi_wall": 730.0,
+        "reasons": [
+          "Short covering opposes bearish setup",
+          "Call-heavy positioning supports bearish setup",
+          "Weak volume",
+          "Price below 20 DMA",
+          "Price below 50 DMA",
+          "Negative 5-day momentum",
+          "Underperforming sector by 0.9% over five sessions",
+          "Event risk detected"
+        ],
+        "calculation": {
+          "fno_score": 55.0,
+          "fno_weight": 0.35,
+          "trend_score": 100,
+          "trend_weight": 0.2,
+          "volume_score": 35,
+          "volume_weight": 0.1,
+          "global_score": 50,
+          "global_weight": 0.1,
+          "relative_score": 59.18,
+          "relative_weight": 0.1,
+          "risk_score": 70,
+          "risk_weight": 0.15,
+          "fundamental_score": null,
+          "fundamental_weight": 0.0,
+          "weighted_total": 64.17,
+          "total_weight": 1.0,
+          "formula": "weighted component total"
+        }
+      },
+      {
+        "symbol": "ANGELONE",
+        "data_as_of": "2026-09-04",
+        "setup_mode": "bearish",
+        "score": 57.13,
+        "recommendation": "Watchlist only",
+        "futures_price_change_pct": 4.470342668290139,
+        "futures_oi_change_pct": -8.110419906687405,
+        "pcr": 0.5802106294391379,
+        "return_5d": 1.9727891156462674,
+        "sector": "Nifty 50 benchmark",
+        "sector_relative_strength_pct": 3.1227891156462673,
+        "gap_pct": 3.1818181818181968,
+        "gap_atr": 0.9262086513994929,
+        "gap_extended": false,
+        "liquidity_tier": "good",
+        "estimated_slippage_bps": 8,
+        "in_fo_ban": false,
+        "evidence_available": 18,
+        "evidence_total": 18,
+        "evidence_completeness_pct": 100,
+        "event_risk": false,
+        "event_risk_status": "clear",
+        "event_categories": [],
+        "call_oi_wall": 300.0,
+        "put_oi_wall": 300.0,
+        "reasons": [
+          "Short covering opposes bearish setup",
+          "Call-heavy positioning supports bearish setup",
+          "Strong volume expansion",
+          "Price below 50 DMA",
+          "Sector-relative momentum opposes bearish setup"
+        ],
+        "calculation": {
+          "fno_score": 55.0,
+          "fno_weight": 0.35,
+          "trend_score": 35,
+          "trend_weight": 0.2,
+          "volume_score": 90,
+          "volume_weight": 0.1,
+          "global_score": 50,
+          "global_weight": 0.1,
+          "relative_score": 18.77,
+          "relative_weight": 0.1,
+          "risk_score": 100,
+          "risk_weight": 0.15,
+          "fundamental_score": null,
+          "fundamental_weight": 0.0,
+          "weighted_total": 57.13,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3083,63 +3144,6 @@
           "fundamental_score": null,
           "fundamental_weight": 0.0,
           "weighted_total": 56.92,
-          "total_weight": 1.0,
-          "formula": "weighted component total"
-        }
-      },
-      {
-        "symbol": "ANGELONE",
-        "data_as_of": "2026-09-04",
-        "setup_mode": "bearish",
-        "score": 52.63,
-        "recommendation": "Watchlist only",
-        "futures_price_change_pct": 4.470342668290139,
-        "futures_oi_change_pct": -8.110419906687405,
-        "pcr": 0.5802106294391379,
-        "return_5d": 1.9727891156462674,
-        "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": 3.1227891156462673,
-        "gap_pct": 3.1818181818181968,
-        "gap_atr": 0.9262086513994929,
-        "gap_extended": false,
-        "liquidity_tier": "good",
-        "estimated_slippage_bps": 8,
-        "in_fo_ban": false,
-        "evidence_available": 18,
-        "evidence_total": 18,
-        "evidence_completeness_pct": 100,
-        "event_risk": true,
-        "event_risk_status": "detected",
-        "event_categories": [
-          "dividend",
-          "earnings"
-        ],
-        "call_oi_wall": 300.0,
-        "put_oi_wall": 300.0,
-        "reasons": [
-          "Short covering opposes bearish setup",
-          "Call-heavy positioning supports bearish setup",
-          "Strong volume expansion",
-          "Price below 50 DMA",
-          "Sector-relative momentum opposes bearish setup",
-          "Event risk detected"
-        ],
-        "calculation": {
-          "fno_score": 55.0,
-          "fno_weight": 0.35,
-          "trend_score": 35,
-          "trend_weight": 0.2,
-          "volume_score": 90,
-          "volume_weight": 0.1,
-          "global_score": 50,
-          "global_weight": 0.1,
-          "relative_score": 18.77,
-          "relative_weight": 0.1,
-          "risk_score": 70,
-          "risk_weight": 0.15,
-          "fundamental_score": null,
-          "fundamental_weight": 0.0,
-          "weighted_total": 52.63,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3393,6 +3397,7 @@
         "event_risk_status": "detected",
         "event_categories": [
           "corporate_action",
+          "dividend",
           "earnings",
           "material_event"
         ],
