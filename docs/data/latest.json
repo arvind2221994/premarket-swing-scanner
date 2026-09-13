@@ -1,5 +1,5 @@
 {
-  "generated_at_ist": "2026-09-12 13:14:45",
+  "generated_at_ist": "2026-09-13 13:35:55",
   "data_as_of": "2026-09-11",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
@@ -12,31 +12,31 @@
       "nasdaq": {
         "change_pct": 0.96,
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-12T07:44:45.504300+00:00",
+        "fetched_at": "2026-09-13T08:05:55.217692+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
         "change_pct": 0.86,
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-12T07:44:45.901779+00:00",
+        "fetched_at": "2026-09-13T08:05:55.736545+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
         "change_pct": 0.98,
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-12T07:44:46.036408+00:00",
+        "fetched_at": "2026-09-13T08:05:55.862214+00:00",
         "source": "Yahoo Finance"
       },
       "gift_nifty": {
         "change_pct": 0.51,
         "observed_at": "12-Sep-2026 02:29:40",
-        "fetched_at": "2026-09-12T07:44:46.125795+00:00",
+        "fetched_at": "2026-09-13T08:05:56.082950+00:00",
         "source": "NSE International Exchange"
       }
     }
   },
   "market_context": {
-    "generated_at": "2026-09-12T07:51:21.055615+00:00",
+    "generated_at": "2026-09-13T08:06:27.796432+00:00",
     "nifty_50": {
       "ticker": "^NSEI",
       "close": 23398.0996,
@@ -46,7 +46,7 @@
       "sma50": 24153.419,
       "trend": "bearish",
       "observed_at": "2026-09-11T00:00:00",
-      "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+      "fetched_at": "2026-09-13T08:06:26.342230+00:00",
       "source": "Yahoo Finance"
     },
     "india_vix": {
@@ -58,7 +58,7 @@
       "sma50": 12.0454,
       "trend": "mixed",
       "observed_at": "2026-09-11T00:00:00",
-      "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+      "fetched_at": "2026-09-13T08:06:26.342230+00:00",
       "source": "Yahoo Finance"
     },
     "market_breadth": {
@@ -69,7 +69,7 @@
       "advance_decline_ratio": 0.48,
       "advance_pct": 32.3,
       "observed_at": "11-Sep-2026 15:30",
-      "fetched_at": "2026-09-12T07:51:20.649021+00:00",
+      "fetched_at": "2026-09-13T08:06:27.042751+00:00",
       "source": "NSE India allIndices"
     },
     "sector_indices": {
@@ -82,7 +82,7 @@
         "sma50": 57463.547,
         "trend": "bearish",
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty IT": {
@@ -94,7 +94,7 @@
         "sma50": 30039.307,
         "trend": "mixed",
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Auto": {
@@ -106,7 +106,7 @@
         "sma50": 26483.2659,
         "trend": "bullish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Pharma": {
@@ -118,7 +118,7 @@
         "sma50": 26324.2272,
         "trend": "mixed",
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty FMCG": {
@@ -130,7 +130,7 @@
         "sma50": 49530.6799,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Metal": {
@@ -142,7 +142,7 @@
         "sma50": 12956.0361,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Energy": {
@@ -154,7 +154,7 @@
         "sma50": 39874.9911,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Realty": {
@@ -166,21 +166,21 @@
         "sma50": 816.09,
         "trend": "bullish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       }
     },
     "macro": {
       "usd_inr": {
         "ticker": "INR=X",
-        "close": 95.54,
-        "daily_change_pct": -0.16,
-        "return_5d_pct": 1.18,
-        "sma20": 95.1586,
-        "sma50": 95.5425,
+        "close": 95.55,
+        "daily_change_pct": -0.15,
+        "return_5d_pct": 1.19,
+        "sma20": 95.1591,
+        "sma50": 95.5427,
         "trend": "mixed",
-        "observed_at": "2026-09-12T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "observed_at": "2026-09-13T00:00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       },
       "wti_crude": {
@@ -192,7 +192,7 @@
         "sma50": 83.2278,
         "trend": "bullish",
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-12T07:51:20.235974+00:00",
+        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
         "source": "Yahoo Finance"
       }
     },
@@ -205,25 +205,25 @@
         "nasdaq": {
           "change_pct": 0.96,
           "observed_at": "2026-09-11T00:00:00",
-          "fetched_at": "2026-09-12T07:44:45.504300+00:00",
+          "fetched_at": "2026-09-13T08:05:55.217692+00:00",
           "source": "Yahoo Finance"
         },
         "spx": {
           "change_pct": 0.86,
           "observed_at": "2026-09-11T00:00:00",
-          "fetched_at": "2026-09-12T07:44:45.901779+00:00",
+          "fetched_at": "2026-09-13T08:05:55.736545+00:00",
           "source": "Yahoo Finance"
         },
         "dow": {
           "change_pct": 0.98,
           "observed_at": "2026-09-11T00:00:00",
-          "fetched_at": "2026-09-12T07:44:46.036408+00:00",
+          "fetched_at": "2026-09-13T08:05:55.862214+00:00",
           "source": "Yahoo Finance"
         },
         "gift_nifty": {
           "change_pct": 0.51,
           "observed_at": "12-Sep-2026 02:29:40",
-          "fetched_at": "2026-09-12T07:44:46.125795+00:00",
+          "fetched_at": "2026-09-13T08:05:56.082950+00:00",
           "source": "NSE International Exchange"
         }
       },
@@ -252,7 +252,7 @@
     }
   },
   "backtest": {
-    "generated_at": "2026-09-12T07:51:35.831652+00:00",
+    "generated_at": "2026-09-13T08:06:47.172822+00:00",
     "score_scope": "cash_technical_heuristic_only",
     "source": "Yahoo Finance history with NSE and Stooq fallback",
     "symbols": [
