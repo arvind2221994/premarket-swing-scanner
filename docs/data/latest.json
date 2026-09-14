@@ -1,5 +1,5 @@
 {
-  "generated_at_ist": "2026-09-13 13:35:55",
+  "generated_at_ist": "2026-09-14 14:09:14",
   "data_as_of": "2026-09-11",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
@@ -7,36 +7,36 @@
     "nasdaq_change_pct": 0.96,
     "spx_change_pct": 0.86,
     "dow_change_pct": 0.98,
-    "gift_nifty_change_pct": 0.51,
+    "gift_nifty_change_pct": -0.5,
     "source_metadata": {
       "nasdaq": {
         "change_pct": 0.96,
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-13T08:05:55.217692+00:00",
+        "fetched_at": "2026-09-14T08:39:14.337206+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
         "change_pct": 0.86,
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-13T08:05:55.736545+00:00",
+        "fetched_at": "2026-09-14T08:39:15.782116+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
         "change_pct": 0.98,
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-13T08:05:55.862214+00:00",
+        "fetched_at": "2026-09-14T08:39:16.168430+00:00",
         "source": "Yahoo Finance"
       },
       "gift_nifty": {
-        "change_pct": 0.51,
-        "observed_at": "12-Sep-2026 02:29:40",
-        "fetched_at": "2026-09-13T08:05:56.082950+00:00",
+        "change_pct": -0.5,
+        "observed_at": "14-Sep-2026 14:08:38",
+        "fetched_at": "2026-09-14T08:39:16.533843+00:00",
         "source": "NSE International Exchange"
       }
     }
   },
   "market_context": {
-    "generated_at": "2026-09-13T08:06:27.796432+00:00",
+    "generated_at": "2026-09-14T08:39:50.114539+00:00",
     "nifty_50": {
       "ticker": "^NSEI",
       "close": 23398.0996,
@@ -46,7 +46,7 @@
       "sma50": 24153.419,
       "trend": "bearish",
       "observed_at": "2026-09-11T00:00:00",
-      "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+      "fetched_at": "2026-09-14T08:39:48.278301+00:00",
       "source": "Yahoo Finance"
     },
     "india_vix": {
@@ -58,7 +58,7 @@
       "sma50": 12.0454,
       "trend": "mixed",
       "observed_at": "2026-09-11T00:00:00",
-      "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+      "fetched_at": "2026-09-14T08:39:48.278301+00:00",
       "source": "Yahoo Finance"
     },
     "market_breadth": {
@@ -69,7 +69,7 @@
       "advance_decline_ratio": 0.48,
       "advance_pct": 32.3,
       "observed_at": "11-Sep-2026 15:30",
-      "fetched_at": "2026-09-13T08:06:27.042751+00:00",
+      "fetched_at": "2026-09-14T08:39:49.541162+00:00",
       "source": "NSE India allIndices"
     },
     "sector_indices": {
@@ -82,7 +82,7 @@
         "sma50": 57463.547,
         "trend": "bearish",
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty IT": {
@@ -94,7 +94,7 @@
         "sma50": 30039.307,
         "trend": "mixed",
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Auto": {
@@ -106,7 +106,7 @@
         "sma50": 26483.2659,
         "trend": "bullish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Pharma": {
@@ -118,7 +118,7 @@
         "sma50": 26324.2272,
         "trend": "mixed",
         "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty FMCG": {
@@ -130,7 +130,7 @@
         "sma50": 49530.6799,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Metal": {
@@ -142,7 +142,7 @@
         "sma50": 12956.0361,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Energy": {
@@ -154,7 +154,7 @@
         "sma50": 39874.9911,
         "trend": "bearish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Realty": {
@@ -166,33 +166,33 @@
         "sma50": 816.09,
         "trend": "bullish",
         "observed_at": "2026-07-17T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       }
     },
     "macro": {
       "usd_inr": {
         "ticker": "INR=X",
-        "close": 95.55,
-        "daily_change_pct": -0.15,
-        "return_5d_pct": 1.19,
-        "sma20": 95.1591,
-        "sma50": 95.5427,
+        "close": 95.54,
+        "daily_change_pct": -0.16,
+        "return_5d_pct": 1.18,
+        "sma20": 95.1586,
+        "sma50": 95.5425,
         "trend": "mixed",
-        "observed_at": "2026-09-13T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "observed_at": "2026-09-14T00:00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       },
       "wti_crude": {
         "ticker": "CL=F",
-        "close": 100.05,
-        "daily_change_pct": -2.37,
-        "return_5d_pct": 9.58,
-        "sma20": 88.5235,
-        "sma50": 83.2278,
+        "close": 103.66,
+        "daily_change_pct": 3.61,
+        "return_5d_pct": 13.31,
+        "sma20": 89.5865,
+        "sma50": 83.9272,
         "trend": "bullish",
-        "observed_at": "2026-09-11T00:00:00",
-        "fetched_at": "2026-09-13T08:06:26.342230+00:00",
+        "observed_at": "2026-09-14T00:00:00",
+        "fetched_at": "2026-09-14T08:39:48.278301+00:00",
         "source": "Yahoo Finance"
       }
     },
@@ -200,49 +200,46 @@
       "nasdaq_change_pct": 0.96,
       "spx_change_pct": 0.86,
       "dow_change_pct": 0.98,
-      "gift_nifty_change_pct": 0.51,
+      "gift_nifty_change_pct": -0.5,
       "source_metadata": {
         "nasdaq": {
           "change_pct": 0.96,
           "observed_at": "2026-09-11T00:00:00",
-          "fetched_at": "2026-09-13T08:05:55.217692+00:00",
+          "fetched_at": "2026-09-14T08:39:14.337206+00:00",
           "source": "Yahoo Finance"
         },
         "spx": {
           "change_pct": 0.86,
           "observed_at": "2026-09-11T00:00:00",
-          "fetched_at": "2026-09-13T08:05:55.736545+00:00",
+          "fetched_at": "2026-09-14T08:39:15.782116+00:00",
           "source": "Yahoo Finance"
         },
         "dow": {
           "change_pct": 0.98,
           "observed_at": "2026-09-11T00:00:00",
-          "fetched_at": "2026-09-13T08:05:55.862214+00:00",
+          "fetched_at": "2026-09-14T08:39:16.168430+00:00",
           "source": "Yahoo Finance"
         },
         "gift_nifty": {
-          "change_pct": 0.51,
-          "observed_at": "12-Sep-2026 02:29:40",
-          "fetched_at": "2026-09-13T08:05:56.082950+00:00",
+          "change_pct": -0.5,
+          "observed_at": "14-Sep-2026 14:08:38",
+          "fetched_at": "2026-09-14T08:39:16.533843+00:00",
           "source": "NSE International Exchange"
         }
       },
-      "score": 65,
-      "reasons": [
-        "GIFT Nifty positive"
-      ]
+      "score": 50,
+      "reasons": []
     },
     "interpretation_note": "USD/INR and crude are context signals only; apply them when the stock or sector has material currency, import-cost, or commodity-price exposure.",
     "long_swing_environment": {
       "condition": "adverse",
-      "score": -2,
+      "score": -3,
       "summary": "Conditions do not support new long swing trades.",
       "reasons": [
         "Nifty is in a bearish trend",
         "India VIX is below 15",
         "Market breadth is weak",
-        "More tracked sectors are bearish than bullish",
-        "Global sentiment is supportive"
+        "More tracked sectors are bearish than bullish"
       ],
       "bullish_sector_count": 2,
       "bearish_sector_count": 4,
@@ -252,7 +249,7 @@
     }
   },
   "backtest": {
-    "generated_at": "2026-09-13T08:06:47.172822+00:00",
+    "generated_at": "2026-09-14T08:40:01.328199+00:00",
     "score_scope": "cash_technical_heuristic_only",
     "source": "Yahoo Finance history with NSE and Stooq fallback",
     "symbols": [
@@ -410,7 +407,7 @@
       "symbol": "YESBANK",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 82.9,
+      "score": 81.4,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 5.764075067024144,
       "futures_oi_change_pct": 0.6548667099125716,
@@ -439,8 +436,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 6.4% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 6.4% over five sessions"
       ],
       "calculation": {
         "fno_score": 64.0,
@@ -449,7 +445,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 100,
         "relative_weight": 0.1,
@@ -457,7 +453,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 82.9,
+        "weighted_total": 81.4,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -466,7 +462,7 @@
       "symbol": "LICHSGFIN",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 80.14,
+      "score": 78.64,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 1.4496644295302064,
       "futures_oi_change_pct": -11.611186594202893,
@@ -495,8 +491,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 2.2% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 2.2% over five sessions"
       ],
       "calculation": {
         "fno_score": 64.0,
@@ -505,7 +500,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 72.41,
         "relative_weight": 0.1,
@@ -513,7 +508,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 80.14,
+        "weighted_total": 78.64,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -522,7 +517,7 @@
       "symbol": "INDUSTOWER",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 78.7,
+      "score": 77.2,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 4.349577124446236,
       "futures_oi_change_pct": -3.9059276578187307,
@@ -551,8 +546,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 5.1% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 5.1% over five sessions"
       ],
       "calculation": {
         "fno_score": 52.0,
@@ -561,7 +555,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 100,
         "relative_weight": 0.1,
@@ -569,7 +563,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 78.7,
+        "weighted_total": 77.2,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -581,7 +575,7 @@
         "symbol": "YESBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 82.9,
+        "score": 81.4,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 5.764075067024144,
         "futures_oi_change_pct": 0.6548667099125716,
@@ -610,8 +604,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 6.4% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 6.4% over five sessions"
         ],
         "calculation": {
           "fno_score": 64.0,
@@ -620,7 +613,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -628,7 +621,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 82.9,
+          "weighted_total": 81.4,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -637,7 +630,7 @@
         "symbol": "LICHSGFIN",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 80.14,
+        "score": 78.64,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 1.4496644295302064,
         "futures_oi_change_pct": -11.611186594202893,
@@ -666,8 +659,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 2.2% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 2.2% over five sessions"
         ],
         "calculation": {
           "fno_score": 64.0,
@@ -676,7 +668,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 72.41,
           "relative_weight": 0.1,
@@ -684,7 +676,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 80.14,
+          "weighted_total": 78.64,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -693,7 +685,7 @@
         "symbol": "INDUSTOWER",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 78.7,
+        "score": 77.2,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 4.349577124446236,
         "futures_oi_change_pct": -3.9059276578187307,
@@ -722,8 +714,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 5.1% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 5.1% over five sessions"
         ],
         "calculation": {
           "fno_score": 52.0,
@@ -732,7 +723,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -740,7 +731,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 78.7,
+          "weighted_total": 77.2,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -751,8 +742,8 @@
         "symbol": "COCHINSHIP",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 74.0,
-        "recommendation": "Moderate bearish swing candidate",
+        "score": 75.5,
+        "recommendation": "High confidence bearish swing candidate",
         "futures_price_change_pct": -9.024037830027575,
         "futures_oi_change_pct": -7.929289694485364,
         "pcr": 0.975047619047619,
@@ -783,7 +774,6 @@
           "Price below 50 DMA",
           "Negative 5-day momentum",
           "Underperforming sector by 5.8% over five sessions",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -793,7 +783,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -801,7 +791,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 74.0,
+          "weighted_total": 75.5,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -810,8 +800,8 @@
         "symbol": "RELIANCE",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 73.97,
-        "recommendation": "Moderate bearish swing candidate",
+        "score": 75.47,
+        "recommendation": "High confidence bearish swing candidate",
         "futures_price_change_pct": -0.565815324165031,
         "futures_oi_change_pct": -0.47601936533326894,
         "pcr": 0.7145741058784537,
@@ -844,7 +834,6 @@
           "Price below 50 DMA",
           "Negative 5-day momentum",
           "Underperforming sector by 5.0% over five sessions",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -854,7 +843,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 99.69,
           "relative_weight": 0.1,
@@ -862,7 +851,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 73.97,
+          "weighted_total": 75.47,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -871,7 +860,7 @@
         "symbol": "AXISBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 69.04,
+        "score": 70.54,
         "recommendation": "Moderate bearish swing candidate",
         "futures_price_change_pct": 0.2962607094242786,
         "futures_oi_change_pct": -1.4582044176598807,
@@ -900,8 +889,7 @@
           "Price below 20 DMA",
           "Price below 50 DMA",
           "Negative 5-day momentum",
-          "Underperforming sector by 0.8% over five sessions",
-          "GIFT Nifty positive opposes bearish setup"
+          "Underperforming sector by 0.8% over five sessions"
         ],
         "calculation": {
           "fno_score": 55.0,
@@ -910,7 +898,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 57.91,
           "relative_weight": 0.1,
@@ -918,7 +906,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 69.04,
+          "weighted_total": 70.54,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -930,7 +918,7 @@
       "symbol": "YESBANK",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 82.9,
+      "score": 81.4,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 5.764075067024144,
       "futures_oi_change_pct": 0.6548667099125716,
@@ -959,8 +947,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 6.4% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 6.4% over five sessions"
       ],
       "calculation": {
         "fno_score": 64.0,
@@ -969,7 +956,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 100,
         "relative_weight": 0.1,
@@ -977,7 +964,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 82.9,
+        "weighted_total": 81.4,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -986,7 +973,7 @@
       "symbol": "LICHSGFIN",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 80.14,
+      "score": 78.64,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 1.4496644295302064,
       "futures_oi_change_pct": -11.611186594202893,
@@ -1015,8 +1002,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 2.2% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 2.2% over five sessions"
       ],
       "calculation": {
         "fno_score": 64.0,
@@ -1025,7 +1011,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 72.41,
         "relative_weight": 0.1,
@@ -1033,7 +1019,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 80.14,
+        "weighted_total": 78.64,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1042,7 +1028,7 @@
       "symbol": "INDUSTOWER",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 78.7,
+      "score": 77.2,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 4.349577124446236,
       "futures_oi_change_pct": -3.9059276578187307,
@@ -1071,8 +1057,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 5.1% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 5.1% over five sessions"
       ],
       "calculation": {
         "fno_score": 52.0,
@@ -1081,7 +1066,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 100,
         "relative_weight": 0.1,
@@ -1089,7 +1074,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 78.7,
+        "weighted_total": 77.2,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1098,7 +1083,7 @@
       "symbol": "PAYTM",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 78.4,
+      "score": 76.9,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 5.084550124083798,
       "futures_oi_change_pct": 0.8520050792610423,
@@ -1130,7 +1115,6 @@
         "Price above 50 DMA",
         "Positive 5-day momentum",
         "Outperforming sector by 11.0% over five sessions",
-        "GIFT Nifty positive",
         "Event risk detected"
       ],
       "calculation": {
@@ -1140,7 +1124,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 100,
         "relative_weight": 0.1,
@@ -1148,7 +1132,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 78.4,
+        "weighted_total": 76.9,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1157,7 +1141,7 @@
       "symbol": "LAURUSLABS",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 77.4,
+      "score": 75.9,
       "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 1.6750590895077577,
       "futures_oi_change_pct": 0.9125957737543322,
@@ -1186,8 +1170,7 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Positive 5-day momentum",
-        "Outperforming sector by 9.1% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 9.1% over five sessions"
       ],
       "calculation": {
         "fno_score": 64.0,
@@ -1196,7 +1179,7 @@
         "trend_weight": 0.2,
         "volume_score": 35,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 100,
         "relative_weight": 0.1,
@@ -1204,7 +1187,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 77.4,
+        "weighted_total": 75.9,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1213,7 +1196,7 @@
       "symbol": "KOTAKBANK",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 66.23,
+      "score": 64.73,
       "recommendation": "Moderate bullish swing candidate",
       "futures_price_change_pct": 0.6001680470531845,
       "futures_oi_change_pct": -3.145044971094202,
@@ -1241,8 +1224,7 @@
         "Volume above average",
         "Price above 20 DMA",
         "Price above 50 DMA",
-        "Outperforming sector by 0.0% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 0.0% over five sessions"
       ],
       "calculation": {
         "fno_score": 52.0,
@@ -1251,7 +1233,7 @@
         "trend_weight": 0.2,
         "volume_score": 75,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 50.34,
         "relative_weight": 0.1,
@@ -1259,7 +1241,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 66.23,
+        "weighted_total": 64.73,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1268,7 +1250,7 @@
       "symbol": "IDEA",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 65.66,
+      "score": 64.16,
       "recommendation": "Moderate bullish swing candidate",
       "futures_price_change_pct": 0.6040268456375841,
       "futures_oi_change_pct": 0.36892146182034846,
@@ -1299,7 +1281,6 @@
         "Price above 20 DMA",
         "Price above 50 DMA",
         "Outperforming sector by 1.8% over five sessions",
-        "GIFT Nifty positive",
         "Event risk detected"
       ],
       "calculation": {
@@ -1309,7 +1290,7 @@
         "trend_weight": 0.2,
         "volume_score": 55,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 67.57,
         "relative_weight": 0.1,
@@ -1317,7 +1298,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 65.66,
+        "weighted_total": 64.16,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1326,7 +1307,7 @@
       "symbol": "BSE",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 62.43,
+      "score": 60.93,
       "recommendation": "Moderate bullish swing candidate",
       "futures_price_change_pct": 2.8675136116152578,
       "futures_oi_change_pct": 11.27746827607552,
@@ -1346,8 +1327,8 @@
       "event_risk": true,
       "event_risk_status": "detected",
       "event_categories": [
-        "dividend",
-        "earnings"
+        "earnings",
+        "material_event"
       ],
       "call_oi_wall": 3500.0,
       "put_oi_wall": 3300.0,
@@ -1357,7 +1338,6 @@
         "Normal volume",
         "Price above 20 DMA",
         "Outperforming sector by 1.3% over five sessions",
-        "GIFT Nifty positive",
         "Event risk detected"
       ],
       "calculation": {
@@ -1367,7 +1347,7 @@
         "trend_weight": 0.2,
         "volume_score": 55,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 63.33,
         "relative_weight": 0.1,
@@ -1375,7 +1355,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 62.43,
+        "weighted_total": 60.93,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1384,7 +1364,7 @@
       "symbol": "ETERNAL",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 59.02,
+      "score": 57.52,
       "recommendation": "Watchlist only",
       "futures_price_change_pct": 0.5590930268675187,
       "futures_oi_change_pct": -1.2288736937169364,
@@ -1416,7 +1396,6 @@
         "Price above 50 DMA",
         "Positive 5-day momentum",
         "Outperforming sector by 2.3% over five sessions",
-        "GIFT Nifty positive",
         "Event risk detected"
       ],
       "calculation": {
@@ -1426,7 +1405,7 @@
         "trend_weight": 0.2,
         "volume_score": 35,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 73.22,
         "relative_weight": 0.1,
@@ -1434,60 +1413,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 59.02,
-        "total_weight": 1.0,
-        "formula": "weighted component total"
-      }
-    },
-    {
-      "symbol": "HDFCBANK",
-      "data_as_of": "2026-09-11",
-      "setup_mode": "bullish",
-      "score": 55.19,
-      "recommendation": "Watchlist only",
-      "futures_price_change_pct": 2.178132413198197,
-      "futures_oi_change_pct": 1.769976674012419,
-      "pcr": 0.5860253576238026,
-      "return_5d": -0.5406544024715632,
-      "sector": "Nifty Bank",
-      "sector_relative_strength_pct": 0.7893455975284369,
-      "gap_pct": -1.4269241856442738,
-      "gap_atr": -0.7066020902370616,
-      "gap_extended": false,
-      "liquidity_tier": "high",
-      "estimated_slippage_bps": 4,
-      "in_fo_ban": false,
-      "evidence_available": 18,
-      "evidence_total": 18,
-      "evidence_completeness_pct": 100,
-      "event_risk": false,
-      "event_risk_status": "clear",
-      "event_categories": [],
-      "call_oi_wall": 720.0,
-      "put_oi_wall": 700.0,
-      "reasons": [
-        "Long build-up",
-        "Weak PCR",
-        "Normal volume",
-        "Outperforming sector by 0.8% over five sessions",
-        "GIFT Nifty positive"
-      ],
-      "calculation": {
-        "fno_score": 64.0,
-        "fno_weight": 0.35,
-        "trend_score": 0,
-        "trend_weight": 0.2,
-        "volume_score": 55,
-        "volume_weight": 0.1,
-        "global_score": 65,
-        "global_weight": 0.1,
-        "relative_score": 57.89,
-        "relative_weight": 0.1,
-        "risk_score": 100,
-        "risk_weight": 0.15,
-        "fundamental_score": null,
-        "fundamental_weight": 0.0,
-        "weighted_total": 55.19,
+        "weighted_total": 57.52,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1496,7 +1422,7 @@
       "symbol": "ICICIBANK",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 54.85,
+      "score": 53.35,
       "recommendation": "Watchlist only",
       "futures_price_change_pct": 0.27440785673020773,
       "futures_oi_change_pct": -0.9746391230418538,
@@ -1522,8 +1448,7 @@
         "Short covering",
         "Healthy bullish PCR",
         "Weak volume",
-        "Sector-relative momentum opposes bullish setup",
-        "GIFT Nifty positive"
+        "Sector-relative momentum opposes bullish setup"
       ],
       "calculation": {
         "fno_score": 76.0,
@@ -1532,7 +1457,7 @@
         "trend_weight": 0.2,
         "volume_score": 35,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 32.45,
         "relative_weight": 0.1,
@@ -1540,7 +1465,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 54.85,
+        "weighted_total": 53.35,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1549,7 +1474,7 @@
       "symbol": "BHARTIARTL",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 54.01,
+      "score": 52.51,
       "recommendation": "Watchlist only",
       "futures_price_change_pct": 0.02716800695501398,
       "futures_oi_change_pct": -2.435154585857169,
@@ -1575,8 +1500,7 @@
         "Short covering",
         "Neutral PCR",
         "Weak volume",
-        "Outperforming sector by 1.6% over five sessions",
-        "GIFT Nifty positive"
+        "Outperforming sector by 1.6% over five sessions"
       ],
       "calculation": {
         "fno_score": 64.0,
@@ -1585,7 +1509,7 @@
         "trend_weight": 0.2,
         "volume_score": 35,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 66.06,
         "relative_weight": 0.1,
@@ -1593,7 +1517,62 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 54.01,
+        "weighted_total": 52.51,
+        "total_weight": 1.0,
+        "formula": "weighted component total"
+      }
+    },
+    {
+      "symbol": "HDFCBANK",
+      "data_as_of": "2026-09-11",
+      "setup_mode": "bullish",
+      "score": 49.19,
+      "recommendation": "Avoid",
+      "futures_price_change_pct": 2.178132413198197,
+      "futures_oi_change_pct": 1.769976674012419,
+      "pcr": 0.5860253576238026,
+      "return_5d": -0.5406544024715632,
+      "sector": "Nifty Bank",
+      "sector_relative_strength_pct": 0.7893455975284369,
+      "gap_pct": -1.4269241856442738,
+      "gap_atr": -0.7066020902370616,
+      "gap_extended": false,
+      "liquidity_tier": "high",
+      "estimated_slippage_bps": 4,
+      "in_fo_ban": false,
+      "evidence_available": 18,
+      "evidence_total": 18,
+      "evidence_completeness_pct": 100,
+      "event_risk": true,
+      "event_risk_status": "detected",
+      "event_categories": [
+        "earnings"
+      ],
+      "call_oi_wall": 720.0,
+      "put_oi_wall": 700.0,
+      "reasons": [
+        "Long build-up",
+        "Weak PCR",
+        "Normal volume",
+        "Outperforming sector by 0.8% over five sessions",
+        "Event risk detected"
+      ],
+      "calculation": {
+        "fno_score": 64.0,
+        "fno_weight": 0.35,
+        "trend_score": 0,
+        "trend_weight": 0.2,
+        "volume_score": 55,
+        "volume_weight": 0.1,
+        "global_score": 50,
+        "global_weight": 0.1,
+        "relative_score": 57.89,
+        "relative_weight": 0.1,
+        "risk_score": 70,
+        "risk_weight": 0.15,
+        "fundamental_score": null,
+        "fundamental_weight": 0.0,
+        "weighted_total": 49.19,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1602,7 +1581,7 @@
       "symbol": "AXISBANK",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 49.41,
+      "score": 47.91,
       "recommendation": "Avoid",
       "futures_price_change_pct": 0.2962607094242786,
       "futures_oi_change_pct": -1.4582044176598807,
@@ -1628,8 +1607,7 @@
         "Short covering",
         "Weak PCR",
         "Normal volume",
-        "Sector-relative momentum opposes bullish setup",
-        "GIFT Nifty positive"
+        "Sector-relative momentum opposes bullish setup"
       ],
       "calculation": {
         "fno_score": 52.0,
@@ -1638,7 +1616,7 @@
         "trend_weight": 0.2,
         "volume_score": 55,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 42.09,
         "relative_weight": 0.1,
@@ -1646,7 +1624,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 49.41,
+        "weighted_total": 47.91,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1655,7 +1633,7 @@
       "symbol": "COCHINSHIP",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 45.25,
+      "score": 43.75,
       "recommendation": "Avoid",
       "futures_price_change_pct": -9.024037830027575,
       "futures_oi_change_pct": -7.929289694485364,
@@ -1684,7 +1662,6 @@
         "Healthy bullish PCR",
         "Strong volume expansion",
         "Sector-relative momentum opposes bullish setup",
-        "GIFT Nifty positive",
         "Event risk detected"
       ],
       "calculation": {
@@ -1694,7 +1671,7 @@
         "trend_weight": 0.2,
         "volume_score": 90,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 0,
         "relative_weight": 0.1,
@@ -1702,7 +1679,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 45.25,
+        "weighted_total": 43.75,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1711,7 +1688,7 @@
       "symbol": "RELIANCE",
       "data_as_of": "2026-09-11",
       "setup_mode": "bullish",
-      "score": 37.58,
+      "score": 36.08,
       "recommendation": "Avoid",
       "futures_price_change_pct": -0.565815324165031,
       "futures_oi_change_pct": -0.47601936533326894,
@@ -1742,7 +1719,6 @@
         "Neutral PCR",
         "Normal volume",
         "Sector-relative momentum opposes bullish setup",
-        "GIFT Nifty positive",
         "Event risk detected"
       ],
       "calculation": {
@@ -1752,7 +1728,7 @@
         "trend_weight": 0.2,
         "volume_score": 55,
         "volume_weight": 0.1,
-        "global_score": 65,
+        "global_score": 50,
         "global_weight": 0.1,
         "relative_score": 0.31,
         "relative_weight": 0.1,
@@ -1760,7 +1736,7 @@
         "risk_weight": 0.15,
         "fundamental_score": null,
         "fundamental_weight": 0.0,
-        "weighted_total": 37.58,
+        "weighted_total": 36.08,
         "total_weight": 1.0,
         "formula": "weighted component total"
       }
@@ -1772,7 +1748,7 @@
         "symbol": "YESBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 82.9,
+        "score": 81.4,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 5.764075067024144,
         "futures_oi_change_pct": 0.6548667099125716,
@@ -1801,8 +1777,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 6.4% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 6.4% over five sessions"
         ],
         "calculation": {
           "fno_score": 64.0,
@@ -1811,7 +1786,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -1819,7 +1794,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 82.9,
+          "weighted_total": 81.4,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -1828,7 +1803,7 @@
         "symbol": "LICHSGFIN",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 80.14,
+        "score": 78.64,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 1.4496644295302064,
         "futures_oi_change_pct": -11.611186594202893,
@@ -1857,8 +1832,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 2.2% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 2.2% over five sessions"
         ],
         "calculation": {
           "fno_score": 64.0,
@@ -1867,7 +1841,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 72.41,
           "relative_weight": 0.1,
@@ -1875,7 +1849,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 80.14,
+          "weighted_total": 78.64,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -1884,7 +1858,7 @@
         "symbol": "INDUSTOWER",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 78.7,
+        "score": 77.2,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 4.349577124446236,
         "futures_oi_change_pct": -3.9059276578187307,
@@ -1913,8 +1887,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 5.1% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 5.1% over five sessions"
         ],
         "calculation": {
           "fno_score": 52.0,
@@ -1923,7 +1896,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -1931,7 +1904,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 78.7,
+          "weighted_total": 77.2,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -1940,7 +1913,7 @@
         "symbol": "PAYTM",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 78.4,
+        "score": 76.9,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 5.084550124083798,
         "futures_oi_change_pct": 0.8520050792610423,
@@ -1972,7 +1945,6 @@
           "Price above 50 DMA",
           "Positive 5-day momentum",
           "Outperforming sector by 11.0% over five sessions",
-          "GIFT Nifty positive",
           "Event risk detected"
         ],
         "calculation": {
@@ -1982,7 +1954,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -1990,7 +1962,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 78.4,
+          "weighted_total": 76.9,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -1999,7 +1971,7 @@
         "symbol": "LAURUSLABS",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 77.4,
+        "score": 75.9,
         "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 1.6750590895077577,
         "futures_oi_change_pct": 0.9125957737543322,
@@ -2028,8 +2000,7 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Positive 5-day momentum",
-          "Outperforming sector by 9.1% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 9.1% over five sessions"
         ],
         "calculation": {
           "fno_score": 64.0,
@@ -2038,7 +2009,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -2046,7 +2017,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 77.4,
+          "weighted_total": 75.9,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2055,7 +2026,7 @@
         "symbol": "KOTAKBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 66.23,
+        "score": 64.73,
         "recommendation": "Moderate bullish swing candidate",
         "futures_price_change_pct": 0.6001680470531845,
         "futures_oi_change_pct": -3.145044971094202,
@@ -2083,8 +2054,7 @@
           "Volume above average",
           "Price above 20 DMA",
           "Price above 50 DMA",
-          "Outperforming sector by 0.0% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 0.0% over five sessions"
         ],
         "calculation": {
           "fno_score": 52.0,
@@ -2093,7 +2063,7 @@
           "trend_weight": 0.2,
           "volume_score": 75,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 50.34,
           "relative_weight": 0.1,
@@ -2101,7 +2071,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 66.23,
+          "weighted_total": 64.73,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2110,7 +2080,7 @@
         "symbol": "IDEA",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 65.66,
+        "score": 64.16,
         "recommendation": "Moderate bullish swing candidate",
         "futures_price_change_pct": 0.6040268456375841,
         "futures_oi_change_pct": 0.36892146182034846,
@@ -2141,7 +2111,6 @@
           "Price above 20 DMA",
           "Price above 50 DMA",
           "Outperforming sector by 1.8% over five sessions",
-          "GIFT Nifty positive",
           "Event risk detected"
         ],
         "calculation": {
@@ -2151,7 +2120,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 67.57,
           "relative_weight": 0.1,
@@ -2159,7 +2128,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 65.66,
+          "weighted_total": 64.16,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2168,7 +2137,7 @@
         "symbol": "BSE",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 62.43,
+        "score": 60.93,
         "recommendation": "Moderate bullish swing candidate",
         "futures_price_change_pct": 2.8675136116152578,
         "futures_oi_change_pct": 11.27746827607552,
@@ -2188,8 +2157,8 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
-          "dividend",
-          "earnings"
+          "earnings",
+          "material_event"
         ],
         "call_oi_wall": 3500.0,
         "put_oi_wall": 3300.0,
@@ -2199,7 +2168,6 @@
           "Normal volume",
           "Price above 20 DMA",
           "Outperforming sector by 1.3% over five sessions",
-          "GIFT Nifty positive",
           "Event risk detected"
         ],
         "calculation": {
@@ -2209,7 +2177,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 63.33,
           "relative_weight": 0.1,
@@ -2217,7 +2185,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 62.43,
+          "weighted_total": 60.93,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2226,7 +2194,7 @@
         "symbol": "ETERNAL",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 59.02,
+        "score": 57.52,
         "recommendation": "Watchlist only",
         "futures_price_change_pct": 0.5590930268675187,
         "futures_oi_change_pct": -1.2288736937169364,
@@ -2258,7 +2226,6 @@
           "Price above 50 DMA",
           "Positive 5-day momentum",
           "Outperforming sector by 2.3% over five sessions",
-          "GIFT Nifty positive",
           "Event risk detected"
         ],
         "calculation": {
@@ -2268,7 +2235,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 73.22,
           "relative_weight": 0.1,
@@ -2276,60 +2243,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 59.02,
-          "total_weight": 1.0,
-          "formula": "weighted component total"
-        }
-      },
-      {
-        "symbol": "HDFCBANK",
-        "data_as_of": "2026-09-11",
-        "setup_mode": "bullish",
-        "score": 55.19,
-        "recommendation": "Watchlist only",
-        "futures_price_change_pct": 2.178132413198197,
-        "futures_oi_change_pct": 1.769976674012419,
-        "pcr": 0.5860253576238026,
-        "return_5d": -0.5406544024715632,
-        "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 0.7893455975284369,
-        "gap_pct": -1.4269241856442738,
-        "gap_atr": -0.7066020902370616,
-        "gap_extended": false,
-        "liquidity_tier": "high",
-        "estimated_slippage_bps": 4,
-        "in_fo_ban": false,
-        "evidence_available": 18,
-        "evidence_total": 18,
-        "evidence_completeness_pct": 100,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
-        "call_oi_wall": 720.0,
-        "put_oi_wall": 700.0,
-        "reasons": [
-          "Long build-up",
-          "Weak PCR",
-          "Normal volume",
-          "Outperforming sector by 0.8% over five sessions",
-          "GIFT Nifty positive"
-        ],
-        "calculation": {
-          "fno_score": 64.0,
-          "fno_weight": 0.35,
-          "trend_score": 0,
-          "trend_weight": 0.2,
-          "volume_score": 55,
-          "volume_weight": 0.1,
-          "global_score": 65,
-          "global_weight": 0.1,
-          "relative_score": 57.89,
-          "relative_weight": 0.1,
-          "risk_score": 100,
-          "risk_weight": 0.15,
-          "fundamental_score": null,
-          "fundamental_weight": 0.0,
-          "weighted_total": 55.19,
+          "weighted_total": 57.52,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2338,7 +2252,7 @@
         "symbol": "ICICIBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 54.85,
+        "score": 53.35,
         "recommendation": "Watchlist only",
         "futures_price_change_pct": 0.27440785673020773,
         "futures_oi_change_pct": -0.9746391230418538,
@@ -2364,8 +2278,7 @@
           "Short covering",
           "Healthy bullish PCR",
           "Weak volume",
-          "Sector-relative momentum opposes bullish setup",
-          "GIFT Nifty positive"
+          "Sector-relative momentum opposes bullish setup"
         ],
         "calculation": {
           "fno_score": 76.0,
@@ -2374,7 +2287,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 32.45,
           "relative_weight": 0.1,
@@ -2382,7 +2295,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 54.85,
+          "weighted_total": 53.35,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2391,7 +2304,7 @@
         "symbol": "BHARTIARTL",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 54.01,
+        "score": 52.51,
         "recommendation": "Watchlist only",
         "futures_price_change_pct": 0.02716800695501398,
         "futures_oi_change_pct": -2.435154585857169,
@@ -2417,8 +2330,7 @@
           "Short covering",
           "Neutral PCR",
           "Weak volume",
-          "Outperforming sector by 1.6% over five sessions",
-          "GIFT Nifty positive"
+          "Outperforming sector by 1.6% over five sessions"
         ],
         "calculation": {
           "fno_score": 64.0,
@@ -2427,7 +2339,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 66.06,
           "relative_weight": 0.1,
@@ -2435,7 +2347,62 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 54.01,
+          "weighted_total": 52.51,
+          "total_weight": 1.0,
+          "formula": "weighted component total"
+        }
+      },
+      {
+        "symbol": "HDFCBANK",
+        "data_as_of": "2026-09-11",
+        "setup_mode": "bullish",
+        "score": 49.19,
+        "recommendation": "Avoid",
+        "futures_price_change_pct": 2.178132413198197,
+        "futures_oi_change_pct": 1.769976674012419,
+        "pcr": 0.5860253576238026,
+        "return_5d": -0.5406544024715632,
+        "sector": "Nifty Bank",
+        "sector_relative_strength_pct": 0.7893455975284369,
+        "gap_pct": -1.4269241856442738,
+        "gap_atr": -0.7066020902370616,
+        "gap_extended": false,
+        "liquidity_tier": "high",
+        "estimated_slippage_bps": 4,
+        "in_fo_ban": false,
+        "evidence_available": 18,
+        "evidence_total": 18,
+        "evidence_completeness_pct": 100,
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings"
+        ],
+        "call_oi_wall": 720.0,
+        "put_oi_wall": 700.0,
+        "reasons": [
+          "Long build-up",
+          "Weak PCR",
+          "Normal volume",
+          "Outperforming sector by 0.8% over five sessions",
+          "Event risk detected"
+        ],
+        "calculation": {
+          "fno_score": 64.0,
+          "fno_weight": 0.35,
+          "trend_score": 0,
+          "trend_weight": 0.2,
+          "volume_score": 55,
+          "volume_weight": 0.1,
+          "global_score": 50,
+          "global_weight": 0.1,
+          "relative_score": 57.89,
+          "relative_weight": 0.1,
+          "risk_score": 70,
+          "risk_weight": 0.15,
+          "fundamental_score": null,
+          "fundamental_weight": 0.0,
+          "weighted_total": 49.19,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2444,7 +2411,7 @@
         "symbol": "AXISBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 49.41,
+        "score": 47.91,
         "recommendation": "Avoid",
         "futures_price_change_pct": 0.2962607094242786,
         "futures_oi_change_pct": -1.4582044176598807,
@@ -2470,8 +2437,7 @@
           "Short covering",
           "Weak PCR",
           "Normal volume",
-          "Sector-relative momentum opposes bullish setup",
-          "GIFT Nifty positive"
+          "Sector-relative momentum opposes bullish setup"
         ],
         "calculation": {
           "fno_score": 52.0,
@@ -2480,7 +2446,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 42.09,
           "relative_weight": 0.1,
@@ -2488,7 +2454,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 49.41,
+          "weighted_total": 47.91,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2497,7 +2463,7 @@
         "symbol": "COCHINSHIP",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 45.25,
+        "score": 43.75,
         "recommendation": "Avoid",
         "futures_price_change_pct": -9.024037830027575,
         "futures_oi_change_pct": -7.929289694485364,
@@ -2526,7 +2492,6 @@
           "Healthy bullish PCR",
           "Strong volume expansion",
           "Sector-relative momentum opposes bullish setup",
-          "GIFT Nifty positive",
           "Event risk detected"
         ],
         "calculation": {
@@ -2536,7 +2501,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 0,
           "relative_weight": 0.1,
@@ -2544,7 +2509,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 45.25,
+          "weighted_total": 43.75,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2553,7 +2518,7 @@
         "symbol": "RELIANCE",
         "data_as_of": "2026-09-11",
         "setup_mode": "bullish",
-        "score": 37.58,
+        "score": 36.08,
         "recommendation": "Avoid",
         "futures_price_change_pct": -0.565815324165031,
         "futures_oi_change_pct": -0.47601936533326894,
@@ -2584,7 +2549,6 @@
           "Neutral PCR",
           "Normal volume",
           "Sector-relative momentum opposes bullish setup",
-          "GIFT Nifty positive",
           "Event risk detected"
         ],
         "calculation": {
@@ -2594,7 +2558,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 65,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 0.31,
           "relative_weight": 0.1,
@@ -2602,7 +2566,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 37.58,
+          "weighted_total": 36.08,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2613,8 +2577,8 @@
         "symbol": "COCHINSHIP",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 74.0,
-        "recommendation": "Moderate bearish swing candidate",
+        "score": 75.5,
+        "recommendation": "High confidence bearish swing candidate",
         "futures_price_change_pct": -9.024037830027575,
         "futures_oi_change_pct": -7.929289694485364,
         "pcr": 0.975047619047619,
@@ -2645,7 +2609,6 @@
           "Price below 50 DMA",
           "Negative 5-day momentum",
           "Underperforming sector by 5.8% over five sessions",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -2655,7 +2618,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 100,
           "relative_weight": 0.1,
@@ -2663,7 +2626,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 74.0,
+          "weighted_total": 75.5,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2672,8 +2635,8 @@
         "symbol": "RELIANCE",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 73.97,
-        "recommendation": "Moderate bearish swing candidate",
+        "score": 75.47,
+        "recommendation": "High confidence bearish swing candidate",
         "futures_price_change_pct": -0.565815324165031,
         "futures_oi_change_pct": -0.47601936533326894,
         "pcr": 0.7145741058784537,
@@ -2706,7 +2669,6 @@
           "Price below 50 DMA",
           "Negative 5-day momentum",
           "Underperforming sector by 5.0% over five sessions",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -2716,7 +2678,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 99.69,
           "relative_weight": 0.1,
@@ -2724,7 +2686,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 73.97,
+          "weighted_total": 75.47,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2733,7 +2695,7 @@
         "symbol": "AXISBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 69.04,
+        "score": 70.54,
         "recommendation": "Moderate bearish swing candidate",
         "futures_price_change_pct": 0.2962607094242786,
         "futures_oi_change_pct": -1.4582044176598807,
@@ -2762,8 +2724,7 @@
           "Price below 20 DMA",
           "Price below 50 DMA",
           "Negative 5-day momentum",
-          "Underperforming sector by 0.8% over five sessions",
-          "GIFT Nifty positive opposes bearish setup"
+          "Underperforming sector by 0.8% over five sessions"
         ],
         "calculation": {
           "fno_score": 55.0,
@@ -2772,7 +2733,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 57.91,
           "relative_weight": 0.1,
@@ -2780,63 +2741,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 69.04,
-          "total_weight": 1.0,
-          "formula": "weighted component total"
-        }
-      },
-      {
-        "symbol": "HDFCBANK",
-        "data_as_of": "2026-09-11",
-        "setup_mode": "bearish",
-        "score": 64.31,
-        "recommendation": "Moderate bearish swing candidate",
-        "futures_price_change_pct": 2.178132413198197,
-        "futures_oi_change_pct": 1.769976674012419,
-        "pcr": 0.5860253576238026,
-        "return_5d": -0.5406544024715632,
-        "sector": "Nifty Bank",
-        "sector_relative_strength_pct": 0.7893455975284369,
-        "gap_pct": -1.4269241856442738,
-        "gap_atr": -0.7066020902370616,
-        "gap_extended": false,
-        "liquidity_tier": "high",
-        "estimated_slippage_bps": 4,
-        "in_fo_ban": false,
-        "evidence_available": 18,
-        "evidence_total": 18,
-        "evidence_completeness_pct": 100,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
-        "call_oi_wall": 720.0,
-        "put_oi_wall": 700.0,
-        "reasons": [
-          "Long build-up opposes bearish setup",
-          "Call-heavy positioning supports bearish setup",
-          "Normal volume",
-          "Price below 20 DMA",
-          "Price below 50 DMA",
-          "Negative 5-day momentum",
-          "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup"
-        ],
-        "calculation": {
-          "fno_score": 46.0,
-          "fno_weight": 0.35,
-          "trend_score": 100,
-          "trend_weight": 0.2,
-          "volume_score": 55,
-          "volume_weight": 0.1,
-          "global_score": 35,
-          "global_weight": 0.1,
-          "relative_score": 42.11,
-          "relative_weight": 0.1,
-          "risk_score": 100,
-          "risk_weight": 0.15,
-          "fundamental_score": null,
-          "fundamental_weight": 0.0,
-          "weighted_total": 64.31,
+          "weighted_total": 70.54,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2845,7 +2750,7 @@
         "symbol": "BHARTIARTL",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 62.54,
+        "score": 64.04,
         "recommendation": "Moderate bearish swing candidate",
         "futures_price_change_pct": 0.02716800695501398,
         "futures_oi_change_pct": -2.435154585857169,
@@ -2874,8 +2779,7 @@
           "Price below 20 DMA",
           "Price below 50 DMA",
           "Negative 5-day momentum",
-          "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup"
+          "Sector-relative momentum opposes bearish setup"
         ],
         "calculation": {
           "fno_score": 49.0,
@@ -2884,7 +2788,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 33.94,
           "relative_weight": 0.1,
@@ -2892,7 +2796,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 62.54,
+          "weighted_total": 64.04,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2901,7 +2805,7 @@
         "symbol": "ICICIBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 62.4,
+        "score": 63.9,
         "recommendation": "Moderate bearish swing candidate",
         "futures_price_change_pct": 0.27440785673020773,
         "futures_oi_change_pct": -0.9746391230418538,
@@ -2930,8 +2834,7 @@
           "Price below 20 DMA",
           "Price below 50 DMA",
           "Negative 5-day momentum",
-          "Underperforming sector by 1.8% over five sessions",
-          "GIFT Nifty positive opposes bearish setup"
+          "Underperforming sector by 1.8% over five sessions"
         ],
         "calculation": {
           "fno_score": 39.0,
@@ -2940,7 +2843,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 67.55,
           "relative_weight": 0.1,
@@ -2948,7 +2851,65 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 62.4,
+          "weighted_total": 63.9,
+          "total_weight": 1.0,
+          "formula": "weighted component total"
+        }
+      },
+      {
+        "symbol": "HDFCBANK",
+        "data_as_of": "2026-09-11",
+        "setup_mode": "bearish",
+        "score": 61.31,
+        "recommendation": "Moderate bearish swing candidate",
+        "futures_price_change_pct": 2.178132413198197,
+        "futures_oi_change_pct": 1.769976674012419,
+        "pcr": 0.5860253576238026,
+        "return_5d": -0.5406544024715632,
+        "sector": "Nifty Bank",
+        "sector_relative_strength_pct": 0.7893455975284369,
+        "gap_pct": -1.4269241856442738,
+        "gap_atr": -0.7066020902370616,
+        "gap_extended": false,
+        "liquidity_tier": "high",
+        "estimated_slippage_bps": 4,
+        "in_fo_ban": false,
+        "evidence_available": 18,
+        "evidence_total": 18,
+        "evidence_completeness_pct": 100,
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings"
+        ],
+        "call_oi_wall": 720.0,
+        "put_oi_wall": 700.0,
+        "reasons": [
+          "Long build-up opposes bearish setup",
+          "Call-heavy positioning supports bearish setup",
+          "Normal volume",
+          "Price below 20 DMA",
+          "Price below 50 DMA",
+          "Negative 5-day momentum",
+          "Sector-relative momentum opposes bearish setup",
+          "Event risk detected"
+        ],
+        "calculation": {
+          "fno_score": 46.0,
+          "fno_weight": 0.35,
+          "trend_score": 100,
+          "trend_weight": 0.2,
+          "volume_score": 55,
+          "volume_weight": 0.1,
+          "global_score": 50,
+          "global_weight": 0.1,
+          "relative_score": 42.11,
+          "relative_weight": 0.1,
+          "risk_score": 70,
+          "risk_weight": 0.15,
+          "fundamental_score": null,
+          "fundamental_weight": 0.0,
+          "weighted_total": 61.31,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -2957,7 +2918,7 @@
         "symbol": "KOTAKBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 56.22,
+        "score": 57.72,
         "recommendation": "Watchlist only",
         "futures_price_change_pct": 0.6001680470531845,
         "futures_oi_change_pct": -3.145044971094202,
@@ -2984,8 +2945,7 @@
           "Call-heavy positioning supports bearish setup",
           "Volume above average",
           "Negative 5-day momentum",
-          "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup"
+          "Sector-relative momentum opposes bearish setup"
         ],
         "calculation": {
           "fno_score": 55.0,
@@ -2994,7 +2954,7 @@
           "trend_weight": 0.2,
           "volume_score": 75,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 49.66,
           "relative_weight": 0.1,
@@ -3002,7 +2962,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 56.22,
+          "weighted_total": 57.72,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3011,7 +2971,7 @@
         "symbol": "BSE",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 50.17,
+        "score": 51.67,
         "recommendation": "Watchlist only",
         "futures_price_change_pct": 2.8675136116152578,
         "futures_oi_change_pct": 11.27746827607552,
@@ -3031,8 +2991,8 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
-          "dividend",
-          "earnings"
+          "earnings",
+          "material_event"
         ],
         "call_oi_wall": 3500.0,
         "put_oi_wall": 3300.0,
@@ -3043,7 +3003,6 @@
           "Price below 50 DMA",
           "Negative 5-day momentum",
           "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -3053,7 +3012,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 36.67,
           "relative_weight": 0.1,
@@ -3061,7 +3020,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 50.17,
+          "weighted_total": 51.67,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3070,7 +3029,7 @@
         "symbol": "LICHSGFIN",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 47.41,
+        "score": 48.91,
         "recommendation": "Avoid",
         "futures_price_change_pct": 1.4496644295302064,
         "futures_oi_change_pct": -11.611186594202893,
@@ -3096,8 +3055,7 @@
           "Short covering opposes bearish setup",
           "PCR leans bearish",
           "Strong volume expansion",
-          "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup"
+          "Sector-relative momentum opposes bearish setup"
         ],
         "calculation": {
           "fno_score": 49.0,
@@ -3106,7 +3064,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 27.59,
           "relative_weight": 0.1,
@@ -3114,7 +3072,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 47.41,
+          "weighted_total": 48.91,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3123,7 +3081,7 @@
         "symbol": "INDUSTOWER",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 46.75,
+        "score": 48.25,
         "recommendation": "Avoid",
         "futures_price_change_pct": 4.349577124446236,
         "futures_oi_change_pct": -3.9059276578187307,
@@ -3149,8 +3107,7 @@
           "Short covering opposes bearish setup",
           "Call-heavy positioning supports bearish setup",
           "Strong volume expansion",
-          "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup"
+          "Sector-relative momentum opposes bearish setup"
         ],
         "calculation": {
           "fno_score": 55.0,
@@ -3159,7 +3116,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 0,
           "relative_weight": 0.1,
@@ -3167,7 +3124,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 46.75,
+          "weighted_total": 48.25,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3176,7 +3133,7 @@
         "symbol": "ETERNAL",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 46.43,
+        "score": 47.93,
         "recommendation": "Avoid",
         "futures_price_change_pct": 0.5590930268675187,
         "futures_oi_change_pct": -1.2288736937169364,
@@ -3207,7 +3164,6 @@
           "Weak volume",
           "Price below 20 DMA",
           "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -3217,7 +3173,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 26.78,
           "relative_weight": 0.1,
@@ -3225,7 +3181,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 46.43,
+          "weighted_total": 47.93,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3234,7 +3190,7 @@
         "symbol": "IDEA",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 44.84,
+        "score": 46.34,
         "recommendation": "Avoid",
         "futures_price_change_pct": 0.6040268456375841,
         "futures_oi_change_pct": 0.36892146182034846,
@@ -3264,7 +3220,6 @@
           "Normal volume",
           "Negative 5-day momentum",
           "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -3274,7 +3229,7 @@
           "trend_weight": 0.2,
           "volume_score": 55,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 32.43,
           "relative_weight": 0.1,
@@ -3282,7 +3237,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 44.84,
+          "weighted_total": 46.34,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3291,7 +3246,7 @@
         "symbol": "YESBANK",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 43.6,
+        "score": 45.1,
         "recommendation": "Avoid",
         "futures_price_change_pct": 5.764075067024144,
         "futures_oi_change_pct": 0.6548667099125716,
@@ -3317,8 +3272,7 @@
           "Long build-up opposes bearish setup",
           "Call-heavy positioning supports bearish setup",
           "Strong volume expansion",
-          "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup"
+          "Sector-relative momentum opposes bearish setup"
         ],
         "calculation": {
           "fno_score": 46.0,
@@ -3327,7 +3281,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 0,
           "relative_weight": 0.1,
@@ -3335,7 +3289,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 43.6,
+          "weighted_total": 45.1,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3344,7 +3298,7 @@
         "symbol": "PAYTM",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 39.1,
+        "score": 40.6,
         "recommendation": "Avoid",
         "futures_price_change_pct": 5.084550124083798,
         "futures_oi_change_pct": 0.8520050792610423,
@@ -3373,7 +3327,6 @@
           "Call-heavy positioning supports bearish setup",
           "Strong volume expansion",
           "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup",
           "Event risk detected"
         ],
         "calculation": {
@@ -3383,7 +3336,7 @@
           "trend_weight": 0.2,
           "volume_score": 90,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 0,
           "relative_weight": 0.1,
@@ -3391,7 +3344,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 39.1,
+          "weighted_total": 40.6,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
@@ -3400,7 +3353,7 @@
         "symbol": "LAURUSLABS",
         "data_as_of": "2026-09-11",
         "setup_mode": "bearish",
-        "score": 38.1,
+        "score": 39.6,
         "recommendation": "Avoid",
         "futures_price_change_pct": 1.6750590895077577,
         "futures_oi_change_pct": 0.9125957737543322,
@@ -3426,8 +3379,7 @@
           "Long build-up opposes bearish setup",
           "Call-heavy positioning supports bearish setup",
           "Weak volume",
-          "Sector-relative momentum opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup"
+          "Sector-relative momentum opposes bearish setup"
         ],
         "calculation": {
           "fno_score": 46.0,
@@ -3436,7 +3388,7 @@
           "trend_weight": 0.2,
           "volume_score": 35,
           "volume_weight": 0.1,
-          "global_score": 35,
+          "global_score": 50,
           "global_weight": 0.1,
           "relative_score": 0,
           "relative_weight": 0.1,
@@ -3444,7 +3396,7 @@
           "risk_weight": 0.15,
           "fundamental_score": null,
           "fundamental_weight": 0.0,
-          "weighted_total": 38.1,
+          "weighted_total": 39.6,
           "total_weight": 1.0,
           "formula": "weighted component total"
         }
