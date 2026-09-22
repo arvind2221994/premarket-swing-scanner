@@ -27,9 +27,9 @@ $$
 
 The component thresholds and weights are defined in [`scanner/scoring.py`](scanner/scoring.py). They are project heuristics, not exchange-defined measures and not calibrated probabilities of trade success.
 
-On the single-stock analysis endpoint, sector-relative strength is not currently supplied to the scorer and therefore receives its neutral default of 50. The scheduled scanner calculates it as the stock's five-session return minus the mapped sector index's five-session return.
+When a fundamental score is available, it contributes 10% of the composite score and the six weights above are proportionally scaled to the remaining 90%. When fundamentals are unavailable, the original weights apply unchanged.
 
-Fundamentals are displayed as supporting context but are not included in the composite score.
+On the single-stock analysis endpoint, sector-relative strength is not currently supplied to the scorer and therefore receives its neutral default of 50. The scheduled scanner calculates it as the stock's five-session return minus the mapped sector index's five-session return.
 
 ## Fundamental score
 
@@ -156,6 +156,7 @@ An entry is valid now only when all of these conditions hold:
 - $C \ge B$;
 - latest volume is at least 1.2 times its preceding 20-session average;
 - the opening gap is less than $1.25A$; and
+- the close is not already extended by the configured ATR thresholds; and
 - cash liquidity is not classified as low.
 
 When entry is valid:
@@ -192,7 +193,7 @@ $$
 B = L_{20} - 0.1A
 $$
 
-Entry validity mirrors the bullish conditions: score at least 75, $C \le B$, volume at least 1.2 times average, no opening gap below $-1.25A$, and non-low liquidity.
+Entry validity mirrors the bullish conditions: score at least 75, $C \le B$, volume at least 1.2 times average, no opening gap below $-1.25A$, no already-extended close, and non-low liquidity.
 
 When entry is valid:
 
