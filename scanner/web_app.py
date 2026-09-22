@@ -1,4 +1,5 @@
 import os
+import secrets
 import threading
 import time
 from datetime import datetime, timezone
@@ -27,6 +28,7 @@ REPORT_CACHE_MAX_SIZE = int(os.getenv("REPORT_CACHE_MAX_SIZE", "128"))
 TICKER_SEARCH_CACHE_MAX_SIZE = int(os.getenv("TICKER_SEARCH_CACHE_MAX_SIZE", "256"))
 ECONOMIC_TIMES_CACHE_MAX_SIZE = int(os.getenv("ECONOMIC_TIMES_CACHE_MAX_SIZE", "128"))
 REFRESH_COOLDOWN_SECONDS = int(os.getenv("REFRESH_COOLDOWN_SECONDS", "900"))
+REFRESH_API_TOKEN = os.getenv("REFRESH_API_TOKEN", "")
 YAHOO_SEARCH_URL = "https://query1.finance.yahoo.com/v1/finance/search"
 CURATED_TICKERS = (
     {"symbol": "ARVSMART", "name": "Arvind SmartSpaces Limited"},
@@ -53,6 +55,7 @@ refresh_lock = threading.Lock()
 last_refresh_started_at = 0.0
 refresh_state = {
     "status": "idle",
+    "stage": None,
     "started_at": None,
     "completed_at": None,
     "error": None,
@@ -65,7 +68,8 @@ dependency_health = {
         "error": None,
     }
     for name in (
-        "analysis", "nse", "screener", "yahoo", "google_news", "economic_times"
+        "analysis", "nse", "screener", "yahoo", "google_news", "bing_news",
+        "economic_times"
     )
 }
 
@@ -99,15 +103,26 @@ def record_report_health(report):
         record_dependency("screener", "healthy")
 
     news_errors = report.get("news", {}).get("errors", [])
+    provider_status = report.get("news", {}).get("provider_status", {})
+    for provider in ("google_news", "bing_news"):
+        if provider in provider_status:
+            status = provider_status[provider]
+            record_dependency(
+                provider,
+                status,
+                None if status == "healthy" else f"{provider.replace('_', ' ').title()} is temporarily unavailable.",
+                succeeded=status in {"healthy", "degraded"},
+            )
     if news_errors:
         news_articles = report.get("news", {}).get("articles", [])
-        record_dependency(
-            "google_news",
-            "degraded" if news_articles else "unhealthy",
-            "; ".join(news_errors),
-            succeeded=bool(news_articles),
-        )
-    else:
+        if not provider_status:
+            record_dependency(
+                "google_news",
+                "degraded" if news_articles else "unhealthy",
+                "; ".join(news_errors),
+                succeeded=bool(news_articles),
+            )
+    elif not provider_status:
         record_dependency("google_news", "healthy")
 
 
@@ -124,13 +139,18 @@ def record_analysis_failure(error):
 
 
 def run_scanner_refresh():
+    def update_stage(stage):
+        with refresh_lock:
+            refresh_state["stage"] = stage
+
     try:
-        scanner_generator.main()
+        scanner_generator.main(progress_callback=update_stage)
     except Exception:
         app.logger.exception("Scanner refresh failed")
         with refresh_lock:
             refresh_state.update({
                 "status": "failed",
+                "stage": None,
                 "completed_at": utc_now(),
                 "error": "Scanner refresh failed. Please try again later.",
             })
@@ -138,6 +158,7 @@ def run_scanner_refresh():
         with refresh_lock:
             refresh_state.update({
                 "status": "succeeded",
+                "stage": None,
                 "completed_at": utc_now(),
                 "error": None,
             })
@@ -208,6 +229,8 @@ def add_cors_headers(response):
     origin = request.headers.get("Origin")
     if origin in ALLOWED_ORIGINS:
         response.headers["Access-Control-Allow-Origin"] = origin
+        response.headers["Access-Control-Allow-Headers"] = "Authorization"
+        response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
         response.headers["Vary"] = "Origin"
     return response
 
@@ -308,6 +331,16 @@ def refresh_status():
 def refresh_scanner_data():
     global last_refresh_started_at
 
+    origin = request.headers.get("Origin")
+    same_origin = request.host_url.rstrip("/")
+    if not app.testing and origin not in {*ALLOWED_ORIGINS, same_origin}:
+        return jsonify({"error": "Refresh requests must come from a trusted origin."}), 403
+    supplied_token = request.headers.get("Authorization", "").removeprefix("Bearer ")
+    if not REFRESH_API_TOKEN:
+        return jsonify({"error": "Manual refresh is not configured."}), 503
+    if not secrets.compare_digest(supplied_token, REFRESH_API_TOKEN):
+        return jsonify({"error": "A valid refresh token is required."}), 401
+
     now = time.time()
     with refresh_lock:
         if refresh_state["status"] == "running":
@@ -324,6 +357,7 @@ def refresh_scanner_data():
         last_refresh_started_at = now
         refresh_state.update({
             "status": "running",
+            "stage": "Starting refresh",
             "started_at": utc_now(),
             "completed_at": None,
             "error": None,
