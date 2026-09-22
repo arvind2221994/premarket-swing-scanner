@@ -2,6 +2,17 @@ def clamp(value, low=0, high=100):
     return max(low, min(high, value))
 
 
+def is_entry_extended(session_move_atr=None, breakout_distance_atr=None, sma20_distance_atr=None):
+    return any(
+        value is not None and value >= threshold
+        for value, threshold in (
+            (session_move_atr, 2.0),
+            (breakout_distance_atr, 2.0),
+            (sma20_distance_atr, 4.0),
+        )
+    )
+
+
 def score_futures(price_change_pct, oi_change_pct, mode="bullish"):
     if mode == "bearish":
         if price_change_pct < 0 and oi_change_pct > 0:
@@ -135,7 +146,21 @@ def score_global_cues(global_data, mode="bullish"):
     return (100 - score if bearish else score), reasons
 
 
-def evidence_completeness(stock, global_data):
+def evidence_completeness(stock, global_data, mode):
+    extension_values = [
+        stock.get("atr14"),
+        stock.get("directional_session_move_atr", stock.get("session_move_atr")),
+        stock.get("directional_sma20_distance_atr", stock.get("distance_from_sma20_atr")),
+        stock.get("call_oi_wall") if mode == "bullish" else stock.get("put_oi_wall"),
+    ]
+    if mode == "bullish":
+        extension_values.append(
+            stock.get("directional_breakout_distance_atr", stock.get("distance_from_breakout_atr"))
+        )
+    else:
+        extension_values.append(
+            stock.get("directional_breakout_distance_atr", stock.get("prior_twenty_day_low"))
+        )
     values = [
         stock.get("futures_price_change_pct"), stock.get("futures_oi_change_pct"),
         stock.get("pcr"), stock.get("close"), stock.get("dma20"),
@@ -145,6 +170,7 @@ def evidence_completeness(stock, global_data):
         global_data.get("dow_change_pct"), global_data.get("gift_nifty_change_pct"),
         stock.get("in_fo_ban"), stock.get("event_risk_status"),
         stock.get("gap_atr"), stock.get("liquidity_filter_pass"),
+        *extension_values,
     ]
     available = sum(value is not None for value in values)
     total = len(values)
@@ -209,13 +235,56 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         gap_atr is not None
         and ((mode == "bullish" and gap_atr >= 1.25) or (mode == "bearish" and gap_atr <= -1.25))
     )
+    direction = 1 if mode == "bullish" else -1
+    directional_session_move_atr = stock.get("directional_session_move_atr")
+    if directional_session_move_atr is None and stock.get("session_move_atr") is not None:
+        directional_session_move_atr = direction * stock["session_move_atr"]
+    directional_breakout_distance_atr = stock.get("directional_breakout_distance_atr")
+    if directional_breakout_distance_atr is None:
+        if mode == "bullish":
+            directional_breakout_distance_atr = stock.get("distance_from_breakout_atr")
+        else:
+            atr14 = stock.get("atr14")
+            prior_low = stock.get("prior_twenty_day_low")
+            close = stock.get("close")
+            directional_breakout_distance_atr = (
+                (prior_low - close) / atr14
+                if atr14 and prior_low is not None and close is not None else None
+            )
+    directional_sma20_distance_atr = stock.get("directional_sma20_distance_atr")
+    if directional_sma20_distance_atr is None and stock.get("distance_from_sma20_atr") is not None:
+        directional_sma20_distance_atr = direction * stock["distance_from_sma20_atr"]
+    close_extended = is_entry_extended(
+        directional_session_move_atr,
+        directional_breakout_distance_atr,
+        directional_sma20_distance_atr,
+    )
     if too_extended:
         risk_score -= 35
         risk_reasons.append(f"Opening gap is already extended for a {mode} entry")
+    elif close_extended:
+        risk_score -= 35
+        risk_reasons.append(f"Closing price is extended for a {mode} entry")
+
+    atr14 = stock.get("atr14")
+    close = stock.get("close")
+    if atr14 and atr14 > 0 and close is not None:
+        if mode == "bullish":
+            call_wall = stock.get("call_oi_wall")
+            wall_is_nearby = call_wall is not None and 0 <= call_wall - close <= atr14 * 0.5
+            wall_reason = "Nearby call OI wall may cap upside"
+        else:
+            put_wall = stock.get("put_oi_wall")
+            wall_is_nearby = put_wall is not None and 0 <= close - put_wall <= atr14 * 0.5
+            wall_reason = "Nearby put OI wall may limit downside"
+        if wall_is_nearby:
+            risk_score -= 10
+            risk_reasons.append(wall_reason)
 
     if not stock.get("liquidity_filter_pass", True):
         risk_score = 0
         risk_reasons.append("Fails cash or futures liquidity filter")
+    risk_score = clamp(risk_score)
 
     fundamental_score = stock.get("fundamental_score")
     fundamental_component = (
@@ -263,7 +332,7 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         recommendation = "Avoid"
 
     evidence_available, evidence_total, evidence_completeness_pct = evidence_completeness(
-        stock, global_data
+        stock, global_data, mode
     )
 
     return {
@@ -323,6 +392,16 @@ def score_detailed_report(symbol, cash, fno, global_data, mode="bullish",
                           event_risk=False, event_risk_status="clear",
                           event_categories=None, fundamental_score=None):
     volume_ratio = cash.get("volume_ratio", 1)
+    direction = 1 if mode == "bullish" else -1
+    if mode == "bullish":
+        breakout_distance_atr = cash.get("distance_from_breakout_atr")
+    else:
+        atr14 = cash.get("atr14")
+        prior_low = cash.get("prior_twenty_day_low")
+        breakout_distance_atr = (
+            (prior_low - cash["close"]) / atr14
+            if atr14 and prior_low is not None else None
+        )
     stock = {
         "symbol": symbol,
         "futures_price_change_pct": fno["futures_price_change"] if fno else 0,
@@ -343,6 +422,16 @@ def score_detailed_report(symbol, cash, fno, global_data, mode="bullish",
         "fundamental_score": fundamental_score,
         "gap_pct": cash.get("gap_pct"),
         "gap_atr": cash.get("gap_atr"),
+        "atr14": cash.get("atr14"),
+        "directional_session_move_atr": (
+            direction * cash["session_move_atr"]
+            if cash.get("session_move_atr") is not None else None
+        ),
+        "directional_breakout_distance_atr": breakout_distance_atr,
+        "directional_sma20_distance_atr": (
+            direction * cash["distance_from_sma20_atr"]
+            if cash.get("distance_from_sma20_atr") is not None else None
+        ),
         "liquidity_filter_pass": (
             cash.get("liquidity_tier") != "low"
             and (not fno or fno.get("futures_liquidity_tier") != "low")
