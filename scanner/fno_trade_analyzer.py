@@ -20,7 +20,7 @@ from resilience import (
     UpstreamUnavailableError,
     call_with_resilience,
 )
-from scoring import score_detailed_report
+from scoring import is_entry_extended, score_detailed_report
 
 
 ARCHIVE_URL = (
@@ -313,6 +313,7 @@ def analyze_cash(history):
     distance_from_breakout_atr = (
         (close - prior_twenty_day_high) / atr14 if atr14 > 0 else None
     )
+    session_move_atr = (close - previous_close) / atr14 if atr14 > 0 else None
 
     score = 0
     signals = []
@@ -365,6 +366,7 @@ def analyze_cash(history):
         "recent_swing_high": recent_swing_high,
         "distance_from_sma20_atr": distance_from_sma20_atr,
         "distance_from_breakout_atr": distance_from_breakout_atr,
+        "session_move_atr": session_move_atr,
         "signals": signals,
     }
 
@@ -685,6 +687,22 @@ def build_pros_cons(cash, fno, fundamental_score, mode="bullish"):
         cons.append(
             f"Opening gap is extended at {abs(cash['gap_atr']):.1f} ATR; avoid chasing"
         )
+    direction = 1 if bullish else -1
+    breakout_distance_atr = (
+        cash.get("distance_from_breakout_atr")
+        if bullish
+        else (
+            (cash["prior_twenty_day_low"] - cash["close"]) / cash["atr14"]
+            if cash["atr14"] else None
+        )
+    )
+    if not directional_gap_extended and is_entry_extended(
+        direction * cash["session_move_atr"] if cash.get("session_move_atr") is not None else None,
+        breakout_distance_atr,
+        direction * cash["distance_from_sma20_atr"]
+        if cash.get("distance_from_sma20_atr") is not None else None,
+    ):
+        cons.append("Closing price is extended; wait for a pullback instead of chasing")
     if cash["liquidity_tier"] == "low":
         cons.append(
             f"Low cash turnover implies about {cash['estimated_slippage_bps']} bps slippage"
@@ -710,6 +728,18 @@ def build_pros_cons(cash, fno, fundamental_score, mode="bullish"):
             pros.append("Near-ATM PCR is call-heavy and supports the bearish setup")
         else:
             cons.append(f"Near-ATM PCR does not support the {mode} setup")
+        directional_wall = fno.get("call_oi_wall") if bullish else fno.get("put_oi_wall")
+        wall_distance = (
+            directional_wall - cash["close"]
+            if bullish and directional_wall is not None
+            else cash["close"] - directional_wall
+            if directional_wall is not None else None
+        )
+        if wall_distance is not None and 0 <= wall_distance <= cash["atr14"] * 0.5:
+            cons.append(
+                f"Nearby {'call' if bullish else 'put'} OI wall at INR {directional_wall:.2f} may limit "
+                f"{'upside' if bullish else 'downside'}"
+            )
         if fno["ban_status"]["is_banned"] is True:
             cons.append("The stock is currently in the NSE F&O ban list")
         if fno["futures_liquidity_tier"] == "low":
@@ -759,6 +789,19 @@ def build_trade_plan(cash, score, mode="bullish"):
     if atr <= 0:
         return None
 
+    direction = 1 if mode == "bullish" else -1
+    breakout_distance_atr = (
+        cash.get("distance_from_breakout_atr")
+        if mode == "bullish"
+        else (cash["prior_twenty_day_low"] - cash["close"]) / atr
+    )
+    close_extended = is_entry_extended(
+        direction * cash["session_move_atr"] if cash.get("session_move_atr") is not None else None,
+        breakout_distance_atr,
+        direction * cash["distance_from_sma20_atr"]
+        if cash.get("distance_from_sma20_atr") is not None else None,
+    )
+
     if mode == "bearish":
         breakdown_level = cash["prior_twenty_day_low"] - atr * 0.1
         entry_valid = (
@@ -766,6 +809,7 @@ def build_trade_plan(cash, score, mode="bullish"):
             and cash["close"] <= breakdown_level
             and cash["volume_ratio"] >= 1.2
             and not cash["gap_down_extended"]
+            and not close_extended
             and cash["liquidity_tier"] != "low"
         )
         entry_high = min(breakdown_level, cash["close"] + atr * 0.25) if entry_valid else breakdown_level
@@ -780,7 +824,7 @@ def build_trade_plan(cash, score, mode="bullish"):
             "direction": "short",
             "status": (
                 "Entry valid now" if entry_valid
-                else "Wait for bounce" if cash["gap_down_extended"]
+                else "Wait for bounce" if cash["gap_down_extended"] or close_extended
                 else "Wait for breakdown"
             ),
             "entry_valid": entry_valid,
@@ -806,6 +850,7 @@ def build_trade_plan(cash, score, mode="bullish"):
         and cash["close"] >= breakout_level
         and cash["volume_ratio"] >= 1.2
         and not cash["gap_up_extended"]
+        and not close_extended
         and cash["liquidity_tier"] != "low"
     )
     if entry_valid:
@@ -836,7 +881,7 @@ def build_trade_plan(cash, score, mode="bullish"):
         "direction": "long",
         "status": (
             "Entry valid now" if entry_valid
-            else "Wait for pullback" if cash["gap_up_extended"]
+            else "Wait for pullback" if cash["gap_up_extended"] or close_extended
             else "Wait for breakout"
         ),
         "entry_valid": entry_valid,
