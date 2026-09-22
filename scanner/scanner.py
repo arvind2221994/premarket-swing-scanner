@@ -184,6 +184,11 @@ def load_stock_universe():
                 "in_fo_ban": ban_status["is_banned"],
                 "gap_pct": cash["gap_pct"],
                 "gap_atr": cash["gap_atr"],
+                "atr14": cash["atr14"],
+                "session_move_atr": cash["session_move_atr"],
+                "distance_from_breakout_atr": cash["distance_from_breakout_atr"],
+                "distance_from_sma20_atr": cash["distance_from_sma20_atr"],
+                "prior_twenty_day_low": cash["prior_twenty_day_low"],
                 "liquidity_tier": cash["liquidity_tier"],
                 "estimated_slippage_bps": cash["estimated_slippage_bps"],
                 "liquidity_filter_pass": liquidity_filter_pass,
@@ -201,11 +206,17 @@ def load_stock_universe():
     return stocks, data_as_of
 
 
-def main(output_path=LATEST_DATA_PATH):
+def main(output_path=LATEST_DATA_PATH, progress_callback=None):
+    def report_progress(stage):
+        if progress_callback is not None:
+            progress_callback(stage)
+
     ist = pytz.timezone("Asia/Kolkata")
     now = datetime.now(ist)
 
+    report_progress("Fetching global market cues")
     global_cues = fetch_global_cues()
+    report_progress("Loading NSE prices and derivatives")
     stocks, data_as_of = load_stock_universe()
     market_context = build_market_context(global_cues)
     add_sector_relative_strength(stocks, market_context)
@@ -213,6 +224,7 @@ def main(output_path=LATEST_DATA_PATH):
     if not eligible_stocks:
         raise RuntimeError("No symbols passed the configured liquidity filters")
 
+    report_progress("Scoring trade setups")
     bullish_ranked = sorted(
         (calculate_stock_score(stock, global_cues, "bullish") for stock in eligible_stocks),
         key=lambda result: result["score"],
@@ -226,6 +238,7 @@ def main(output_path=LATEST_DATA_PATH):
 
     backtest_limit = int(os.getenv("BACKTEST_SYMBOL_LIMIT", "5"))
     backtest_symbols = [stock["symbol"] for stock in eligible_stocks[:backtest_limit]]
+    report_progress("Running historical calibration")
     try:
         backtest = run_backtest(
             backtest_symbols,
@@ -271,6 +284,7 @@ def main(output_path=LATEST_DATA_PATH):
         },
     }
 
+    report_progress("Publishing results")
     output_path = Path(output_path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
     temporary_path = output_path.with_suffix(f"{output_path.suffix}.tmp")
