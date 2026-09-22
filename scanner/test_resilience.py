@@ -340,19 +340,29 @@ class AnalysisSourceCacheTests(unittest.TestCase):
 
 class RefreshApiTests(unittest.TestCase):
     def setUp(self):
+        self.original_testing = web_app.app.testing
+        self.original_refresh_token = web_app.REFRESH_API_TOKEN
+        web_app.app.testing = True
+        web_app.REFRESH_API_TOKEN = "test-refresh-token"
         self.client = web_app.app.test_client()
+        self.refresh_headers = {"Authorization": "Bearer test-refresh-token"}
         web_app.last_refresh_started_at = 0.0
         web_app.refresh_state.update({
             "status": "idle",
+            "stage": None,
             "started_at": None,
             "completed_at": None,
             "error": None,
         })
 
+    def tearDown(self):
+        web_app.app.testing = self.original_testing
+        web_app.REFRESH_API_TOKEN = self.original_refresh_token
+
     def test_starts_one_background_refresh(self):
         with patch.object(web_app.threading, "Thread") as thread:
-            started = self.client.post("/api/refresh")
-            duplicate = self.client.post("/api/refresh")
+            started = self.client.post("/api/refresh", headers=self.refresh_headers)
+            duplicate = self.client.post("/api/refresh", headers=self.refresh_headers)
 
         self.assertEqual(started.status_code, 202)
         self.assertEqual(started.get_json()["status"], "running")
@@ -362,9 +372,50 @@ class RefreshApiTests(unittest.TestCase):
         self.assertEqual(duplicate.status_code, 409)
         self.assertEqual(duplicate.get_json()["message"], "A scanner refresh is already running.")
 
+    def test_rejects_untrusted_refresh_origin(self):
+        web_app.app.testing = False
+        try:
+            response = self.client.post(
+                "/api/refresh",
+                headers={
+                    **self.refresh_headers,
+                    "Origin": "https://untrusted.example",
+                },
+            )
+        finally:
+            web_app.app.testing = True
+
+        self.assertEqual(response.status_code, 403)
+        self.assertEqual(
+            response.get_json()["error"],
+            "Refresh requests must come from a trusted origin.",
+        )
+
+    def test_rejects_missing_refresh_token(self):
+        response = self.client.post("/api/refresh")
+
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.get_json()["error"], "A valid refresh token is required.")
+
+    def test_allows_refresh_cors_preflight_from_dashboard(self):
+        response = self.client.options(
+            "/api/refresh",
+            headers={
+                "Origin": "https://arvind2221994.github.io",
+                "Access-Control-Request-Method": "POST",
+                "Access-Control-Request-Headers": "authorization",
+            },
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.headers["Access-Control-Allow-Origin"], "https://arvind2221994.github.io")
+        self.assertIn("POST", response.headers["Access-Control-Allow-Methods"])
+        self.assertIn("Authorization", response.headers["Access-Control-Allow-Headers"])
+
     def test_returns_current_refresh_status(self):
         web_app.refresh_state.update({
             "status": "succeeded",
+            "stage": None,
             "started_at": "2026-08-28T10:00:00+00:00",
             "completed_at": "2026-08-28T10:05:00+00:00",
             "error": None,
@@ -376,18 +427,25 @@ class RefreshApiTests(unittest.TestCase):
         self.assertEqual(response.get_json(), web_app.refresh_state)
 
     def test_refresh_worker_generates_data_and_marks_success(self):
-        with patch.object(web_app.scanner_generator, "main") as generate:
+        observed_stages = []
+
+        def generate(progress_callback):
+            progress_callback("Loading NSE prices and derivatives")
+            observed_stages.append(web_app.refresh_state["stage"])
+
+        with patch.object(web_app.scanner_generator, "main", side_effect=generate):
             web_app.run_scanner_refresh()
 
-        generate.assert_called_once_with()
+        self.assertEqual(observed_stages, ["Loading NSE prices and derivatives"])
         self.assertEqual(web_app.refresh_state["status"], "succeeded")
+        self.assertIsNone(web_app.refresh_state["stage"])
         self.assertIsNotNone(web_app.refresh_state["completed_at"])
         self.assertIsNone(web_app.refresh_state["error"])
 
     def test_rate_limits_recent_refresh(self):
         web_app.last_refresh_started_at = time.time()
 
-        response = self.client.post("/api/refresh")
+        response = self.client.post("/api/refresh", headers=self.refresh_headers)
 
         self.assertEqual(response.status_code, 429)
         self.assertGreater(response.get_json()["retry_after_seconds"], 0)
