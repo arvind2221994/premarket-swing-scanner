@@ -113,7 +113,7 @@
     .skeleton { position:relative; overflow:hidden; border-radius:6px; background:#e4e8e2; }
     .skeleton::after { position:absolute; inset:0; content:""; transform:translateX(-100%); background:linear-gradient(90deg,transparent,rgba(255,255,255,.75),transparent); animation:skeleton-wave 1.4s infinite; }
     .skeleton-summary { height:76px; margin-bottom:12px; }
-    .skeleton-conditions { height:104px; }
+    .skeleton-conditions { grid-column:1 / -1; height:104px; }
     .skeleton-card { height:430px; }
     .skeleton-panel { height:180px; }
     @keyframes skeleton-wave { to { transform:translateX(100%); } }
@@ -508,28 +508,76 @@
       }
     }
 
+    const REFRESH_POLL_INTERVAL_MS = 10000;
+    const REFRESH_MAX_WAIT_MS = 15 * 60 * 1000;
+
     async function refreshScannerData() {
       const refreshButton = document.getElementById("refreshData");
       const previousSnapshot = scannerData;
+      const refreshDeadline = Date.now() + REFRESH_MAX_WAIT_MS;
       refreshButton.disabled = true;
       setRefreshButton("Starting refresh…", true);
       document.getElementById("dataStatus").textContent = "Refreshing market data. This can take several minutes.";
       showRefreshSkeletons();
 
+      async function restoreDashboard() {
+        if (previousSnapshot) {
+          loadScannerDataFromSnapshot(previousSnapshot);
+        } else {
+          await loadScannerData();
+        }
+      }
+
       try {
-        const startResponse = await fetch(`${API_BASE}/api/refresh`, { method: "POST" });
+        let refreshToken = sessionStorage.getItem("scannerRefreshToken");
+        if (!refreshToken) {
+          refreshToken = window.prompt("Enter the refresh access token:")?.trim();
+          if (!refreshToken) {
+            await restoreDashboard();
+            document.getElementById("dataStatus").textContent = "Refresh cancelled.";
+            return;
+          }
+          sessionStorage.setItem("scannerRefreshToken", refreshToken);
+        }
+        const startResponse = await fetch(`${API_BASE}/api/refresh`, {
+          method: "POST",
+          headers: { Authorization: `Bearer ${refreshToken}` },
+        });
+        if (startResponse.status === 401) {
+          sessionStorage.removeItem("scannerRefreshToken");
+          await restoreDashboard();
+          document.getElementById("dataStatus").textContent = "Invalid refresh token. Try again.";
+          return;
+        }
         if (![202, 409, 429].includes(startResponse.status)) {
           throw new Error(`Refresh request failed: ${startResponse.status}`);
         }
 
         let refresh = await startResponse.json();
+        if (startResponse.status === 429) {
+          await restoreDashboard();
+          const retryMinutes = Math.max(1, Math.ceil(refresh.retry_after_seconds / 60));
+          document.getElementById("dataStatus").textContent = `${refresh.message} Try again in ${retryMinutes} minute${retryMinutes === 1 ? "" : "s"}.`;
+          return;
+        }
         setRefreshButton(refresh.status === "running" ? "Refreshing…" : "Loading latest…", true);
+        if (refresh.status === "running") {
+          document.getElementById("dataStatus").textContent = `${refresh.stage || "Refreshing market data"}…`;
+        }
 
         while (refresh.status === "running") {
-          await new Promise(resolve => setTimeout(resolve, 5000));
+          if (Date.now() >= refreshDeadline) {
+            await restoreDashboard();
+            document.getElementById("dataStatus").textContent = "Refresh is still running in the background. Try again later to load the result.";
+            return;
+          }
+          await new Promise(resolve => setTimeout(resolve, REFRESH_POLL_INTERVAL_MS));
           const statusResponse = await fetch(`${API_BASE}/api/refresh`, { cache: "no-store" });
           if (!statusResponse.ok) throw new Error(`Refresh status request failed: ${statusResponse.status}`);
           refresh = await statusResponse.json();
+          if (refresh.status === "running") {
+            document.getElementById("dataStatus").textContent = `${refresh.stage || "Refreshing market data"}…`;
+          }
         }
 
         if (refresh.status === "failed") throw new Error(refresh.error);
@@ -542,7 +590,7 @@
         document.getElementById("dataStatus").textContent = "Data refresh complete.";
       } catch (error) {
         setRefreshButton("Refresh failed", false);
-        if (previousSnapshot) loadScannerDataFromSnapshot(previousSnapshot);
+        await restoreDashboard();
         document.getElementById("dataStatus").textContent = "Refresh failed. Showing the previous data.";
         console.error(error);
         await new Promise(resolve => setTimeout(resolve, 2500));
