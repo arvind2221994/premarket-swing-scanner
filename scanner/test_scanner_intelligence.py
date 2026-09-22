@@ -10,7 +10,7 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fundamentals import calculate_fundamental_score, fetch_screener_data
-from fno_trade_analyzer import _option_oi_profile, analyze_cash, build_trade_plan
+from fno_trade_analyzer import _option_oi_profile, analyze_cash, build_pros_cons, build_trade_plan
 import backtest_score_buckets
 import global_cues
 from fallback import _history_frame, _parse_archive_rows, _trend_snapshot
@@ -384,6 +384,41 @@ class MarketMicrostructureTests(unittest.TestCase):
         cash["liquidity_tier"] = "low"
         self.assertFalse(build_trade_plan(cash, 90)["entry_valid"])
 
+    def test_normal_open_followed_by_extended_close_waits_for_pullback(self):
+        history = self.cash_history()
+        history.loc[history.index[-1], ["OpnPric", "ClsPric", "HghPric", "LwPric", "TtlTradgVol"]] = [
+            105, 115, 116, 104.5, 200000
+        ]
+        cash = analyze_cash(history)
+        cash["liquidity_tier"] = "high"
+
+        plan = build_trade_plan(cash, 90)
+
+        self.assertFalse(cash["gap_up_extended"])
+        self.assertGreater(cash["distance_from_breakout_atr"], 2)
+        self.assertFalse(plan["entry_valid"])
+        self.assertEqual(plan["status"], "Wait for pullback")
+
+    def test_risk_factors_explain_close_extension_and_nearby_wall(self):
+        history = self.cash_history()
+        history.loc[history.index[-1], ["OpnPric", "ClsPric", "HghPric", "LwPric", "TtlTradgVol"]] = [
+            105, 115, 116, 104.5, 200000
+        ]
+        cash = analyze_cash(history)
+        fno = {
+            "build_up": "Long build-up",
+            "pcr": 1,
+            "ban_status": {"is_banned": False},
+            "futures_liquidity_tier": "high",
+            "call_oi_wall": 115.5,
+            "put_oi_wall": 100,
+        }
+
+        _, risks = build_pros_cons(cash, fno, 6, "bullish")
+
+        self.assertTrue(any("Closing price is extended" in risk for risk in risks))
+        self.assertTrue(any("call OI wall" in risk for risk in risks))
+
     def test_builds_sorted_call_put_wall_profile(self):
         options = pd.DataFrame([
             {"StrkPric": 100, "OptnTp": "CE", "OpnIntrst": 200},
@@ -529,8 +564,8 @@ class IntelligenceScoringTests(unittest.TestCase):
         self.assertIs(result["in_fo_ban"], False)
         self.assertEqual(result["event_categories"], ["earnings", "dividend"])
         self.assertEqual(result["evidence_available"], 17)
-        self.assertEqual(result["evidence_total"], 18)
-        self.assertEqual(result["evidence_completeness_pct"], 94)
+        self.assertEqual(result["evidence_total"], 23)
+        self.assertEqual(result["evidence_completeness_pct"], 74)
 
     def test_bearish_global_reasons_describe_directional_impact(self):
         global_cues = {
@@ -557,6 +592,38 @@ class IntelligenceScoringTests(unittest.TestCase):
         self.assertLess(extended, baseline)
         self.assertLess(illiquid, baseline)
 
+    def test_close_extension_and_nearby_call_wall_reduce_score(self):
+        stock = {**self.stock(), "atr14": 2, "call_oi_wall": 120}
+        baseline = calculate_stock_score(stock, {}, "bullish")
+        extended = calculate_stock_score({
+            **stock,
+            "directional_session_move_atr": 2.8,
+            "directional_breakout_distance_atr": 2.79,
+            "directional_sma20_distance_atr": 4.51,
+        }, {}, "bullish")
+        nearby_wall = calculate_stock_score(
+            {**stock, "call_oi_wall": 110.5}, {}, "bullish"
+        )
+
+        self.assertLess(extended["score"], baseline["score"])
+        self.assertIn("Closing price is extended for a bullish entry", extended["reasons"])
+        self.assertLess(nearby_wall["score"], baseline["score"])
+        self.assertIn("Nearby call OI wall may cap upside", nearby_wall["reasons"])
+
+    def test_raw_extension_metrics_are_directional_for_bearish_score(self):
+        stock = {
+            **self.stock(),
+            "atr14": 2,
+            "session_move_atr": -2.8,
+            "distance_from_sma20_atr": -4.5,
+            "prior_twenty_day_low": 115,
+            "close": 110,
+        }
+
+        result = calculate_stock_score(stock, {}, "bearish")
+
+        self.assertIn("Closing price is extended for a bearish entry", result["reasons"])
+
     def test_dashboard_and_detailed_report_use_identical_scoring(self):
         dashboard_stock = self.stock()
         dashboard_stock.update({
@@ -575,7 +642,19 @@ class IntelligenceScoringTests(unittest.TestCase):
             "gap_atr": 0,
             "liquidity_tier": "high",
             "estimated_slippage_bps": 5,
+            "atr14": 2,
+            "session_move_atr": 2.8,
+            "distance_from_breakout_atr": 2.79,
+            "distance_from_sma20_atr": 4.51,
+            "prior_twenty_day_low": 90,
         }
+        dashboard_stock.update({
+            "atr14": cash["atr14"],
+            "session_move_atr": cash["session_move_atr"],
+            "distance_from_breakout_atr": cash["distance_from_breakout_atr"],
+            "distance_from_sma20_atr": cash["distance_from_sma20_atr"],
+            "prior_twenty_day_low": cash["prior_twenty_day_low"],
+        })
         fno = {
             "futures_price_change": 1,
             "oi_change_pct": 1,
