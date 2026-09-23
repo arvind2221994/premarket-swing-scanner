@@ -1,5 +1,4 @@
 import os
-import secrets
 import threading
 import time
 from datetime import datetime, timezone
@@ -28,13 +27,13 @@ REPORT_CACHE_MAX_SIZE = int(os.getenv("REPORT_CACHE_MAX_SIZE", "128"))
 TICKER_SEARCH_CACHE_MAX_SIZE = int(os.getenv("TICKER_SEARCH_CACHE_MAX_SIZE", "256"))
 ECONOMIC_TIMES_CACHE_MAX_SIZE = int(os.getenv("ECONOMIC_TIMES_CACHE_MAX_SIZE", "128"))
 REFRESH_COOLDOWN_SECONDS = int(os.getenv("REFRESH_COOLDOWN_SECONDS", "900"))
-REFRESH_API_TOKEN = os.getenv("REFRESH_API_TOKEN", "")
 YAHOO_SEARCH_URL = "https://query1.finance.yahoo.com/v1/finance/search"
 CURATED_TICKERS = (
     {"symbol": "ARVSMART", "name": "Arvind SmartSpaces Limited"},
 )
 ALLOWED_ORIGINS = {
     "https://arvind2221994.github.io",
+    "https://premarket-swing-scanner.onrender.com",
     "http://127.0.0.1:5000",
     "http://localhost:5000",
 }
@@ -139,6 +138,8 @@ def record_analysis_failure(error):
 
 
 def run_scanner_refresh():
+    global last_refresh_started_at
+
     def update_stage(stage):
         with refresh_lock:
             refresh_state["stage"] = stage
@@ -148,6 +149,7 @@ def run_scanner_refresh():
     except Exception:
         app.logger.exception("Scanner refresh failed")
         with refresh_lock:
+            last_refresh_started_at = 0.0
             refresh_state.update({
                 "status": "failed",
                 "stage": None,
@@ -229,7 +231,6 @@ def add_cors_headers(response):
     origin = request.headers.get("Origin")
     if origin in ALLOWED_ORIGINS:
         response.headers["Access-Control-Allow-Origin"] = origin
-        response.headers["Access-Control-Allow-Headers"] = "Authorization"
         response.headers["Access-Control-Allow-Methods"] = "POST, OPTIONS"
         response.headers["Vary"] = "Origin"
     return response
@@ -335,11 +336,6 @@ def refresh_scanner_data():
     same_origin = request.host_url.rstrip("/")
     if not app.testing and origin not in {*ALLOWED_ORIGINS, same_origin}:
         return jsonify({"error": "Refresh requests must come from a trusted origin."}), 403
-    supplied_token = request.headers.get("Authorization", "").removeprefix("Bearer ")
-    if not REFRESH_API_TOKEN:
-        return jsonify({"error": "Manual refresh is not configured."}), 503
-    if not secrets.compare_digest(supplied_token, REFRESH_API_TOKEN):
-        return jsonify({"error": "A valid refresh token is required."}), 401
 
     now = time.time()
     with refresh_lock:
@@ -367,7 +363,17 @@ def refresh_scanner_data():
             name="scanner-refresh",
             daemon=True,
         )
-        thread.start()
+        try:
+            thread.start()
+        except RuntimeError:
+            last_refresh_started_at = 0.0
+            refresh_state.update({
+                "status": "failed",
+                "stage": None,
+                "completed_at": utc_now(),
+                "error": "Scanner refresh could not be started. Please try again.",
+            })
+            return jsonify(dict(refresh_state)), 503
 
     return jsonify(dict(refresh_state)), 202
 
