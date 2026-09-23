@@ -13,7 +13,5 @@ services:
         value: 3600
       - key: REFRESH_COOLDOWN_SECONDS
         value: 900
-      - key: REFRESH_API_TOKEN
-        sync: false
       - key: ECONOMIC_TIMES_CACHE_SECONDS
         value: 900
