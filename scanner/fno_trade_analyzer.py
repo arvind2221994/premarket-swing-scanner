@@ -13,6 +13,7 @@ import requests
 
 from fundamentals import calculate_fundamental_score, fetch_screener_data
 from global_cues import fetch_global_cues
+from market_context import add_sector_relative_strength, build_market_context
 from news import fetch_company_news
 from resilience import (
     BoundedTTLCache,
@@ -761,7 +762,9 @@ def build_pros_cons(cash, fno, fundamental_score, mode="bullish"):
 
 def build_daily_change(current_score, current_pros, current_cons, previous_date,
                        previous_cash, previous_fno, fundamental_score,
-                       global_cues, symbol, mode="bullish"):
+                       global_cues, symbol, mode="bullish", sector=None,
+                       sector_relative_strength_pct=None, event_risk=None):
+    event_risk = event_risk or {}
     previous_score = score_detailed_report(
         symbol,
         previous_cash,
@@ -769,10 +772,20 @@ def build_daily_change(current_score, current_pros, current_cons, previous_date,
         global_cues,
         mode,
         fundamental_score=fundamental_score,
+        sector=sector,
+        sector_relative_strength_pct=sector_relative_strength_pct,
+        event_risk=event_risk.get("detected", False),
+        event_risk_status=event_risk.get("status", "clear"),
+        event_categories=event_risk.get("categories", []),
     )["score"]
     previous_pros, previous_cons = build_pros_cons(
         previous_cash, previous_fno, fundamental_score, mode
     )
+    if event_risk.get("detected"):
+        labels = ", ".join(
+            category.replace("_", " ") for category in event_risk.get("categories", [])
+        )
+        previous_cons.append(f"Potentially material event headlines detected: {labels}")
     return {
         "previous_date": previous_date.isoformat(),
         "previous_score": previous_score,
@@ -896,6 +909,13 @@ def build_trade_plan(cash, score, mode="bullish"):
     }
 
 
+def apply_assessment_entry_gate(trade_plan, assessment):
+    if trade_plan and assessment.get("entry_condition_met") is False:
+        trade_plan["entry_valid"] = False
+        trade_plan["status"] = assessment.get("entry_status") or "Wait for confirmation"
+    return trade_plan
+
+
 def build_symbol_report(symbol, mode="bullish"):
     clean_symbol = symbol.strip().upper()
     if not re.fullmatch(r"[A-Z0-9&-]{1,20}", clean_symbol):
@@ -929,6 +949,12 @@ def build_symbol_report(symbol, mode="bullish"):
     fundamental_result = fundamental_analysis["assessment"]
     fundamental_score = fundamental_result["score"] if fundamental_result else None
     event_risk = news.get("event_risk", {})
+    sector_context = {"sector": None, "sector_relative_strength_pct": None}
+    if cash.get("return_5d") is not None:
+        market_context = build_market_context(global_cues)
+        relative_context = [{"symbol": clean_symbol, "return_5d": cash["return_5d"]}]
+        add_sector_relative_strength(relative_context, market_context)
+        sector_context = relative_context[0]
     assessment = score_detailed_report(
         clean_symbol,
         cash,
@@ -939,6 +965,8 @@ def build_symbol_report(symbol, mode="bullish"):
         event_risk_status=event_risk.get("status", "clear"),
         event_categories=event_risk.get("categories", []),
         fundamental_score=fundamental_score,
+        sector=sector_context["sector"],
+        sector_relative_strength_pct=sector_context["sector_relative_strength_pct"],
     )
     score = assessment["score"]
     verdict = (
@@ -952,7 +980,10 @@ def build_symbol_report(symbol, mode="bullish"):
         cons.append(
             f"Potentially material event headlines detected: {labels}"
         )
-    trade_plan = build_trade_plan(cash, score, mode) if score >= 60 else None
+    trade_plan = apply_assessment_entry_gate(
+        build_trade_plan(cash, score, mode) if score >= 60 else None,
+        assessment,
+    )
     daily_change = None
     if len(history) >= 51:
         previous_history = history.iloc[:-1].reset_index(drop=True)
@@ -971,6 +1002,9 @@ def build_symbol_report(symbol, mode="bullish"):
                 global_cues,
                 clean_symbol,
                 mode,
+                sector=sector_context["sector"],
+                sector_relative_strength_pct=sector_context["sector_relative_strength_pct"],
+                event_risk=event_risk,
             )
 
     return {
@@ -1004,8 +1038,8 @@ def analyze_symbol(symbol):
     fno = report["fno"]
     fundamentals = report["fundamentals"]
     fundamental_result = report["fundamental_assessment"]
-    fundamental_score = fundamental_result["score"]
-    fundamental_tags = fundamental_result["tags"]
+    fundamental_score = fundamental_result["score"] if fundamental_result else None
+    fundamental_tags = fundamental_result["tags"] if fundamental_result else []
     score = report["score"]
     verdict = report["verdict"]
 
@@ -1090,11 +1124,15 @@ def analyze_symbol(symbol):
         ("ROE", "roe"),
         ("Debt/equity", "de_ratio"),
     ):
-        value = fundamentals.get(field)
+        value = fundamentals.get(field) if fundamentals else None
         print(f"  - {label}: {value if value is not None else 'N/A'}")
-    completeness = fundamental_result["completeness"]
-    print(f"  - Data completeness: {completeness['available']}/{completeness['total']}")
-    print(f"  - Scoring profile: {fundamental_result['profile']}")
+    completeness = fundamental_result.get("completeness") if fundamental_result else None
+    if completeness:
+        print(f"  - Data completeness: {completeness['available']}/{completeness['total']}")
+        print(f"  - Scoring profile: {fundamental_result['profile']}")
+    else:
+        print("  - Data completeness: unavailable")
+        print("  - Scoring profile: unavailable")
     if fundamental_score is None:
         print("  - Score: N/A (insufficient data; excluded from composite)")
     else:

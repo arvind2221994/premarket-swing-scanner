@@ -877,6 +877,10 @@
       const capital = Number(document.getElementById("accountCapital").value);
       const riskPercent = Number(document.getElementById("riskPercent").value);
       const result = document.getElementById("positionResult");
+      if (currentTradePlan && !currentTradePlan.entry_valid) {
+        result.innerHTML = '<p class="meta">Position sizing is available after the entry conditions are met.</p>';
+        return;
+      }
       if (
         !currentTradePlan
         || !Number.isFinite(capital)
@@ -983,7 +987,7 @@
       confidence.style.setProperty("--badge-bg", badgeBackground);
       document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
       renderDailyChange(data.daily_change);
-      renderTradePlan(data.score >= 60 ? data.trade_plan : null);
+      renderTradePlan(Number(data.score) >= 60 ? data.trade_plan : null);
 
       const avoidingEntry = data.verdict === "AVOID NEW ENTRY";
       document.getElementById("supportingEvidenceTitle").textContent = avoidingEntry

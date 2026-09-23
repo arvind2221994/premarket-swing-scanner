@@ -35,6 +35,44 @@ SECTOR_TICKERS = {
     "Nifty Energy": "^CNXENERGY",
     "Nifty Realty": "^CNXREALTY",
 }
+SECTOR_BY_SYMBOL = {
+    "HDFCBANK": "Nifty Bank", "ICICIBANK": "Nifty Bank", "AXISBANK": "Nifty Bank",
+    "SBIN": "Nifty Bank", "KOTAKBANK": "Nifty Bank", "INDUSINDBK": "Nifty Bank",
+    "TCS": "Nifty IT", "INFY": "Nifty IT", "HCLTECH": "Nifty IT", "WIPRO": "Nifty IT",
+    "TECHM": "Nifty IT", "LTIM": "Nifty IT", "PERSISTENT": "Nifty IT",
+    "MARUTI": "Nifty Auto", "M&M": "Nifty Auto", "TATAMOTORS": "Nifty Auto",
+    "BAJAJ-AUTO": "Nifty Auto", "EICHERMOT": "Nifty Auto", "HEROMOTOCO": "Nifty Auto",
+    "SUNPHARMA": "Nifty Pharma", "DRREDDY": "Nifty Pharma", "CIPLA": "Nifty Pharma",
+    "DIVISLAB": "Nifty Pharma", "LUPIN": "Nifty Pharma", "AUROPHARMA": "Nifty Pharma",
+    "HINDUNILVR": "Nifty FMCG", "ITC": "Nifty FMCG", "NESTLEIND": "Nifty FMCG",
+    "BRITANNIA": "Nifty FMCG", "TATACONSUM": "Nifty FMCG", "DABUR": "Nifty FMCG",
+    "PATANJALI": "Nifty FMCG",
+    "TATASTEEL": "Nifty Metal", "HINDALCO": "Nifty Metal", "JSWSTEEL": "Nifty Metal",
+    "VEDL": "Nifty Metal", "SAIL": "Nifty Metal", "NMDC": "Nifty Metal",
+    "RELIANCE": "Nifty Energy", "ONGC": "Nifty Energy", "NTPC": "Nifty Energy",
+    "POWERGRID": "Nifty Energy", "COALINDIA": "Nifty Energy", "BPCL": "Nifty Energy",
+    "DLF": "Nifty Realty", "GODREJPROP": "Nifty Realty", "OBEROIRLTY": "Nifty Realty",
+}
+
+
+def add_sector_relative_strength(stocks, market_context):
+    nifty_return = market_context.get("nifty_50", {}).get("return_5d_pct")
+    sectors = market_context.get("sector_indices", {})
+    for stock in stocks:
+        sector = SECTOR_BY_SYMBOL.get(stock["symbol"])
+        benchmark = sectors.get(sector, {}) if sector else market_context.get("nifty_50", {})
+        benchmark_return = benchmark.get("return_5d_pct")
+        stock["sector"] = sector or "Nifty 50 benchmark"
+        stock["sector_return_5d_pct"] = benchmark_return
+        stock["sector_relative_strength_pct"] = (
+            stock["return_5d"] - benchmark_return
+            if benchmark_return is not None else None
+        )
+        if benchmark_return is None and nifty_return is not None:
+            stock["sector"] = "Nifty 50 benchmark"
+            stock["sector_return_5d_pct"] = nifty_return
+            stock["sector_relative_strength_pct"] = stock["return_5d"] - nifty_return
+    return stocks
 
 
 def classify_trend(close, sma20, sma50):

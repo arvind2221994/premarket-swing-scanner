@@ -10,7 +10,15 @@ import pandas as pd
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 from fundamentals import calculate_fundamental_score, fetch_screener_data
-from fno_trade_analyzer import _option_oi_profile, analyze_cash, build_pros_cons, build_trade_plan
+import fno_trade_analyzer
+from fno_trade_analyzer import (
+    _option_oi_profile,
+    analyze_cash,
+    apply_assessment_entry_gate,
+    build_daily_change,
+    build_pros_cons,
+    build_trade_plan,
+)
 import backtest_score_buckets
 import global_cues
 from fallback import _history_frame, _parse_archive_rows, _trend_snapshot
@@ -31,6 +39,7 @@ scanner_spec = importlib.util.spec_from_file_location(
 scanner_job = importlib.util.module_from_spec(scanner_spec)
 scanner_spec.loader.exec_module(scanner_job)
 add_sector_relative_strength = scanner_job.add_sector_relative_strength
+add_previous_session_changes = scanner_job.add_previous_session_changes
 sanitize_json_value = scanner_job.sanitize_json_value
 select_liquid_fno_symbols = scanner_job.select_liquid_fno_symbols
 
@@ -315,6 +324,70 @@ class YahooFallbackTests(unittest.TestCase):
 
 
 class UniverseTests(unittest.TestCase):
+    def test_adds_previous_session_watchlist_changes(self):
+        current = {"bullish": [{
+            "symbol": "TEST", "data_as_of": "2026-09-23", "score": 78,
+            "event_categories": ["earnings"], "in_fo_ban": False,
+            "entry_condition_met": True,
+        }]}
+        previous = {"all_results_by_mode": {"bullish": [{
+            "symbol": "TEST", "data_as_of": "2026-09-22", "score": 70,
+            "event_categories": [], "in_fo_ban": False,
+            "entry_condition_met": False,
+        }]}}
+
+        add_previous_session_changes(current, previous)
+
+        result = current["bullish"][0]
+        self.assertEqual(result["score_change"], 8)
+        self.assertEqual(result["new_event_categories"], ["earnings"])
+        self.assertTrue(result["new_risk"])
+        self.assertTrue(result["entry_condition_reached"])
+
+    def test_previous_session_changes_tolerate_null_event_categories(self):
+        current = {"bullish": [{
+            "symbol": "TEST", "data_as_of": "2026-09-23", "score": 71,
+            "event_categories": None, "in_fo_ban": False,
+            "entry_condition_met": False,
+        }]}
+        previous = {"all_results_by_mode": {"bullish": [{
+            "symbol": "TEST", "data_as_of": "2026-09-22", "score": 70,
+            "event_categories": None, "in_fo_ban": False,
+            "entry_condition_met": False,
+        }]}}
+
+        add_previous_session_changes(current, previous)
+
+        self.assertEqual(current["bullish"][0]["new_event_categories"], [])
+
+    def test_previous_session_changes_ignore_malformed_snapshot_shape(self):
+        current = {"bullish": [{
+            "symbol": "TEST", "data_as_of": "2026-09-23", "score": 71,
+            "event_categories": [], "in_fo_ban": False,
+            "entry_condition_met": False,
+        }]}
+
+        add_previous_session_changes(current, {"all_results_by_mode": None})
+
+        self.assertIsNone(current["bullish"][0]["score_change"])
+        self.assertFalse(current["bullish"][0]["new_risk"])
+
+    def test_legacy_snapshot_does_not_report_new_entry_or_unknown_ban(self):
+        current = {"bullish": [{
+            "symbol": "TEST", "data_as_of": "2026-09-23", "score": 76,
+            "event_categories": [], "in_fo_ban": True,
+            "entry_condition_met": True,
+        }]}
+        previous = {"all_results_by_mode": {"bullish": [{
+            "symbol": "TEST", "data_as_of": "2026-09-22", "score": 75,
+            "event_categories": [], "in_fo_ban": None,
+        }]}}
+
+        add_previous_session_changes(current, previous)
+
+        self.assertFalse(current["bullish"][0]["entry_condition_reached"])
+        self.assertFalse(current["bullish"][0]["new_risk"])
+
     def test_sanitizes_non_finite_values_for_browser_json(self):
         sanitized = sanitize_json_value({
             "nested": [float("nan"), float("inf"), float("-inf"), 1.5],
@@ -334,18 +407,27 @@ class UniverseTests(unittest.TestCase):
         self.assertEqual(select_liquid_fno_symbols(frame, 2), ("HIGH", "LOW"))
 
     def test_adds_sector_and_benchmark_relative_strength(self):
-        stocks = [{"symbol": "TCS", "return_5d": 5}, {"symbol": "UNKNOWN", "return_5d": 1}]
+        stocks = [
+            {"symbol": "TCS", "return_5d": 5},
+            {"symbol": "PATANJALI", "return_5d": 4},
+            {"symbol": "UNKNOWN", "return_5d": 1},
+        ]
         context = {
             "nifty_50": {"return_5d_pct": 0.5},
-            "sector_indices": {"Nifty IT": {"return_5d_pct": 2}},
+            "sector_indices": {
+                "Nifty IT": {"return_5d_pct": 2},
+                "Nifty FMCG": {"return_5d_pct": 1.5},
+            },
         }
 
         add_sector_relative_strength(stocks, context)
 
         self.assertEqual(stocks[0]["sector"], "Nifty IT")
         self.assertEqual(stocks[0]["sector_relative_strength_pct"], 3)
-        self.assertEqual(stocks[1]["sector"], "Nifty 50 benchmark")
-        self.assertEqual(stocks[1]["sector_relative_strength_pct"], 0.5)
+        self.assertEqual(stocks[1]["sector"], "Nifty FMCG")
+        self.assertEqual(stocks[1]["sector_relative_strength_pct"], 2.5)
+        self.assertEqual(stocks[2]["sector"], "Nifty 50 benchmark")
+        self.assertEqual(stocks[2]["sector_relative_strength_pct"], 0.5)
 
 
 class MarketMicrostructureTests(unittest.TestCase):
@@ -450,6 +532,46 @@ class MarketMicrostructureTests(unittest.TestCase):
         self.assertLess(plan["targets"][0], plan["entry_reference"])
         self.assertLess(plan["targets"][1], plan["targets"][0])
 
+    def test_canonical_assessment_blocks_cash_valid_trade_plan(self):
+        plan = {"entry_valid": True, "status": "Entry valid now"}
+
+        result = apply_assessment_entry_gate(plan, {
+            "entry_condition_met": False,
+            "entry_status": "Review the company event before entering",
+        })
+
+        self.assertFalse(result["entry_valid"])
+        self.assertEqual(result["status"], "Review the company event before entering")
+
+    def test_daily_change_uses_matching_sector_and_event_context(self):
+        event_risk = {"detected": True, "status": "detected", "categories": ["earnings"]}
+        event_warning = "Potentially material event headlines detected: earnings"
+        with (
+            patch.object(
+                fno_trade_analyzer,
+                "score_detailed_report",
+                return_value={"score": 70},
+            ) as score_report,
+            patch.object(
+                fno_trade_analyzer,
+                "build_pros_cons",
+                return_value=(["Trend"], []),
+            ),
+        ):
+            result = build_daily_change(
+                72, ["Trend"], [event_warning], pd.Timestamp("2026-09-22").date(),
+                {}, None, 6, {}, "TEST", sector="Nifty Test",
+                sector_relative_strength_pct=2, event_risk=event_risk,
+            )
+
+        score_report.assert_called_once_with(
+            "TEST", {}, None, {}, "bullish", fundamental_score=6,
+            sector="Nifty Test", sector_relative_strength_pct=2,
+            event_risk=True, event_risk_status="detected",
+            event_categories=["earnings"],
+        )
+        self.assertEqual(result["added_risks"], [])
+
 
 class IntelligenceScoringTests(unittest.TestCase):
     def stock(self):
@@ -495,13 +617,17 @@ class IntelligenceScoringTests(unittest.TestCase):
         )
 
     def test_scored_row_preserves_universe_metrics(self):
-        stock = self.stock()
+        stock = {**self.stock(), "company_name": "Test Industries Limited"}
 
         result = calculate_stock_score(stock, {}, "bullish")
 
         self.assertEqual(result["futures_price_change_pct"], 1)
         self.assertEqual(result["futures_oi_change_pct"], 1)
         self.assertEqual(result["return_5d"], 2)
+        self.assertEqual(result["company_name"], "Test Industries Limited")
+        self.assertIn(result["entry_status"], {
+            "Entry conditions met", "Wait for breakout", "Wait for a pullback"
+        })
 
     def test_scores_available_trend_evidence_without_50_dma(self):
         stock = {**self.stock(), "dma50": None}
@@ -631,6 +757,7 @@ class IntelligenceScoringTests(unittest.TestCase):
             "liquidity_tier": "high",
             "estimated_slippage_bps": 5,
             "event_risk": False,
+            "fundamental_score": 6,
         })
         cash = {
             "close": 110,
@@ -675,6 +802,7 @@ class IntelligenceScoringTests(unittest.TestCase):
             "bullish",
             sector="Nifty Test",
             sector_relative_strength_pct=2,
+            fundamental_score=6,
         )
 
         self.assertEqual(detailed["score"], dashboard["score"])

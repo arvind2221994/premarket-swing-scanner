@@ -158,8 +158,15 @@ def evidence_completeness(stock, global_data, mode):
             stock.get("directional_breakout_distance_atr", stock.get("distance_from_breakout_atr"))
         )
     else:
+        atr14 = stock.get("atr14")
+        prior_low = stock.get("prior_twenty_day_low")
+        close = stock.get("close")
+        bearish_breakout_distance_atr = (
+            (prior_low - close) / atr14
+            if atr14 and prior_low is not None and close is not None else None
+        )
         extension_values.append(
-            stock.get("directional_breakout_distance_atr", stock.get("prior_twenty_day_low"))
+            stock.get("directional_breakout_distance_atr", bearish_breakout_distance_atr)
         )
     values = [
         stock.get("futures_price_change_pct"), stock.get("futures_oi_change_pct"),
@@ -334,9 +341,37 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
     evidence_available, evidence_total, evidence_completeness_pct = evidence_completeness(
         stock, global_data, mode
     )
+    directional_breakout_confirmed = (
+        directional_breakout_distance_atr is not None
+        and directional_breakout_distance_atr >= 0
+    )
+    volume_confirmed = stock["avg_volume"] > 0 and stock["volume"] / stock["avg_volume"] >= 1.2
+    entry_condition_met = (
+        final_score >= 75
+        and directional_breakout_confirmed
+        and volume_confirmed
+        and not too_extended
+        and not close_extended
+        and not stock.get("in_fo_ban", False)
+        and not stock.get("event_risk", False)
+        and stock.get("liquidity_filter_pass", True)
+    )
+    if stock.get("in_fo_ban", False):
+        entry_status = "F&O banned; avoid a new derivatives trade"
+    elif stock.get("event_risk", False):
+        entry_status = "Review the company event before entering"
+    elif final_score < 50:
+        entry_status = "No qualifying setup"
+    elif too_extended or close_extended:
+        entry_status = "Wait for a pullback" if mode == "bullish" else "Wait for a bounce"
+    elif entry_condition_met:
+        entry_status = "Entry conditions met"
+    else:
+        entry_status = "Wait for breakout" if mode == "bullish" else "Wait for breakdown"
 
     return {
         "symbol": stock["symbol"],
+        "company_name": stock.get("company_name") or stock["symbol"],
         "data_as_of": stock.get("data_as_of"),
         "setup_mode": mode,
         "score": round(final_score, 2),
@@ -349,6 +384,7 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         "sector_relative_strength_pct": relative_strength,
         "gap_pct": stock.get("gap_pct"),
         "gap_atr": gap_atr,
+        "atr14": stock.get("atr14"),
         "gap_extended": too_extended,
         "liquidity_tier": stock.get("liquidity_tier"),
         "estimated_slippage_bps": stock.get("estimated_slippage_bps"),
@@ -359,6 +395,8 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
         "event_risk": stock.get("event_risk", False),
         "event_risk_status": stock.get("event_risk_status", "clear"),
         "event_categories": stock.get("event_categories", []),
+        "entry_condition_met": entry_condition_met,
+        "entry_status": entry_status,
         "call_oi_wall": stock.get("call_oi_wall"),
         "put_oi_wall": stock.get("put_oi_wall"),
         "reasons": reasons,

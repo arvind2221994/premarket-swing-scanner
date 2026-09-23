@@ -13,12 +13,13 @@ from fno_trade_analyzer import (
     analyze_fno,
     download_bhavcopy,
     fetch_fno_ban_status,
+    load_fundamental_analysis,
     load_recent_fno_frames,
 )
 from news import fetch_company_news
 from scoring import calculate_stock_score
 from global_cues import fetch_global_cues
-from market_context import build_market_context
+from market_context import add_sector_relative_strength, build_market_context
 from backtest_score_buckets import run_backtest
 from resilience import UpstreamUnavailableError
 
@@ -28,25 +29,6 @@ DEFAULT_UNIVERSE_SIZE = 15
 LATEST_DATA_PATH = Path(__file__).resolve().parent.parent / "docs" / "data" / "latest.json"
 MIN_CASH_TURNOVER_CRORE = float(os.getenv("MIN_CASH_TURNOVER_CRORE", "25"))
 MIN_FUTURES_VOLUME = int(os.getenv("MIN_FUTURES_VOLUME", "250"))
-SECTOR_BY_SYMBOL = {
-    "HDFCBANK": "Nifty Bank", "ICICIBANK": "Nifty Bank", "AXISBANK": "Nifty Bank",
-    "SBIN": "Nifty Bank", "KOTAKBANK": "Nifty Bank", "INDUSINDBK": "Nifty Bank",
-    "TCS": "Nifty IT", "INFY": "Nifty IT", "HCLTECH": "Nifty IT", "WIPRO": "Nifty IT",
-    "TECHM": "Nifty IT", "LTIM": "Nifty IT", "PERSISTENT": "Nifty IT",
-    "MARUTI": "Nifty Auto", "M&M": "Nifty Auto", "TATAMOTORS": "Nifty Auto",
-    "BAJAJ-AUTO": "Nifty Auto", "EICHERMOT": "Nifty Auto", "HEROMOTOCO": "Nifty Auto",
-    "SUNPHARMA": "Nifty Pharma", "DRREDDY": "Nifty Pharma", "CIPLA": "Nifty Pharma",
-    "DIVISLAB": "Nifty Pharma", "LUPIN": "Nifty Pharma", "AUROPHARMA": "Nifty Pharma",
-    "HINDUNILVR": "Nifty FMCG", "ITC": "Nifty FMCG", "NESTLEIND": "Nifty FMCG",
-    "BRITANNIA": "Nifty FMCG", "TATACONSUM": "Nifty FMCG", "DABUR": "Nifty FMCG",
-    "TATASTEEL": "Nifty Metal", "HINDALCO": "Nifty Metal", "JSWSTEEL": "Nifty Metal",
-    "VEDL": "Nifty Metal", "SAIL": "Nifty Metal", "NMDC": "Nifty Metal",
-    "RELIANCE": "Nifty Energy", "ONGC": "Nifty Energy", "NTPC": "Nifty Energy",
-    "POWERGRID": "Nifty Energy", "COALINDIA": "Nifty Energy", "BPCL": "Nifty Energy",
-    "DLF": "Nifty Realty", "GODREJPROP": "Nifty Realty", "OBEROIRLTY": "Nifty Realty",
-}
-
-
 def sanitize_json_value(value):
     if isinstance(value, float) and not math.isfinite(value):
         return None
@@ -62,6 +44,65 @@ def configured_symbols():
     return tuple(dict.fromkeys(symbol.strip().upper() for symbol in value.split(",") if symbol.strip()))
 
 
+def load_previous_snapshot(path=LATEST_DATA_PATH):
+    try:
+        with Path(path).open(encoding="utf-8") as file:
+            return json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return None
+
+
+def add_previous_session_changes(results_by_mode, previous_snapshot):
+    previous_modes = (
+        previous_snapshot.get("all_results_by_mode", {})
+        if isinstance(previous_snapshot, dict) else {}
+    )
+    if not isinstance(previous_modes, dict):
+        previous_modes = {}
+    for mode, results in results_by_mode.items():
+        previous_results = previous_modes.get(mode, [])
+        if not isinstance(previous_results, list):
+            previous_results = []
+        previous_by_symbol = {
+            row["symbol"]: row
+            for row in previous_results
+            if isinstance(row, dict) and row.get("symbol")
+        }
+        for row in results:
+            previous = previous_by_symbol.get(row["symbol"])
+            previous_date = previous.get("data_as_of") if previous else None
+            current_date = row.get("data_as_of")
+            previous_score = previous.get("score") if previous else None
+            if (
+                not previous_date
+                or not current_date
+                or previous_date >= current_date
+                or not isinstance(previous_score, (int, float))
+            ):
+                row.update({
+                    "previous_score": None,
+                    "score_change": None,
+                    "new_event_categories": [],
+                    "new_risk": False,
+                    "entry_condition_reached": False,
+                })
+                continue
+            previous_categories = set(previous.get("event_categories") or [])
+            new_categories = sorted(set(row.get("event_categories") or []) - previous_categories)
+            newly_banned = row.get("in_fo_ban") is True and previous.get("in_fo_ban") is False
+            row.update({
+                "previous_score": previous_score,
+                "score_change": round(row["score"] - previous_score, 1),
+                "new_event_categories": new_categories,
+                "new_risk": bool(new_categories or newly_banned),
+                "entry_condition_reached": (
+                    row.get("entry_condition_met") is True
+                    and previous.get("entry_condition_met") is False
+                ),
+            })
+    return results_by_mode
+
+
 def select_liquid_fno_symbols(frame, limit=DEFAULT_UNIVERSE_SIZE):
     futures = frame[frame["FinInstrmTp"] == "STF"].copy()
     if futures.empty:
@@ -75,27 +116,6 @@ def select_liquid_fno_symbols(frame, limit=DEFAULT_UNIVERSE_SIZE):
         ["TtlTrfVal", "TtlTradgVol"], ascending=False
     )
     return tuple(ranked["TckrSymb"].drop_duplicates().head(limit))
-
-
-def add_sector_relative_strength(stocks, market_context):
-    nifty_return = market_context.get("nifty_50", {}).get("return_5d_pct")
-    sectors = market_context.get("sector_indices", {})
-    for stock in stocks:
-        sector = SECTOR_BY_SYMBOL.get(stock["symbol"])
-        benchmark = sectors.get(sector, {}) if sector else market_context.get("nifty_50", {})
-        benchmark_return = benchmark.get("return_5d_pct")
-        stock["sector"] = sector or "Nifty 50 benchmark"
-        stock["sector_return_5d_pct"] = benchmark_return
-        stock["sector_relative_strength_pct"] = (
-            stock["return_5d"] - benchmark_return
-            if benchmark_return is not None
-            else None
-        )
-        if benchmark_return is None and nifty_return is not None:
-            stock["sector"] = "Nifty 50 benchmark"
-            stock["sector_return_5d_pct"] = nifty_return
-            stock["sector_relative_strength_pct"] = stock["return_5d"] - nifty_return
-    return stocks
 
 
 def load_cash_histories(session, symbols, sessions=50, lookback_days=90):
@@ -164,6 +184,8 @@ def load_stock_universe():
 
             volumes = history["TtlTradgVol"].astype(float)
             news = fetch_company_news(symbol, days=7, limit=8)
+            fundamental_analysis = load_fundamental_analysis(symbol)
+            fundamental_result = fundamental_analysis["assessment"]
             liquidity_filter_pass = (
                 cash["average_traded_value_crore"] >= MIN_CASH_TURNOVER_CRORE
                 and fno["futures_volume"] >= MIN_FUTURES_VOLUME
@@ -171,6 +193,10 @@ def load_stock_universe():
             symbol_cash_date = pd.to_datetime(history.iloc[-1]["TradDt"]).date()
             stocks.append({
                 "symbol": symbol,
+                "company_name": (
+                    fundamental_analysis["metrics"].get("name")
+                    if fundamental_analysis["metrics"] else symbol
+                ),
                 "data_as_of": min(symbol_cash_date, latest_fno_date).isoformat(),
                 "futures_price_change_pct": fno["futures_price_change"],
                 "futures_oi_change_pct": fno["oi_change_pct"],
@@ -199,6 +225,9 @@ def load_stock_universe():
                 "event_risk": news["event_risk"]["detected"],
                 "event_risk_status": news["event_risk"]["status"],
                 "event_categories": news["event_risk"]["categories"],
+                "fundamental_score": (
+                    fundamental_result["score"] if fundamental_result else None
+                ),
             })
 
     if not stocks:
@@ -213,6 +242,7 @@ def main(output_path=LATEST_DATA_PATH, progress_callback=None):
 
     ist = pytz.timezone("Asia/Kolkata")
     now = datetime.now(ist)
+    previous_snapshot = load_previous_snapshot(output_path)
 
     report_progress("Fetching global market cues")
     global_cues = fetch_global_cues()
@@ -234,6 +264,10 @@ def main(output_path=LATEST_DATA_PATH, progress_callback=None):
         (calculate_stock_score(stock, global_cues, "bearish") for stock in eligible_stocks),
         key=lambda result: result["score"],
         reverse=True,
+    )
+    results_by_mode = add_previous_session_changes(
+        {"bullish": bullish_ranked, "bearish": bearish_ranked},
+        previous_snapshot,
     )
 
     backtest_limit = int(os.getenv("BACKTEST_SYMBOL_LIMIT", "5"))
@@ -279,8 +313,8 @@ def main(output_path=LATEST_DATA_PATH, progress_callback=None):
         },
         "all_results": bullish_ranked,
         "all_results_by_mode": {
-            "bullish": bullish_ranked,
-            "bearish": bearish_ranked,
+            "bullish": results_by_mode["bullish"],
+            "bearish": results_by_mode["bearish"],
         },
     }
 
