@@ -341,11 +341,8 @@ class AnalysisSourceCacheTests(unittest.TestCase):
 class RefreshApiTests(unittest.TestCase):
     def setUp(self):
         self.original_testing = web_app.app.testing
-        self.original_refresh_token = web_app.REFRESH_API_TOKEN
         web_app.app.testing = True
-        web_app.REFRESH_API_TOKEN = "test-refresh-token"
         self.client = web_app.app.test_client()
-        self.refresh_headers = {"Authorization": "Bearer test-refresh-token"}
         web_app.last_refresh_started_at = 0.0
         web_app.refresh_state.update({
             "status": "idle",
@@ -357,12 +354,11 @@ class RefreshApiTests(unittest.TestCase):
 
     def tearDown(self):
         web_app.app.testing = self.original_testing
-        web_app.REFRESH_API_TOKEN = self.original_refresh_token
 
     def test_starts_one_background_refresh(self):
         with patch.object(web_app.threading, "Thread") as thread:
-            started = self.client.post("/api/refresh", headers=self.refresh_headers)
-            duplicate = self.client.post("/api/refresh", headers=self.refresh_headers)
+            started = self.client.post("/api/refresh")
+            duplicate = self.client.post("/api/refresh")
 
         self.assertEqual(started.status_code, 202)
         self.assertEqual(started.get_json()["status"], "running")
@@ -377,10 +373,7 @@ class RefreshApiTests(unittest.TestCase):
         try:
             response = self.client.post(
                 "/api/refresh",
-                headers={
-                    **self.refresh_headers,
-                    "Origin": "https://untrusted.example",
-                },
+                headers={"Origin": "https://untrusted.example"},
             )
         finally:
             web_app.app.testing = True
@@ -391,11 +384,35 @@ class RefreshApiTests(unittest.TestCase):
             "Refresh requests must come from a trusted origin.",
         )
 
-    def test_rejects_missing_refresh_token(self):
-        response = self.client.post("/api/refresh")
+    def test_allows_public_refresh_from_dashboard_origin(self):
+        web_app.app.testing = False
+        try:
+            with patch.object(web_app.threading, "Thread") as thread:
+                response = self.client.post(
+                    "/api/refresh",
+                    headers={"Origin": "https://arvind2221994.github.io"},
+                )
+        finally:
+            web_app.app.testing = True
 
-        self.assertEqual(response.status_code, 401)
-        self.assertEqual(response.get_json()["error"], "A valid refresh token is required.")
+        self.assertEqual(response.status_code, 202)
+        self.assertEqual(
+            response.headers["Access-Control-Allow-Origin"],
+            "https://arvind2221994.github.io",
+        )
+        thread.return_value.start.assert_called_once_with()
+
+    def test_thread_start_failure_does_not_leave_refresh_running(self):
+        with patch.object(
+            web_app.threading,
+            "Thread",
+        ) as thread:
+            thread.return_value.start.side_effect = RuntimeError("thread unavailable")
+            response = self.client.post("/api/refresh")
+
+        self.assertEqual(response.status_code, 503)
+        self.assertEqual(response.get_json()["status"], "failed")
+        self.assertEqual(web_app.last_refresh_started_at, 0.0)
 
     def test_allows_refresh_cors_preflight_from_dashboard(self):
         response = self.client.options(
@@ -403,14 +420,12 @@ class RefreshApiTests(unittest.TestCase):
             headers={
                 "Origin": "https://arvind2221994.github.io",
                 "Access-Control-Request-Method": "POST",
-                "Access-Control-Request-Headers": "authorization",
             },
         )
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.headers["Access-Control-Allow-Origin"], "https://arvind2221994.github.io")
         self.assertIn("POST", response.headers["Access-Control-Allow-Methods"])
-        self.assertIn("Authorization", response.headers["Access-Control-Allow-Headers"])
 
     def test_returns_current_refresh_status(self):
         web_app.refresh_state.update({
@@ -445,7 +460,7 @@ class RefreshApiTests(unittest.TestCase):
     def test_rate_limits_recent_refresh(self):
         web_app.last_refresh_started_at = time.time()
 
-        response = self.client.post("/api/refresh", headers=self.refresh_headers)
+        response = self.client.post("/api/refresh")
 
         self.assertEqual(response.status_code, 429)
         self.assertGreater(response.get_json()["retry_after_seconds"], 0)
