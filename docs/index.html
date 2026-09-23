@@ -529,33 +529,20 @@
       }
 
       try {
-        let refreshToken = sessionStorage.getItem("scannerRefreshToken");
-        if (!refreshToken) {
-          refreshToken = window.prompt("Enter the refresh access token:")?.trim();
-          if (!refreshToken) {
-            await restoreDashboard();
-            document.getElementById("dataStatus").textContent = "Refresh cancelled.";
-            return;
-          }
-          sessionStorage.setItem("scannerRefreshToken", refreshToken);
-        }
-        const startResponse = await fetch(`${API_BASE}/api/refresh`, {
-          method: "POST",
-          headers: { Authorization: `Bearer ${refreshToken}` },
-        });
-        if (startResponse.status === 401) {
-          sessionStorage.removeItem("scannerRefreshToken");
-          await restoreDashboard();
-          document.getElementById("dataStatus").textContent = "Invalid refresh token. Try again.";
-          return;
-        }
+        const startResponse = await fetch(`${API_BASE}/api/refresh`, { method: "POST" });
         if (![202, 409, 429].includes(startResponse.status)) {
           throw new Error(`Refresh request failed: ${startResponse.status}`);
         }
 
         let refresh = await startResponse.json();
         if (startResponse.status === 429) {
-          await restoreDashboard();
+          const dataResponse = await fetch(`${API_BASE}/api/scanner-data?ts=${Date.now()}`, { cache: "no-store" });
+          if (dataResponse.ok) {
+            scannerData = await dataResponse.json();
+            loadScannerDataFromSnapshot(scannerData);
+          } else {
+            await restoreDashboard();
+          }
           const retryMinutes = Math.max(1, Math.ceil(refresh.retry_after_seconds / 60));
           document.getElementById("dataStatus").textContent = `${refresh.message} Try again in ${retryMinutes} minute${retryMinutes === 1 ? "" : "s"}.`;
           return;
@@ -580,7 +567,9 @@
           }
         }
 
-        if (refresh.status === "failed") throw new Error(refresh.error);
+        if (refresh.status !== "succeeded") {
+          throw new Error(refresh.error || `Refresh ended with unexpected status: ${refresh.status}`);
+        }
 
         document.getElementById("dataStatus").textContent = "Refresh complete. Loading latest data…";
         const dataResponse = await fetch(`${API_BASE}/api/scanner-data?ts=${Date.now()}`, { cache: "no-store" });
