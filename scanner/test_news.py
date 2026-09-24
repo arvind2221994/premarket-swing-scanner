@@ -11,6 +11,24 @@ from resilience import UpstreamUnavailableError
 
 
 class CompanyNewsFallbackTests(unittest.TestCase):
+    def test_stops_after_enough_articles_from_first_edition(self):
+        articles = [
+            {
+                "title": f"TCS contract update {index}",
+                "url": f"https://example.com/{index}",
+                "publisher": "Publisher",
+                "published_at": datetime.now(timezone.utc).isoformat(),
+                "scope": "Local",
+            }
+            for index in range(8)
+        ]
+
+        with patch.object(news, "_fetch_news_feed", return_value=articles) as fetch:
+            result = news.fetch_company_news("TCS", limit=8)
+
+        self.assertEqual(fetch.call_count, 1)
+        self.assertEqual(len(result["articles"]), 8)
+
     def test_empty_feed_falls_back_without_retrying_parse_failure(self):
         empty_response = Mock(content=b"<rss><channel></channel></rss>")
         empty_response.raise_for_status.return_value = None

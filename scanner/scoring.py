@@ -372,6 +372,8 @@ def calculate_stock_score(stock, global_data, mode="bullish"):
     return {
         "symbol": stock["symbol"],
         "company_name": stock.get("company_name") or stock["symbol"],
+        "fundamental_score_raw": stock.get("fundamental_score"),
+        "fundamentals_updated_at": stock.get("fundamentals_updated_at"),
         "data_as_of": stock.get("data_as_of"),
         "setup_mode": mode,
         "score": round(final_score, 2),

@@ -1,6 +1,9 @@
+import gzip
 import json
 import math
 import os
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from datetime import date, datetime, timedelta
 from pathlib import Path
 
@@ -12,11 +15,12 @@ from fno_trade_analyzer import (
     analyze_cash,
     analyze_fno,
     download_bhavcopy,
-    fetch_fno_ban_status,
+    fetch_fno_ban_snapshot,
+    fno_ban_status_from_snapshot,
+    load_cached_company_news,
     load_fundamental_analysis,
     load_recent_fno_frames,
 )
-from news import fetch_company_news
 from scoring import calculate_stock_score
 from global_cues import fetch_global_cues
 from market_context import add_sector_relative_strength, build_market_context
@@ -27,8 +31,16 @@ from resilience import UpstreamUnavailableError
 DEFAULT_SYMBOLS = ("RELIANCE", "ICICIBANK", "TCS")
 DEFAULT_UNIVERSE_SIZE = 15
 LATEST_DATA_PATH = Path(__file__).resolve().parent.parent / "docs" / "data" / "latest.json"
+CASH_HISTORY_CACHE_PATH = LATEST_DATA_PATH.with_name("cash_history.json.gz")
 MIN_CASH_TURNOVER_CRORE = float(os.getenv("MIN_CASH_TURNOVER_CRORE", "25"))
 MIN_FUTURES_VOLUME = int(os.getenv("MIN_FUTURES_VOLUME", "250"))
+ENRICHMENT_WORKERS = int(os.getenv("SCANNER_ENRICHMENT_WORKERS", "4"))
+CASH_DOWNLOAD_WORKERS = int(os.getenv("CASH_DOWNLOAD_WORKERS", "3"))
+CASH_SEED_MAX_SYMBOLS = int(os.getenv("CASH_SEED_MAX_SYMBOLS", "60"))
+FUNDAMENTAL_SEED_SECONDS = min(
+    int(os.getenv("FUNDAMENTALS_CACHE_SECONDS", "86400")),
+    86400,
+)
 def sanitize_json_value(value):
     if isinstance(value, float) and not math.isfinite(value):
         return None
@@ -50,6 +62,144 @@ def load_previous_snapshot(path=LATEST_DATA_PATH):
             return json.load(file)
     except (FileNotFoundError, json.JSONDecodeError, OSError):
         return None
+
+
+def load_cash_history_seed(path=CASH_HISTORY_CACHE_PATH):
+    try:
+        with gzip.open(path, "rt", encoding="utf-8") as file:
+            payload = json.load(file)
+    except (FileNotFoundError, json.JSONDecodeError, OSError):
+        return {}
+    if payload.get("schema_version") != 1:
+        return {}
+    return {
+        symbol: pd.DataFrame(rows)
+        for symbol, rows in payload.get("histories", {}).items()
+        if isinstance(rows, list) and rows
+    }
+
+
+def write_cash_history_seed(histories, path=CASH_HISTORY_CACHE_PATH):
+    payload = {
+        "schema_version": 1,
+        "histories": {
+            symbol: json.loads(frame.to_json(orient="records", date_format="iso"))
+            for symbol, frame in sorted(histories.items())
+        },
+    }
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = path.with_suffix(f"{path.suffix}.tmp")
+    content = json.dumps(payload, separators=(",", ":"), sort_keys=True).encode("utf-8")
+    try:
+        temporary_path.write_bytes(gzip.compress(content, mtime=0))
+        os.replace(temporary_path, path)
+    finally:
+        temporary_path.unlink(missing_ok=True)
+
+
+def reusable_fundamentals(snapshot, now=None):
+    if not isinstance(snapshot, dict):
+        return {}
+    now = now or datetime.now(pytz.utc)
+    reusable = {}
+    for row in snapshot.get("all_results", []):
+        if not isinstance(row, dict) or not row.get("symbol"):
+            continue
+        updated_at = row.get("fundamentals_updated_at")
+        try:
+            observed_at = datetime.fromisoformat(updated_at)
+        except (TypeError, ValueError):
+            continue
+        if observed_at.tzinfo is None:
+            observed_at = pytz.utc.localize(observed_at)
+        if (now - observed_at.astimezone(pytz.utc)).total_seconds() > FUNDAMENTAL_SEED_SECONDS:
+            continue
+        fundamental_score = row.get("fundamental_score_raw")
+        if not isinstance(fundamental_score, (int, float)):
+            continue
+        reusable[row["symbol"]] = {
+            "company_name": row.get("company_name") or row["symbol"],
+            "fundamental_score": fundamental_score,
+            "fundamentals_updated_at": updated_at,
+        }
+    return reusable
+
+
+def reusable_market_inputs(snapshot):
+    if not isinstance(snapshot, dict):
+        return None, None
+    data_as_of = snapshot.get("data_as_of")
+    rows = snapshot.get("market_inputs")
+    if not data_as_of or not isinstance(rows, list) or not rows:
+        return None, None
+    if not all(
+        isinstance(row, dict)
+        and row.get("symbol")
+        and "liquidity_filter_pass" in row
+        for row in rows
+    ):
+        return None, None
+    return [dict(row) for row in rows], data_as_of
+
+
+def market_input_snapshot(stocks):
+    enrichment_keys = {
+        "company_name",
+        "event_risk",
+        "event_risk_status",
+        "event_categories",
+        "fundamental_score",
+        "fundamentals_updated_at",
+    }
+    return [
+        {key: value for key, value in stock.items() if key not in enrichment_keys}
+        for stock in stocks
+    ]
+
+
+def enrich_stocks(stocks, fundamental_seed=None):
+    fundamental_seed = fundamental_seed or {}
+    with ThreadPoolExecutor(max_workers=ENRICHMENT_WORKERS) as executor:
+        news_futures = {
+            stock["symbol"]: executor.submit(
+                load_cached_company_news, stock["symbol"], 7, 8
+            )
+            for stock in stocks
+        }
+        fundamental_futures = {
+            stock["symbol"]: executor.submit(load_fundamental_analysis, stock["symbol"])
+            for stock in stocks
+            if stock["symbol"] not in fundamental_seed
+        }
+        for stock in stocks:
+            symbol = stock["symbol"]
+            news = news_futures[symbol].result()
+            seeded = fundamental_seed.get(symbol)
+            if seeded is not None:
+                company_name = seeded["company_name"]
+                fundamental_score = seeded["fundamental_score"]
+                fundamentals_updated_at = seeded["fundamentals_updated_at"]
+            else:
+                fundamental_analysis = fundamental_futures[symbol].result()
+                fundamental_result = fundamental_analysis["assessment"]
+                company_name = (
+                    fundamental_analysis["metrics"].get("name")
+                    if fundamental_analysis["metrics"] else symbol
+                )
+                fundamental_score = (
+                    fundamental_result["score"] if fundamental_result else None
+                )
+                fundamentals_updated_at = datetime.now(pytz.utc).isoformat()
+            stock.update({
+                "company_name": company_name,
+                "event_risk": news["event_risk"]["detected"],
+                "event_risk_status": news["event_risk"]["status"],
+                "event_categories": news["event_risk"]["categories"],
+                "fundamental_score": fundamental_score,
+                "fundamentals_updated_at": fundamentals_updated_at,
+            })
+    return stocks
 
 
 def add_previous_session_changes(results_by_mode, previous_snapshot):
@@ -118,74 +268,138 @@ def select_liquid_fno_symbols(frame, limit=DEFAULT_UNIVERSE_SIZE):
     return tuple(ranked["TckrSymb"].drop_duplicates().head(limit))
 
 
-def load_cash_histories(session, symbols, sessions=50, lookback_days=90):
-    rows = {symbol: [] for symbol in symbols}
+def load_cash_histories(session, symbols, sessions=50, lookback_days=90,
+                        seed_histories=None):
+    seed_histories = seed_histories or {}
+    rows = {
+        symbol: frame.to_dict("records")
+        for symbol in symbols
+        if (frame := seed_histories.get(symbol)) is not None
+    }
+    rows.update({symbol: rows.get(symbol, []) for symbol in symbols})
     cursor = date.today()
+    candidate_dates = [
+        cursor - timedelta(days=days_back)
+        for days_back in range(lookback_days)
+        if (cursor - timedelta(days=days_back)).weekday() < 5
+    ]
+    symbols_by_date = {trade_date: set() for trade_date in candidate_dates}
+    for symbol, symbol_rows in rows.items():
+        needed_dates = candidate_dates
+        if len(symbol_rows) >= sessions:
+            latest_seed_date = pd.to_datetime(
+                pd.DataFrame(symbol_rows)["TradDt"]
+            ).max().date()
+            needed_dates = [value for value in candidate_dates if value > latest_seed_date]
+        for trade_date in needed_dates:
+            symbols_by_date[trade_date].add(symbol)
+    symbols_by_date = {
+        trade_date: needed_symbols
+        for trade_date, needed_symbols in symbols_by_date.items()
+        if needed_symbols
+    }
 
-    for days_back in range(lookback_days):
-        if all(len(symbol_rows) >= sessions for symbol_rows in rows.values()):
-            break
+    worker_state = threading.local()
 
-        trade_date = cursor - timedelta(days=days_back)
-        if trade_date.weekday() >= 5:
-            continue
+    def fetch_date(trade_date):
+        worker_session = getattr(worker_state, "session", None)
+        if worker_session is None:
+            worker_session = requests.Session()
+            worker_state.session = worker_session
+        try:
+            frame = download_bhavcopy(worker_session, "cm", trade_date)
+        except UpstreamUnavailableError:
+            return trade_date, None
+        if frame is None:
+            return trade_date, None
+        needed_symbols = symbols_by_date[trade_date]
+        return trade_date, frame[
+            frame["TckrSymb"].isin(needed_symbols) & (frame["SctySrs"] == "EQ")
+        ].copy()
 
-        frame = download_bhavcopy(session, "cm", trade_date)
+    with ThreadPoolExecutor(max_workers=CASH_DOWNLOAD_WORKERS) as executor:
+        downloaded = list(executor.map(fetch_date, symbols_by_date))
+
+    for _, frame in sorted(downloaded, key=lambda item: item[0], reverse=True):
         if frame is None:
             continue
-
-        matches = frame[
-            frame["TckrSymb"].isin(symbols) & (frame["SctySrs"] == "EQ")
-        ]
-        for _, row in matches.iterrows():
-            if len(rows[row["TckrSymb"]]) < sessions:
-                rows[row["TckrSymb"]].append(row)
+        for _, row in frame.iterrows():
+            rows[row["TckrSymb"]].append(row.to_dict())
 
     histories = {}
     for symbol, symbol_rows in rows.items():
-        if len(symbol_rows) < sessions:
-            print(f"Skipping {symbol}: only {len(symbol_rows)} cash sessions found")
+        frame = pd.DataFrame(symbol_rows)
+        if not frame.empty:
+            frame = frame.drop_duplicates(subset=["TradDt"], keep="last")
+            frame = frame.sort_values("TradDt").tail(sessions).reset_index(drop=True)
+        if len(frame) < sessions:
+            print(f"Skipping {symbol}: only {len(frame)} cash sessions found")
             continue
-        histories[symbol] = (
-            pd.DataFrame(symbol_rows).sort_values("TradDt").reset_index(drop=True)
-        )
+        histories[symbol] = frame
     return histories
 
 
-def load_stock_universe():
+def load_stock_universe(fundamental_seed=None, enrichment_callback=None,
+                        cash_seed_path=CASH_HISTORY_CACHE_PATH,
+                        market_seed=None, market_seed_date=None):
+    fundamental_seed = fundamental_seed or {}
     with requests.Session() as session:
         fno_frames = load_recent_fno_frames(session, date.today())
         if not fno_frames:
             raise RuntimeError("No live NSE F&O histories were available")
+        latest_fno_date = pd.to_datetime(fno_frames[0]["TradDt"].iloc[0]).date()
+        if market_seed and market_seed_date == latest_fno_date.isoformat():
+            stocks = [dict(stock) for stock in market_seed]
+            ban_snapshot = fetch_fno_ban_snapshot(session)
+            for stock in stocks:
+                stock["in_fo_ban"] = fno_ban_status_from_snapshot(
+                    ban_snapshot, stock["symbol"]
+                )["is_banned"]
+            if enrichment_callback is not None:
+                enrichment_callback()
+            enrich_stocks(
+                [stock for stock in stocks if stock.get("liquidity_filter_pass")],
+                fundamental_seed,
+            )
+            return stocks, latest_fno_date
         configured = configured_symbols()
         universe_size = int(os.getenv("SCANNER_UNIVERSE_SIZE", str(DEFAULT_UNIVERSE_SIZE)))
         symbols = configured or select_liquid_fno_symbols(fno_frames[0], universe_size)
         if not symbols:
             symbols = DEFAULT_SYMBOLS
-        histories = load_cash_histories(session, symbols)
+        seed_histories = load_cash_history_seed(cash_seed_path)
+        histories = load_cash_histories(
+            session,
+            symbols,
+            seed_histories=seed_histories,
+        )
         if not histories:
             raise RuntimeError("No live NSE cash histories were available")
+        retained_histories = {**seed_histories, **histories}
+        retained_histories = dict(sorted(
+            retained_histories.items(),
+            key=lambda item: pd.to_datetime(item[1]["TradDt"]).max(),
+            reverse=True,
+        )[:CASH_SEED_MAX_SYMBOLS])
+        write_cash_history_seed(retained_histories, cash_seed_path)
 
         latest_cash_date = max(
             pd.to_datetime(history.iloc[-1]["TradDt"]).date()
             for history in histories.values()
         )
-        latest_fno_date = pd.to_datetime(fno_frames[0]["TradDt"].iloc[0]).date()
         data_as_of = min(latest_cash_date, latest_fno_date)
+        ban_snapshot = fetch_fno_ban_snapshot(session)
 
         stocks = []
         for symbol, history in histories.items():
             cash = analyze_cash(history)
-            ban_status = fetch_fno_ban_status(session, symbol)
+            ban_status = fno_ban_status_from_snapshot(ban_snapshot, symbol)
             fno = analyze_fno(symbol, fno_frames, ban_status)
             if fno is None or fno["pcr"] is None or fno["oi_change_pct"] is None:
                 print(f"Skipping {symbol}: complete live F&O data was not available")
                 continue
 
             volumes = history["TtlTradgVol"].astype(float)
-            news = fetch_company_news(symbol, days=7, limit=8)
-            fundamental_analysis = load_fundamental_analysis(symbol)
-            fundamental_result = fundamental_analysis["assessment"]
             liquidity_filter_pass = (
                 cash["average_traded_value_crore"] >= MIN_CASH_TURNOVER_CRORE
                 and fno["futures_volume"] >= MIN_FUTURES_VOLUME
@@ -193,10 +407,6 @@ def load_stock_universe():
             symbol_cash_date = pd.to_datetime(history.iloc[-1]["TradDt"]).date()
             stocks.append({
                 "symbol": symbol,
-                "company_name": (
-                    fundamental_analysis["metrics"].get("name")
-                    if fundamental_analysis["metrics"] else symbol
-                ),
                 "data_as_of": min(symbol_cash_date, latest_fno_date).isoformat(),
                 "futures_price_change_pct": fno["futures_price_change"],
                 "futures_oi_change_pct": fno["oi_change_pct"],
@@ -222,20 +432,22 @@ def load_stock_universe():
                 "futures_volume": fno["futures_volume"],
                 "call_oi_wall": fno["call_oi_wall"],
                 "put_oi_wall": fno["put_oi_wall"],
-                "event_risk": news["event_risk"]["detected"],
-                "event_risk_status": news["event_risk"]["status"],
-                "event_categories": news["event_risk"]["categories"],
-                "fundamental_score": (
-                    fundamental_result["score"] if fundamental_result else None
-                ),
             })
+
+    if enrichment_callback is not None:
+        enrichment_callback()
+    enrich_stocks(
+        [stock for stock in stocks if stock["liquidity_filter_pass"]],
+        fundamental_seed,
+    )
 
     if not stocks:
         raise RuntimeError("No symbols had complete live NSE cash and F&O data")
     return stocks, data_as_of
 
 
-def main(output_path=LATEST_DATA_PATH, progress_callback=None):
+def main(output_path=LATEST_DATA_PATH, progress_callback=None,
+         reuse_cached_fundamentals=False):
     def report_progress(stage):
         if progress_callback is not None:
             progress_callback(stage)
@@ -243,11 +455,24 @@ def main(output_path=LATEST_DATA_PATH, progress_callback=None):
     ist = pytz.timezone("Asia/Kolkata")
     now = datetime.now(ist)
     previous_snapshot = load_previous_snapshot(output_path)
+    fundamental_seed = (
+        reusable_fundamentals(previous_snapshot)
+        if reuse_cached_fundamentals else {}
+    )
+    market_seed, market_seed_date = (
+        reusable_market_inputs(previous_snapshot)
+        if reuse_cached_fundamentals else (None, None)
+    )
 
     report_progress("Fetching global market cues")
     global_cues = fetch_global_cues()
     report_progress("Loading NSE prices and derivatives")
-    stocks, data_as_of = load_stock_universe()
+    stocks, data_as_of = load_stock_universe(
+        fundamental_seed=fundamental_seed,
+        enrichment_callback=lambda: report_progress("Fetching news and fundamentals"),
+        market_seed=market_seed,
+        market_seed_date=market_seed_date,
+    )
     market_context = build_market_context(global_cues)
     add_sector_relative_strength(stocks, market_context)
     eligible_stocks = [stock for stock in stocks if stock["liquidity_filter_pass"]]
@@ -294,6 +519,7 @@ def main(output_path=LATEST_DATA_PATH, progress_callback=None):
         "disclaimer": "Educational scanner only. Not financial advice.",
         "global_cues": global_cues,
         "market_context": market_context,
+        "market_inputs": market_input_snapshot(stocks),
         "backtest": backtest,
         "universe": {
             "source": "NSE front-month single-stock futures ranked by traded value",

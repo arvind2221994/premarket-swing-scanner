@@ -38,13 +38,13 @@ jobs:
 
       - name: Commit refreshed data
         run: |
-          if git diff --quiet -- docs/data/latest.json; then
+          if [ -z "$(git status --porcelain -- docs/data/latest.json docs/data/cash_history.json.gz)" ]; then
             echo "Scanner data is unchanged"
             exit 0
           fi
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/latest.json
+          git add docs/data/latest.json docs/data/cash_history.json.gz
           git commit -m "Refresh scanner data"
           git push
 

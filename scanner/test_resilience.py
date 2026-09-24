@@ -6,7 +6,7 @@ import time
 import unittest
 from datetime import date
 from pathlib import Path
-from unittest.mock import patch
+from unittest.mock import Mock, patch
 
 import pandas as pd
 
@@ -270,6 +270,22 @@ class AnalysisSourceCacheTests(unittest.TestCase):
         ):
             loader.assert_called_once()
 
+    def test_malformed_ban_snapshot_is_unavailable(self):
+        response = Mock(text="<html>temporary upstream page</html>")
+        response.raise_for_status.return_value = None
+        session = Mock()
+        session.get.return_value = response
+
+        with patch.object(
+            fno_trade_analyzer,
+            "call_with_resilience",
+            side_effect=lambda _source, operation: operation(),
+        ):
+            snapshot = fno_trade_analyzer.fetch_fno_ban_snapshot(session)
+
+        self.assertIsNone(snapshot["banned_symbols"])
+        self.assertIsNone(snapshot["trade_date"])
+
     def test_fundamental_failure_is_isolated_from_report(self):
         with patch.object(
             fno_trade_analyzer,
@@ -344,9 +360,12 @@ class RefreshApiTests(unittest.TestCase):
         web_app.app.testing = True
         self.client = web_app.app.test_client()
         web_app.last_refresh_started_at = 0.0
+        web_app.refresh_stage_started_at = None
         web_app.refresh_state.update({
             "status": "idle",
             "stage": None,
+            "stage_durations_seconds": {},
+            "duration_seconds": None,
             "started_at": None,
             "completed_at": None,
             "error": None,
@@ -444,7 +463,8 @@ class RefreshApiTests(unittest.TestCase):
     def test_refresh_worker_generates_data_and_marks_success(self):
         observed_stages = []
 
-        def generate(progress_callback):
+        def generate(progress_callback, reuse_cached_fundamentals):
+            self.assertTrue(reuse_cached_fundamentals)
             progress_callback("Loading NSE prices and derivatives")
             observed_stages.append(web_app.refresh_state["stage"])
 
@@ -454,6 +474,8 @@ class RefreshApiTests(unittest.TestCase):
         self.assertEqual(observed_stages, ["Loading NSE prices and derivatives"])
         self.assertEqual(web_app.refresh_state["status"], "succeeded")
         self.assertIsNone(web_app.refresh_state["stage"])
+        self.assertIn("Loading NSE prices and derivatives", web_app.refresh_state["stage_durations_seconds"])
+        self.assertIsNotNone(web_app.refresh_state["duration_seconds"])
         self.assertIsNotNone(web_app.refresh_state["completed_at"])
         self.assertIsNone(web_app.refresh_state["error"])
 

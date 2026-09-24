@@ -3,6 +3,7 @@ import io
 import logging
 import os
 import re
+import threading
 import time
 import zipfile
 from concurrent.futures import ThreadPoolExecutor
@@ -35,6 +36,7 @@ FUNDAMENTALS_CACHE_SECONDS = int(os.getenv("FUNDAMENTALS_CACHE_SECONDS", "86400"
 NEWS_CACHE_SECONDS = int(os.getenv("NEWS_CACHE_SECONDS", "900"))
 GLOBAL_CUES_CACHE_SECONDS = int(os.getenv("GLOBAL_CUES_CACHE_SECONDS", "300"))
 SOURCE_CACHE_MAX_SIZE = int(os.getenv("SOURCE_CACHE_MAX_SIZE", "256"))
+NSE_REQUEST_INTERVAL_SECONDS = float(os.getenv("NSE_REQUEST_INTERVAL_SECONDS", "0.2"))
 
 cash_history_cache = BoundedTTLCache(SOURCE_CACHE_MAX_SIZE, NSE_CACHE_SECONDS)
 fno_frames_cache = BoundedTTLCache(16, NSE_CACHE_SECONDS)
@@ -44,6 +46,17 @@ company_news_cache = BoundedTTLCache(SOURCE_CACHE_MAX_SIZE, NEWS_CACHE_SECONDS)
 global_cues_cache = BoundedTTLCache(4, GLOBAL_CUES_CACHE_SECONDS)
 source_locks = KeyedLockPool()
 logger = logging.getLogger(__name__)
+nse_request_lock = threading.Lock()
+nse_last_request_at = 0.0
+
+
+def throttle_nse_request():
+    global nse_last_request_at
+    with nse_request_lock:
+        delay = NSE_REQUEST_INTERVAL_SECONDS - (time.monotonic() - nse_last_request_at)
+        if delay > 0:
+            time.sleep(delay)
+        nse_last_request_at = time.monotonic()
 
 
 def load_cached(cache, key, loader):
@@ -69,6 +82,7 @@ def download_bhavcopy(session, segment, trade_date):
         trade_date=trade_date.strftime("%Y%m%d"),
     )
     def request_bhavcopy():
+        throttle_nse_request()
         response = session.get(url, headers=HEADERS, timeout=20)
         if response.status_code != 404:
             response.raise_for_status()
@@ -128,8 +142,7 @@ def load_recent_fno_frames(session, latest_cash_date, sessions=2):
     return frames
 
 
-def fetch_fno_ban_status(session, symbol):
-    snapshot = fetch_fno_ban_snapshot(session)
+def fno_ban_status_from_snapshot(snapshot, symbol):
     return {
         "is_banned": (
             None if snapshot["banned_symbols"] is None
@@ -142,9 +155,14 @@ def fetch_fno_ban_status(session, symbol):
     }
 
 
+def fetch_fno_ban_status(session, symbol):
+    return fno_ban_status_from_snapshot(fetch_fno_ban_snapshot(session), symbol)
+
+
 def fetch_fno_ban_snapshot(session):
     try:
         def request_ban_status():
+            throttle_nse_request()
             response = session.get(FNO_BAN_URL, headers=HEADERS, timeout=20)
             response.raise_for_status()
             return response
@@ -158,9 +176,13 @@ def fetch_fno_ban_snapshot(session):
             "note": "Ban status is temporarily unavailable.",
         }
     date_match = re.search(r"Trade Date\s+(\d{1,2}-[A-Z]{3}-\d{4})", text, re.I)
-    trade_date = None
-    if date_match:
-        trade_date = pd.to_datetime(date_match.group(1)).date().isoformat()
+    if not date_match:
+        return {
+            "banned_symbols": None,
+            "trade_date": None,
+            "note": "Ban status is temporarily unavailable.",
+        }
+    trade_date = pd.to_datetime(date_match.group(1)).date().isoformat()
 
     lines = [line.strip() for line in text.splitlines()[1:] if line.strip()]
     banned_symbols = {
@@ -243,11 +265,11 @@ def load_fundamental_analysis(symbol):
     }
 
 
-def load_cached_company_news(symbol):
+def load_cached_company_news(symbol, days=7, limit=20):
     return load_cached(
         company_news_cache,
-        symbol,
-        lambda: fetch_company_news(symbol),
+        (symbol, days, limit),
+        lambda: fetch_company_news(symbol, days=days, limit=limit),
     )
 
 

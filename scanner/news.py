@@ -154,6 +154,8 @@ def fetch_company_news(symbol, company_name=None, days=7, limit=20):
                 continue
         if not edition_available:
             errors.append(f"{edition['scope']} news is temporarily unavailable.")
+        if len(articles) >= limit:
+            break
 
     unique = {}
     for article in articles:

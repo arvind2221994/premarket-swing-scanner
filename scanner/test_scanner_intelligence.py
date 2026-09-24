@@ -1,7 +1,10 @@
 import importlib.util
 import json
 import sys
+import tempfile
 import unittest
+from concurrent.futures import Future
+from datetime import date, datetime, timedelta, timezone
 from pathlib import Path
 from unittest.mock import Mock, patch
 
@@ -42,6 +45,215 @@ add_sector_relative_strength = scanner_job.add_sector_relative_strength
 add_previous_session_changes = scanner_job.add_previous_session_changes
 sanitize_json_value = scanner_job.sanitize_json_value
 select_liquid_fno_symbols = scanner_job.select_liquid_fno_symbols
+
+
+class ScannerEnrichmentTests(unittest.TestCase):
+    def test_cash_history_seed_round_trip(self):
+        histories = {
+            "TCS": pd.DataFrame([
+                {"TradDt": "2026-09-22", "TckrSymb": "TCS", "ClsPric": 100},
+                {"TradDt": "2026-09-23", "TckrSymb": "TCS", "ClsPric": 102},
+            ])
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "cash_history.json.gz"
+            scanner_job.write_cash_history_seed(histories, path)
+            loaded = scanner_job.load_cash_history_seed(path)
+
+        self.assertEqual(list(loaded), ["TCS"])
+        self.assertEqual(loaded["TCS"]["ClsPric"].tolist(), [100, 102])
+
+    def test_cash_history_seed_is_byte_stable(self):
+        histories = {
+            "TCS": pd.DataFrame([
+                {"TradDt": "2026-09-23", "TckrSymb": "TCS", "ClsPric": 102},
+            ])
+        }
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "cash_history.json.gz"
+            scanner_job.write_cash_history_seed(histories, path)
+            first = path.read_bytes()
+            scanner_job.write_cash_history_seed(histories, path)
+            second = path.read_bytes()
+
+        self.assertEqual(first, second)
+
+    def test_cash_download_tolerates_failed_date_and_filters_market_rows(self):
+        requested_dates = []
+
+        def download(_session, _segment, trade_date):
+            requested_dates.append(trade_date)
+            if trade_date == date.today():
+                raise UpstreamUnavailableError("NSE")
+            return pd.DataFrame([
+                {"TradDt": trade_date.isoformat(), "TckrSymb": "TCS", "SctySrs": "EQ"},
+                {"TradDt": trade_date.isoformat(), "TckrSymb": "OTHER", "SctySrs": "EQ"},
+            ])
+
+        with patch.object(scanner_job, "download_bhavcopy", side_effect=download):
+            histories = scanner_job.load_cash_histories(
+                Mock(),
+                ("TCS",),
+                sessions=2,
+                lookback_days=5,
+            )
+
+        self.assertGreaterEqual(len(requested_dates), 3)
+        self.assertEqual(set(histories), {"TCS"})
+        self.assertEqual(set(histories["TCS"]["TckrSymb"]), {"TCS"})
+
+    def test_same_date_market_seed_skips_cash_downloads(self):
+        market_seed = [{
+            "symbol": "TCS",
+            "liquidity_filter_pass": True,
+            "data_as_of": "2026-09-23",
+            "in_fo_ban": False,
+        }]
+        ban_snapshot = {
+            "banned_symbols": {"TCS"},
+            "trade_date": "2026-09-24",
+            "note": "Current ban list.",
+        }
+        session_context = Mock()
+        session_context.__enter__ = Mock(return_value=Mock())
+        session_context.__exit__ = Mock(return_value=False)
+
+        with (
+            patch.object(scanner_job.requests, "Session", return_value=session_context),
+            patch.object(scanner_job, "load_recent_fno_frames", return_value=[pd.DataFrame([{"TradDt": "2026-09-23"}])]),
+            patch.object(scanner_job, "fetch_fno_ban_snapshot", return_value=ban_snapshot) as fetch_ban,
+            patch.object(scanner_job, "load_cash_histories") as cash_loader,
+            patch.object(scanner_job, "enrich_stocks", side_effect=lambda stocks, _: stocks) as enrich,
+        ):
+            stocks, data_as_of = scanner_job.load_stock_universe(
+                market_seed=market_seed,
+                market_seed_date="2026-09-23",
+            )
+
+        cash_loader.assert_not_called()
+        fetch_ban.assert_called_once()
+        enrich.assert_called_once()
+        self.assertEqual(stocks[0]["symbol"], "TCS")
+        self.assertTrue(stocks[0]["in_fo_ban"])
+        self.assertEqual(data_as_of.isoformat(), "2026-09-23")
+
+    def test_stock_universe_fetches_one_ban_snapshot_for_all_symbols(self):
+        history = pd.DataFrame([
+            {"TradDt": "2026-09-23", "TtlTradgVol": 1000},
+        ])
+        cash = {
+            "close": 100,
+            "sma20": 95,
+            "sma50": 90,
+            "return_5d": 2,
+            "gap_pct": 0,
+            "gap_atr": 0,
+            "atr14": 2,
+            "session_move_atr": 0.5,
+            "distance_from_breakout_atr": 0.2,
+            "distance_from_sma20_atr": 2.5,
+            "prior_twenty_day_low": 85,
+            "liquidity_tier": "high",
+            "estimated_slippage_bps": 5,
+            "average_traded_value_crore": 100,
+        }
+        fno = {
+            "pcr": 1,
+            "oi_change_pct": 2,
+            "futures_price_change": 1,
+            "futures_volume": 1000,
+            "call_oi_wall": 110,
+            "put_oi_wall": 90,
+        }
+        snapshot = {
+            "banned_symbols": set(),
+            "trade_date": "2026-09-23",
+            "note": "Current ban list.",
+        }
+        session = Mock()
+        session_context = Mock()
+        session_context.__enter__ = Mock(return_value=session)
+        session_context.__exit__ = Mock(return_value=False)
+
+        with (
+            patch.object(scanner_job.requests, "Session", return_value=session_context),
+            patch.object(scanner_job, "load_recent_fno_frames", return_value=[pd.DataFrame([{"TradDt": "2026-09-23"}])]),
+            patch.object(scanner_job, "configured_symbols", return_value=("AAA", "BBB")),
+            patch.object(scanner_job, "load_cash_histories", return_value={"AAA": history, "BBB": history}),
+            patch.object(scanner_job, "analyze_cash", return_value=cash),
+            patch.object(scanner_job, "analyze_fno", return_value=fno),
+            patch.object(scanner_job, "fetch_fno_ban_snapshot", return_value=snapshot) as fetch_ban,
+            patch.object(scanner_job, "load_cash_history_seed", return_value={}),
+            patch.object(scanner_job, "write_cash_history_seed"),
+            patch.object(scanner_job, "enrich_stocks", side_effect=lambda stocks, _: stocks),
+        ):
+            stocks, _ = scanner_job.load_stock_universe()
+
+        self.assertEqual(len(stocks), 2)
+        fetch_ban.assert_called_once_with(session)
+
+    def test_reuses_only_fundamentals_newer_than_twenty_four_hours(self):
+        now = datetime(2026, 9, 24, 8, 0, tzinfo=timezone.utc)
+        snapshot = {
+            "all_results": [
+                {
+                    "symbol": "FRESH",
+                    "company_name": "Fresh Limited",
+                    "fundamental_score_raw": 7,
+                    "fundamentals_updated_at": (now - timedelta(hours=23)).isoformat(),
+                },
+                {
+                    "symbol": "STALE",
+                    "company_name": "Stale Limited",
+                    "fundamental_score_raw": 4,
+                    "fundamentals_updated_at": (now - timedelta(hours=25)).isoformat(),
+                },
+            ]
+        }
+
+        reusable = scanner_job.reusable_fundamentals(snapshot, now=now)
+
+        self.assertEqual(set(reusable), {"FRESH"})
+        self.assertEqual(reusable["FRESH"]["fundamental_score"], 7)
+
+    def test_enrichment_uses_bounded_pool_and_skips_seeded_fundamentals(self):
+        executor = Mock()
+        context = Mock()
+        context.__enter__ = Mock(return_value=executor)
+        context.__exit__ = Mock(return_value=False)
+
+        def submit(operation, *args, **kwargs):
+            future = Future()
+            future.set_result(operation(*args, **kwargs))
+            return future
+
+        executor.submit.side_effect = submit
+        news = {
+            "event_risk": {
+                "detected": False,
+                "status": "clear",
+                "categories": [],
+            }
+        }
+        seed = {
+            "TCS": {
+                "company_name": "Tata Consultancy Services",
+                "fundamental_score": 8,
+                "fundamentals_updated_at": "2026-09-24T08:00:00+00:00",
+            }
+        }
+
+        with (
+            patch.object(scanner_job, "ThreadPoolExecutor", return_value=context) as pool,
+            patch.object(scanner_job, "load_cached_company_news", return_value=news),
+            patch.object(scanner_job, "load_fundamental_analysis") as fundamentals,
+        ):
+            stocks = scanner_job.enrich_stocks([{"symbol": "TCS"}], seed)
+
+        pool.assert_called_once_with(max_workers=4)
+        fundamentals.assert_not_called()
+        self.assertEqual(stocks[0]["fundamental_score"], 8)
+        self.assertEqual(stocks[0]["event_risk_status"], "clear")
 
 
 class FundamentalDataTests(unittest.TestCase):

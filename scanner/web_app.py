@@ -52,9 +52,12 @@ analysis_locks = KeyedLockPool()
 health_lock = threading.Lock()
 refresh_lock = threading.Lock()
 last_refresh_started_at = 0.0
+refresh_stage_started_at = None
 refresh_state = {
     "status": "idle",
     "stage": None,
+    "stage_durations_seconds": {},
+    "duration_seconds": None,
     "started_at": None,
     "completed_at": None,
     "error": None,
@@ -138,17 +141,42 @@ def record_analysis_failure(error):
 
 
 def run_scanner_refresh():
-    global last_refresh_started_at
+    global last_refresh_started_at, refresh_stage_started_at
 
     def update_stage(stage):
+        global refresh_stage_started_at
         with refresh_lock:
+            now = time.monotonic()
+            previous_stage = refresh_state["stage"]
+            if previous_stage and refresh_stage_started_at is not None:
+                refresh_state["stage_durations_seconds"][previous_stage] = round(
+                    now - refresh_stage_started_at, 2
+                )
             refresh_state["stage"] = stage
+            refresh_stage_started_at = now
+
+    def finish_timing():
+        global refresh_stage_started_at
+        now = time.monotonic()
+        stage = refresh_state["stage"]
+        if stage and refresh_stage_started_at is not None:
+            refresh_state["stage_durations_seconds"][stage] = round(
+                now - refresh_stage_started_at, 2
+            )
+        refresh_state["duration_seconds"] = round(
+            sum(refresh_state["stage_durations_seconds"].values()), 2
+        )
+        refresh_stage_started_at = None
 
     try:
-        scanner_generator.main(progress_callback=update_stage)
+        scanner_generator.main(
+            progress_callback=update_stage,
+            reuse_cached_fundamentals=True,
+        )
     except Exception:
         app.logger.exception("Scanner refresh failed")
         with refresh_lock:
+            finish_timing()
             last_refresh_started_at = 0.0
             refresh_state.update({
                 "status": "failed",
@@ -158,6 +186,12 @@ def run_scanner_refresh():
             })
     else:
         with refresh_lock:
+            finish_timing()
+            app.logger.info(
+                "Scanner refresh completed in %.2fs: %s",
+                refresh_state["duration_seconds"],
+                refresh_state["stage_durations_seconds"],
+            )
             refresh_state.update({
                 "status": "succeeded",
                 "stage": None,
@@ -330,7 +364,7 @@ def refresh_status():
 
 @app.post("/api/refresh")
 def refresh_scanner_data():
-    global last_refresh_started_at
+    global last_refresh_started_at, refresh_stage_started_at
 
     origin = request.headers.get("Origin")
     same_origin = request.host_url.rstrip("/")
@@ -354,10 +388,13 @@ def refresh_scanner_data():
         refresh_state.update({
             "status": "running",
             "stage": "Starting refresh",
+            "stage_durations_seconds": {},
+            "duration_seconds": None,
             "started_at": utc_now(),
             "completed_at": None,
             "error": None,
         })
+        refresh_stage_started_at = time.monotonic()
         thread = threading.Thread(
             target=run_scanner_refresh,
             name="scanner-refresh",
@@ -366,6 +403,12 @@ def refresh_scanner_data():
         try:
             thread.start()
         except RuntimeError:
+            now = time.monotonic()
+            refresh_state["stage_durations_seconds"]["Starting refresh"] = round(
+                now - refresh_stage_started_at, 2
+            )
+            refresh_state["duration_seconds"] = refresh_state["stage_durations_seconds"]["Starting refresh"]
+            refresh_stage_started_at = None
             last_refresh_started_at = 0.0
             refresh_state.update({
                 "status": "failed",
