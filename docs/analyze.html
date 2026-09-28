@@ -184,6 +184,33 @@
 
     @keyframes spin { to { transform: rotate(360deg); } }
 
+    .analysis-progress {
+      max-width: 680px;
+      margin: 14px 0 18px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-left: 5px solid var(--blue);
+      border-radius: 8px;
+      background: var(--surface);
+    }
+    .analysis-progress[hidden] { display: none; }
+    .progress-header, .progress-actions { display: flex; align-items: center; justify-content: space-between; gap: 14px; }
+    .progress-title { margin: 0; font-weight: 700; }
+    .progress-time { color: var(--blue); font: 700 14px "Space Grotesk", sans-serif; white-space: nowrap; }
+    .progress-expectation { margin: 4px 0 12px; color: var(--muted); font-size: 13px; }
+    .progress-stages { display: grid; gap: 7px; margin: 0 0 15px; padding: 0; list-style: none; }
+    .progress-stage { display: flex; align-items: center; gap: 9px; margin: 0; color: var(--muted); font-size: 13px; }
+    .progress-stage::before { content: ""; width: 9px; height: 9px; flex: 0 0 9px; border: 2px solid #aeb8b0; border-radius: 50%; }
+    .progress-stage.active { color: var(--ink); font-weight: 700; }
+    .progress-stage.active::before { border-color: var(--green); border-top-color: transparent; animation: spin .8s linear infinite; }
+    .progress-stage.complete { color: var(--green); }
+    .progress-stage.complete::before { border-color: var(--green); background: var(--green); }
+    .progress-note { margin: 0; color: var(--muted); font-size: 12px; }
+    .progress-actions { justify-content: flex-start; margin-top: 14px; }
+    .progress-action { min-height: 38px; padding: 0 13px; border: 1px solid var(--line); border-radius:6px; background: var(--surface); color: var(--ink); text-decoration: none; }
+    .progress-action:hover, .progress-action:focus-visible { border-color: var(--green); color: var(--green); }
+    .progress-action.retry { border-color: var(--ink); background: var(--ink); color: #fff; }
+
     #report[hidden] { display: none; }
 
     .summary {
@@ -220,6 +247,10 @@
     .score-value, .score-label { position: relative; text-align: center; }
     .score-value { font: 700 38px/1 "Space Grotesk", sans-serif; }
     .score-label { color: var(--muted); font-size: 13px; }
+    .score-band { position: relative; margin-top: 5px; text-align: center; font-size: 12px; font-weight: 700; }
+    .score-band.good { color: var(--green); }
+    .score-band.caution { color: var(--amber); }
+    .score-band.warning { color: var(--red); }
 
     .eyebrow {
       margin: 0 0 5px;
@@ -230,6 +261,8 @@
     }
 
     .verdict { margin: 8px 0 12px; font-size: 20px; font-weight: 600; }
+    .decision-label { margin: 0; color: var(--muted); font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .decision-explanation { max-width: 680px; margin: 7px 0 12px; color: var(--muted); }
 
     .badge {
       display: inline-flex;
@@ -242,6 +275,13 @@
     }
 
     .meta { color: var(--muted); font-size: 14px; }
+    .summary-facts { display: flex; flex-wrap: wrap; gap: 8px 18px; margin-top: 12px; }
+    .summary-fact { color: var(--muted); font-size: 13px; }
+    .summary-fact strong { color: var(--ink); }
+    .decision-list { display: grid; gap: 9px; margin: 14px 0 0; }
+    .decision-item { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 12px; padding-top: 9px; border-top: 1px solid var(--line); }
+    .decision-question { color: var(--muted); font-size: 12px; font-weight: 700; }
+    .decision-answer { font-size: 13px; font-weight: 600; }
 
     .summary-action {
       min-height: 42px;
@@ -257,6 +297,29 @@
       background: var(--ink);
       color: white;
     }
+
+    .guidance {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 18px;
+      margin-top: 18px;
+    }
+    .guidance-card { padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--surface); }
+    .guidance-card h2 { margin-bottom: 8px; }
+    .guidance-intro { margin: 0 0 14px; color: var(--muted); }
+    .guidance-list { display: grid; gap: 10px; padding: 0; list-style: none; }
+    .guidance-list li { position: relative; margin: 0; padding-left: 25px; }
+    .guidance-list li::before {
+      content: "→";
+      position: absolute;
+      left: 0;
+      color: var(--blue);
+      font-weight: 700;
+    }
+    .signal-counts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 14px; }
+    .signal-count { padding: 5px 8px; border-radius: 4px; background: var(--paper); font-size: 12px; font-weight: 700; }
+    .signal-count.positive-count { background: var(--green-soft); color: var(--green); }
+    .signal-count.negative-count { background: var(--red-soft); color: var(--red); }
 
     .score-dialog {
       width: min(680px, calc(100% - 32px));
@@ -292,19 +355,27 @@
 
     .daily-change {
       margin-top: 18px;
-      padding: 22px;
       border: 1px solid var(--line);
       border-left: 5px solid var(--blue);
       border-radius: 8px;
       background: var(--surface);
     }
+    .daily-change > summary {
+      padding: 18px 22px;
+      cursor: pointer;
+      list-style: none;
+    }
+    .daily-change > summary::-webkit-details-marker { display: none; }
+    .daily-change > summary::after { content: "Show details"; margin-left: auto; color: var(--blue); font-size: 13px; font-weight: 600; }
+    .daily-change[open] > summary::after { content: "Hide details"; }
+    .daily-change .change-list { padding: 0 22px 22px; }
 
     .change-header {
       display: flex;
       align-items: baseline;
       justify-content: space-between;
       gap: 16px;
-      margin-bottom: 16px;
+      margin: 0;
     }
 
     .score-change { font: 700 20px/1 "Space Grotesk", sans-serif; }
@@ -315,6 +386,12 @@
     .change-kind { font-weight: 700; }
     .change-kind.positive-change { color: var(--green); }
     .change-kind.negative-change { color: var(--red); }
+    .score-history { display:flex; align-items:flex-end; gap:24px; min-height:150px; margin:0 22px 16px; padding:18px 18px 0; border-bottom:1px solid var(--line); background:linear-gradient(to top,rgba(23,105,170,.07),transparent); }
+    .history-column { display:grid; grid-template-rows:1fr auto auto; align-items:end; justify-items:center; width:72px; height:125px; }
+    .history-bar { width:34px; min-height:4px; border-radius:4px 4px 0 0; background:var(--blue); }
+    .history-column.current .history-bar { background:var(--green); }
+    .history-value { margin-top:5px; font-weight:700; }
+    .history-label { color:var(--muted); font-size:11px; }
 
     .trade-plan {
       margin-top: 18px;
@@ -325,6 +402,8 @@
     }
 
     .trade-plan[hidden] { display: none; }
+    .trade-plan-unavailable { margin: 0; padding: 15px 16px; border-left: 4px solid var(--amber); background: var(--amber-soft); }
+    .trade-plan-unavailable[hidden], .trade-plan-content[hidden] { display: none; }
     .plan-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 20px; }
     .plan-status { padding: 6px 10px; border-radius: 4px; font-size: 13px; font-weight: 700; }
     .plan-status.valid { background: var(--green-soft); color: var(--green); }
@@ -369,6 +448,11 @@
     ul { margin: 0; padding-left: 20px; }
     li { margin: 8px 0; line-height: 1.45; }
 
+    .detail-section { margin-top: 18px; border: 1px solid var(--line); border-radius: 8px; background: rgba(255, 255, 255, 0.55); }
+    .detail-section > summary { padding: 18px 22px; color: var(--blue); font-weight: 700; cursor: pointer; }
+    .detail-section > summary span { display: block; margin-top: 3px; color: var(--muted); font-size: 13px; font-weight: 400; }
+    .detail-section-body { padding: 0 18px 18px; }
+
     .metric-grid {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -381,16 +465,16 @@
       position: relative;
       display: inline-grid;
       place-items: center;
-      flex: 0 0 12px;
-      width: 12px;
-      height: 12px;
-      min-height: 12px;
+      flex: 0 0 18px;
+      width: 18px;
+      height: 18px;
+      min-height: 18px;
       padding: 0;
       border: 1px solid var(--muted);
       border-radius: 50%;
       background: var(--surface);
       color: var(--muted);
-      font: 500 10px/1 "IBM Plex Sans", sans-serif;
+      font: 600 11px/1 "IBM Plex Sans", sans-serif;
       cursor: help;
     }
     .metric-help:hover, .metric-help:focus {
@@ -424,6 +508,10 @@
     .metric:nth-child(even) .metric-help::after { right: 0; left: auto; transform: none; }
     .metric-help:hover::after, .metric-help:focus::after { opacity: 1; visibility: visible; }
     .metric-value { font: 600 18px/1.25 "Space Grotesk", sans-serif; overflow-wrap: anywhere; }
+    .metric-interpretation { margin-top: 4px; color: var(--muted); font-size: 12px; line-height: 1.35; }
+    .metric-interpretation.good { color: var(--green); }
+    .metric-interpretation.warning { color: var(--red); }
+    .metric-interpretation.caution { color: var(--amber); }
     .option-walls { display:grid; gap:9px; margin-top:18px; padding-top:16px; border-top:1px solid var(--line); }
     .wall-row { display:grid; grid-template-columns:62px minmax(0,1fr) minmax(0,1fr); gap:8px; align-items:center; }
     .wall-strike { color:var(--muted); font-size:12px; text-align:right; }
@@ -496,9 +584,16 @@
     @media (max-width: 760px) {
       main { padding-top: 26px; }
       form { grid-template-columns: 1fr; }
-      .summary { grid-template-columns: 1fr; text-align: center; }
-      .summary-action { align-self: center; justify-self: end; }
-      .two-column, .three-column { grid-template-columns: 1fr; }
+      .summary { grid-template-columns: 92px minmax(0, 1fr); gap:16px; padding:18px; text-align:left; }
+      .score-ring { width:88px; }
+      .score-ring::before { inset:8px; }
+      .score-value { font-size:27px; }
+      .score-label,.score-band { font-size:10px; }
+      .summary-action { grid-column:1 / -1; width:100%; align-self:center; justify-self:center; }
+      .decision-item { grid-template-columns:1fr; gap:2px; }
+      .guidance, .two-column { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; }
+      .guidance > *, .two-column > * { flex:0 0 min(86vw,360px); scroll-snap-align:start; }
+      .three-column { grid-template-columns: 1fr; }
       .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .change-header { align-items: flex-start; flex-direction: column; }
       .plan-header { align-items: flex-start; flex-direction: column; }
@@ -523,7 +618,7 @@
 
   <main>
     <h1>Stock analysis</h1>
-    <p class="intro">Run a live NSE cash, derivatives, and fundamentals assessment.</p>
+    <p class="intro">Check whether an NSE stock has a strong enough setup for a new swing-trade entry.</p>
 
     <form id="analysisForm">
       <div class="ticker-field">
@@ -537,47 +632,81 @@
       <div id="recentList" class="recent-list"></div>
     </section>
     <div id="status" class="status" aria-live="polite"></div>
+    <section id="analysisProgress" class="analysis-progress" aria-labelledby="progressTitle" aria-live="polite" hidden>
+      <div class="progress-header"><p id="progressTitle" class="progress-title">Analyzing <span id="progressTicker"></span></p><span id="elapsedTime" class="progress-time">0s elapsed</span></div>
+      <p class="progress-expectation">Usually 20–60 seconds. Live data providers can occasionally take longer.</p>
+      <ol class="progress-stages">
+        <li class="progress-stage" data-stage="0">Loading price history</li>
+        <li class="progress-stage" data-stage="1">Checking derivatives positioning</li>
+        <li class="progress-stage" data-stage="2">Reading fundamentals</li>
+        <li class="progress-stage" data-stage="3">Reviewing recent news</li>
+        <li class="progress-stage" data-stage="4">Calculating score</li>
+      </ol>
+      <p id="progressNote" class="progress-note"></p>
+      <div class="progress-actions">
+        <button id="cancelAnalysis" class="progress-action" type="button">Cancel analysis</button>
+        <button id="retryAnalysis" class="progress-action retry" type="button" hidden>Retry analysis</button>
+        <a class="progress-action" href="./index.html">Continue browsing</a>
+      </div>
+    </section>
 
     <div id="report" hidden>
       <section class="summary">
         <div id="scoreRing" class="score-ring">
           <div id="scoreValue" class="score-value"></div>
           <div class="score-label">out of 100</div>
+          <div id="scoreBand" class="score-band"></div>
         </div>
         <div>
           <p id="reportDate" class="eyebrow"></p>
           <h2 id="reportTitle"></h2>
+          <p class="decision-label">At a glance</p>
           <p id="verdict" class="verdict"></p>
+          <p id="decisionExplanation" class="decision-explanation"></p>
           <span id="confidence" class="badge"></span>
+          <div class="decision-list">
+            <div class="decision-item"><span class="decision-question">What needs to happen next?</span><span id="decisionNext" class="decision-answer"></span></div>
+            <div class="decision-item"><span class="decision-question">What invalidates it?</span><span id="decisionInvalidation" class="decision-answer"></span></div>
+            <div class="decision-item"><span class="decision-question">How reliable is this?</span><span id="decisionReliability" class="decision-answer"></span></div>
+          </div>
           <p id="cacheStatus" class="meta"></p>
         </div>
-        <button id="scoringRubricButton" class="summary-action" type="button" aria-haspopup="dialog" aria-controls="scoreDialog">Scoring rubric</button>
+        <button id="scoringRubricButton" class="summary-action" type="button" aria-haspopup="dialog" aria-controls="scoreDialog">How this was calculated</button>
       </section>
 
-      <section class="daily-change" aria-labelledby="dailyChangeTitle">
-        <div class="change-header">
-          <div>
-            <h2 id="dailyChangeTitle">What changed since yesterday?</h2>
-            <span id="comparisonDate" class="meta"></span>
+      <section class="guidance" aria-label="What this result means">
+        <article class="guidance-card">
+          <h2 id="plainLanguageTitle">Why this result?</h2>
+          <p id="plainLanguageIntro" class="guidance-intro"></p>
+          <ul id="plainLanguageReasons" class="guidance-list"></ul>
+          <div class="signal-counts">
+            <span id="positiveSignalCount" class="signal-count positive-count"></span>
+            <span id="negativeSignalCount" class="signal-count negative-count"></span>
           </div>
-          <span id="scoreChange" class="score-change"></span>
-        </div>
-        <div id="signalChanges" class="change-list"></div>
+        </article>
+        <article class="guidance-card">
+          <h2>What should change before reconsidering?</h2>
+          <p class="guidance-intro">These are checkpoints, not a recommendation to trade.</p>
+          <ul id="reconsiderationChecks" class="guidance-list"></ul>
+        </article>
       </section>
 
-      <section id="tradePlan" class="trade-plan" aria-labelledby="tradePlanTitle" hidden>
+      <section id="tradePlan" class="trade-plan" aria-labelledby="tradePlanTitle">
         <div class="plan-header">
           <h2 id="tradePlanTitle">Trade plan</h2>
           <span id="planStatus" class="plan-status"></span>
         </div>
-        <div id="planLevels" class="plan-grid"></div>
-        <p id="invalidation" class="invalidation"></p>
-        <div class="position-calculator">
-          <h3>Position size calculator</h3>
-          <div class="calculator-grid">
-            <label class="calculator-field">Trading capital (₹)<input id="accountCapital" type="number" min="1" step="1000" value="100000"></label>
-            <label class="calculator-field">Risk per trade (%)<input id="riskPercent" type="number" min="0.1" max="5" step="0.1" value="1"></label>
-            <div id="positionResult" class="position-result" aria-live="polite"></div>
+        <p id="tradePlanUnavailable" class="trade-plan-unavailable" hidden></p>
+        <div id="tradePlanContent" class="trade-plan-content">
+          <div id="planLevels" class="plan-grid"></div>
+          <p id="invalidation" class="invalidation"></p>
+          <div class="position-calculator">
+            <h3>Position size calculator</h3>
+            <div class="calculator-grid">
+              <label class="calculator-field">Trading capital (₹)<input id="accountCapital" type="number" min="1" step="1000" value="100000"></label>
+              <label class="calculator-field">Risk per trade (%)<input id="riskPercent" type="number" min="0.1" max="5" step="0.1" value="1"></label>
+              <div id="positionResult" class="position-result" aria-live="polite"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -587,20 +716,40 @@
         <section class="panel negative"><h2 id="riskFactorsTitle">Risk factors</h2><ul id="cons"></ul></section>
       </div>
 
-      <div id="analysisColumns" class="three-column">
-        <section class="panel"><h2>Cash trend</h2><div id="cashMetrics" class="metric-grid"></div></section>
-        <section class="panel"><h2>F&amp;O positioning</h2><div id="fnoMetrics" class="metric-grid"></div><div id="optionWalls" class="option-walls"></div></section>
-        <section id="fundamentalsPanel" class="panel"><h2>Fundamentals</h2><div id="fundamentalMetrics" class="metric-grid"></div></section>
-      </div>
+      <details class="daily-change" aria-labelledby="dailyChangeTitle">
+        <summary class="change-header">
+          <div>
+            <h2 id="dailyChangeTitle">What changed since yesterday?</h2>
+            <span id="comparisonDate" class="meta"></span>
+          </div>
+          <span id="scoreChange" class="score-change"></span>
+        </summary>
+        <div id="scoreHistory" class="score-history" role="img" aria-label="Current and previous session score chart"></div>
+        <div id="signalChanges" class="change-list"></div>
+      </details>
 
-      <section class="panel" style="margin-top: 18px">
-        <h2>Technical levels</h2>
-        <div id="riskMetrics" class="metric-grid"></div>
-        <div id="fundamentalObservations">
-          <h3 style="margin-top: 22px">Fundamental observations</h3>
-          <ul id="fundamentalTags"></ul>
+      <details class="detail-section">
+        <summary>
+          Detailed market data
+          <span>Raw price, derivatives, fundamental, and technical measurements.</span>
+        </summary>
+        <div class="detail-section-body">
+          <div id="analysisColumns" class="three-column">
+            <section class="panel"><h2>Price trend</h2><div id="cashMetrics" class="metric-grid"></div></section>
+            <section class="panel"><h2>Futures and options</h2><div id="fnoMetrics" class="metric-grid"></div><div id="optionWalls" class="option-walls"></div></section>
+            <section id="fundamentalsPanel" class="panel"><h2>Company fundamentals</h2><div id="fundamentalMetrics" class="metric-grid"></div></section>
+          </div>
+
+          <section class="panel" style="margin-top: 18px">
+            <h2>Technical levels</h2>
+            <div id="riskMetrics" class="metric-grid"></div>
+            <div id="fundamentalObservations">
+              <h3 style="margin-top: 22px">Fundamental observations</h3>
+              <ul id="fundamentalTags"></ul>
+            </div>
+          </section>
         </div>
-      </section>
+      </details>
 
       <section class="panel news-panel">
         <div class="news-header">
@@ -616,8 +765,8 @@
 
     <dialog id="scoreDialog" class="score-dialog" aria-labelledby="scoreDialogTitle">
       <div class="dialog-header">
-        <h2 id="scoreDialogTitle">Scoring rubric</h2>
-        <button id="closeScoreDialog" class="dialog-close" type="button" aria-label="Close scoring rubric">&times;</button>
+        <h2 id="scoreDialogTitle">How this result was calculated</h2>
+        <button id="closeScoreDialog" class="dialog-close" type="button" aria-label="Close calculation details">&times;</button>
       </div>
       <div class="dialog-body">
         <p class="meta">The final score combines each available signal using the active weights below.</p>
@@ -645,6 +794,10 @@
     const recentList = document.getElementById("recentList");
     const scoreDialog = document.getElementById("scoreDialog");
     const scoringRubricButton = document.getElementById("scoringRubricButton");
+    const progressElement = document.getElementById("analysisProgress");
+    const progressStages = [...progressElement.querySelectorAll("[data-stage]")];
+    const cancelAnalysisButton = document.getElementById("cancelAnalysis");
+    const retryAnalysisButton = document.getElementById("retryAnalysis");
     const recentStorageKey = "swing-scanner-recent-tickers";
     const initialParams = new URLSearchParams(location.search);
     const setupMode = initialParams.get("mode") === "bearish" ? "bearish" : "bullish";
@@ -654,6 +807,9 @@
     let suggestionLoading = false;
     let activeSuggestionIndex = -1;
     let analysisLoading = false;
+    let analysisRequest = null;
+    let progressTimer = null;
+    let lastRequestedTicker = null;
     let currentTradePlan = null;
 
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({
@@ -662,6 +818,51 @@
     const number = (value, digits = 2) => value == null ? "N/A" : Number(value).toFixed(digits);
     const signed = (value, suffix = "%") => value == null ? "N/A" : `${value >= 0 ? "+" : ""}${number(value)}${suffix}`;
     const currency = value => value == null ? "N/A" : `₹${Number(value).toLocaleString("en-IN", { maximumFractionDigits: 2 })}`;
+    const isFiniteNumber = value => value != null && Number.isFinite(Number(value));
+
+    function setProgressStage(stageIndex) {
+      progressStages.forEach((stage, index) => {
+        stage.classList.toggle("complete", index < stageIndex);
+        stage.classList.toggle("active", index === stageIndex);
+      });
+    }
+
+    function startProgress(ticker) {
+      const startedAt = Date.now();
+      const stageThresholds = [0, 5, 12, 22, 34];
+      progressElement.hidden = false;
+      document.getElementById("progressTicker").textContent = ticker;
+      document.getElementById("progressNote").textContent = reportElement.hidden
+        ? "The report will appear as soon as all data sources respond."
+        : "Your previous report remains available below while this update runs.";
+      retryAnalysisButton.hidden = true;
+      cancelAnalysisButton.hidden = false;
+      const update = () => {
+        const elapsedSeconds = Math.floor((Date.now() - startedAt) / 1000);
+        document.getElementById("elapsedTime").textContent = `${elapsedSeconds}s elapsed`;
+        const stageIndex = stageThresholds.reduce((current, threshold, index) => elapsedSeconds >= threshold ? index : current, 0);
+        setProgressStage(stageIndex);
+      };
+      update();
+      clearInterval(progressTimer);
+      progressTimer = setInterval(update, 1000);
+    }
+
+    function stopProgress() {
+      clearInterval(progressTimer);
+      progressTimer = null;
+      progressElement.hidden = true;
+    }
+
+    function showProgressFailure(message) {
+      clearInterval(progressTimer);
+      progressTimer = null;
+      progressStages.forEach(stage => stage.classList.remove("active", "complete"));
+      document.getElementById("progressNote").textContent = message;
+      cancelAnalysisButton.hidden = true;
+      retryAnalysisButton.hidden = false;
+      progressElement.hidden = false;
+    }
 
     function getRecentTickers() {
       try {
@@ -782,8 +983,12 @@
     }
 
     function metrics(targetId, entries) {
-      document.getElementById(targetId).innerHTML = entries.map(([label, value, tooltip]) => `
-        <div class="metric"><div class="metric-label">${escapeHtml(label)}${tooltip ? `<button class="metric-help" type="button" title="${escapeHtml(tooltip)}" aria-label="About ${escapeHtml(label)}" data-tooltip="${escapeHtml(tooltip)}">i</button>` : ""}</div><div class="metric-value">${escapeHtml(value)}</div></div>
+      document.getElementById(targetId).innerHTML = entries.map(([label, value, tooltip, interpretation, tone = ""]) => `
+        <div class="metric">
+          <div class="metric-label">${escapeHtml(label)}${tooltip ? `<button class="metric-help" type="button" title="${escapeHtml(tooltip)}" aria-label="About ${escapeHtml(label)}" data-tooltip="${escapeHtml(tooltip)}">i</button>` : ""}</div>
+          <div class="metric-value">${escapeHtml(value)}</div>
+          ${interpretation ? `<div class="metric-interpretation ${escapeHtml(tone)}">${escapeHtml(interpretation)}</div>` : ""}
+        </div>
       `).join("");
     }
 
@@ -848,7 +1053,7 @@
       }).format(date);
     }
 
-    function renderDailyChange(change) {
+    function renderDailyChange(change, currentScore) {
       const scoreChange = Number(change?.score_change || 0);
       document.getElementById("comparisonDate").textContent = change?.previous_date
         ? `Compared with the previous trading session, ${formatTradingDate(change.previous_date)}`
@@ -859,6 +1064,20 @@
         ? `${scoreChange > 0 ? "+" : ""}${number(scoreChange, 1)} points`
         : "N/A";
       scoreElement.className = `score-change ${scoreChange > 0 ? "positive-change" : scoreChange < 0 ? "negative-change" : ""}`;
+      const current = Math.max(0, Math.min(100, Number(currentScore) || 0));
+      const previous = Math.max(0, Math.min(100, current - scoreChange));
+      const history = change
+        ? [["Previous", previous, ""], ["Current", current, "current"]]
+        : [["Current", current, "current"]];
+      const historyElement = document.getElementById("scoreHistory");
+      historyElement.setAttribute("aria-label", history.map(([label, value]) => `${label} score ${number(value, 1)} out of 100`).join(". "));
+      historyElement.innerHTML = history.map(([label, value, className]) => `
+        <div class="history-column ${className}">
+          <div class="history-bar" style="height:${value}%"></div>
+          <span class="history-value">${number(value, 1)}</span>
+          <span class="history-label">${label}</span>
+        </div>
+      `).join("");
 
       const changes = change ? [
         ...(change.added_positive || []).map(signal => ["New positive", signal, "positive-change"]),
@@ -910,17 +1129,28 @@
       ].map(([label, value]) => `<div><div class="plan-label">${label}</div><div class="plan-value">${value}</div></div>`).join("");
     }
 
-    function renderTradePlan(plan) {
+    function renderTradePlan(plan, score) {
       const section = document.getElementById("tradePlan");
-      if (!plan) {
-        section.hidden = true;
+      const content = document.getElementById("tradePlanContent");
+      const unavailable = document.getElementById("tradePlanUnavailable");
+      const planStatus = document.getElementById("planStatus");
+      section.hidden = false;
+
+      if (Number(score) < 60 || !plan) {
+        content.hidden = true;
+        unavailable.hidden = false;
+        planStatus.hidden = true;
+        unavailable.textContent = Number(score) < 60
+          ? `No trade levels are shown because this setup scored ${number(score, 1)}/100. A score of at least 60 is required before entry, stop-loss, and target levels are displayed.`
+          : "Trade levels are unavailable because the required market inputs could not be calculated.";
         currentTradePlan = null;
         return;
       }
 
+      content.hidden = false;
+      unavailable.hidden = true;
+      planStatus.hidden = false;
       currentTradePlan = plan;
-      section.hidden = false;
-      const planStatus = document.getElementById("planStatus");
       planStatus.textContent = plan.status;
       planStatus.className = `plan-status ${plan.entry_valid ? "valid" : "wait"}`;
       document.getElementById("planLevels").innerHTML = [
@@ -947,12 +1177,12 @@
       try {
         if (!available || !fundamentals || !assessment) throw new Error("Fundamentals unavailable");
         metrics("fundamentalMetrics", [
-          ["P/E", number(fundamentals.pe_ratio), "Price-to-earnings ratio: share price divided by earnings per share. Compare it with similar companies."],
-          ["P/B", number(fundamentals.pb_ratio), "Price-to-book ratio: share price divided by book value per share. Lower values can indicate a cheaper valuation."],
-          ["ROCE", fundamentals.roce == null ? "N/A" : `${number(fundamentals.roce)}%`, "Return on capital employed: operating profit generated from the capital used by the business."],
-          ["ROE", fundamentals.roe == null ? "N/A" : `${number(fundamentals.roe)}%`, "Return on equity: profit generated from shareholders' equity."],
-          ["Debt / equity", number(fundamentals.de_ratio), "Borrowings divided by shareholders' equity. Lower values generally indicate less financial leverage."],
-          ["Score", `${number(assessment.score, 1)}/10`, "Composite fundamentals score based on valuation, returns, leverage, and dividend yield."]
+          ["P/E", number(fundamentals.pe_ratio), "Price-to-earnings ratio: share price divided by earnings per share. Compare it with similar companies.", fundamentals.pe_ratio == null ? "Not available or not meaningful" : "Earnings valuation multiple"],
+          ["P/B", number(fundamentals.pb_ratio), "Price-to-book ratio: share price divided by book value per share. Lower values can indicate a cheaper valuation.", fundamentals.pb_ratio == null ? "Book-value data unavailable" : "Book-value valuation multiple"],
+          ["ROCE", fundamentals.roce == null ? "N/A" : `${number(fundamentals.roce)}%`, "Return on capital employed: operating profit generated from the capital used by the business.", fundamentals.roce == null ? "Capital-efficiency data unavailable" : fundamentals.roce >= 20 ? "Strong capital efficiency" : fundamentals.roce < 8 ? "Weak capital efficiency" : "Moderate capital efficiency", fundamentals.roce >= 20 ? "good" : fundamentals.roce < 8 ? "warning" : ""],
+          ["ROE", fundamentals.roe == null ? "N/A" : `${number(fundamentals.roe)}%`, "Return on equity: profit generated from shareholders' equity.", fundamentals.roe == null ? "Shareholder-return data unavailable" : fundamentals.roe >= 18 ? "Strong shareholder return" : fundamentals.roe < 10 ? "Weak shareholder return" : "Moderate shareholder return", fundamentals.roe == null ? "" : fundamentals.roe >= 18 ? "good" : fundamentals.roe < 10 ? "warning" : ""],
+          ["Debt / equity", number(fundamentals.de_ratio), "Borrowings divided by shareholders' equity. Lower values generally indicate less financial leverage.", fundamentals.de_ratio == null ? "Leverage data unavailable" : fundamentals.de_ratio < 0.5 ? "Conservative leverage" : fundamentals.de_ratio > 1.5 ? "High leverage" : "Moderate leverage", fundamentals.de_ratio == null ? "" : fundamentals.de_ratio < 0.5 ? "good" : fundamentals.de_ratio > 1.5 ? "warning" : ""],
+          ["Fundamental score", assessment.score == null ? "N/A" : `${number(assessment.score, 1)}/10`, "Composite fundamentals score based on valuation, returns, leverage, and dividend yield.", assessment.score == null ? "Fundamental score unavailable" : assessment.score >= 7 ? "Strong overall fundamentals" : assessment.score >= 5.5 ? "Balanced overall fundamentals" : "Weak overall fundamentals", assessment.score == null ? "" : assessment.score >= 7 ? "good" : assessment.score < 5.5 ? "warning" : ""]
         ]);
         list("fundamentalTags", assessment.tags, "No fundamental observations available.");
       } catch (error) {
@@ -966,6 +1196,82 @@
       columns.classList.toggle("without-fundamentals", !available);
     }
 
+    function scoreBand(score) {
+      if (score >= 75) return { label: "Actionable", tone: "good" };
+      if (score >= 60) return { label: "Watch", tone: "caution" };
+      return { label: "Weak", tone: "warning" };
+    }
+
+    function sentenceCase(value) {
+      const normalized = String(value || "Assessment unavailable").toLowerCase();
+      return normalized.charAt(0).toUpperCase() + normalized.slice(1);
+    }
+
+    function directionalInterpretation(value, bearish, period) {
+      if (value == null) return [`${period} direction unavailable`, ""];
+      if (value === 0) return [`${period} price is unchanged`, ""];
+      const aligned = bearish ? value < 0 : value > 0;
+      return [
+        `${period} price is ${value > 0 ? "rising" : "falling"}${aligned ? " with" : " against"} this ${bearish ? "bearish" : "bullish"} setup`,
+        aligned ? "good" : "warning"
+      ];
+    }
+
+    function plainLanguageSignal(signal) {
+      return String(signal)
+        .replace("Price is below the 20-session average", "Price is below its average over the last 20 trading sessions")
+        .replace("Price is above the 20-session average", "Price is above its average over the last 20 trading sessions")
+        .replace("Price is below the 50-session average", "Price is below its average over the last 50 trading sessions")
+        .replace("Price is above the 50-session average", "Price is above its average over the last 50 trading sessions")
+        .replace("Five-session momentum is negative", "The price trend over the last five sessions is falling")
+        .replace("Five-session momentum is positive", "The price trend over the last five sessions is rising")
+        .replace("Cash volume lacks 1.2x expansion confirmation", "Trading volume is below the 1.2 times normal confirmation level")
+        .replace("Futures positioning shows long unwinding", "Futures traders are closing bullish positions")
+        .replace("Near-ATM PCR does not support the bullish setup", "Options positioning does not support the bullish setup")
+        .replace("Near-ATM PCR does not support the bearish setup", "Options positioning does not support the bearish setup");
+    }
+
+    function renderNoviceGuidance(data, bearish, avoidingEntry) {
+      const pros = Array.isArray(data.pros) ? data.pros : [];
+      const cons = Array.isArray(data.cons) ? data.cons : [];
+      const reasons = avoidingEntry ? cons : pros;
+      const score = Number(data.score);
+      const cash = data.cash || {};
+
+      document.getElementById("plainLanguageTitle").textContent = avoidingEntry
+        ? "Why avoid a new entry?"
+        : "Why this setup qualifies";
+      document.getElementById("plainLanguageIntro").textContent = avoidingEntry
+        ? "The strongest warnings currently outweigh the positive signals."
+        : "The strongest supporting signals currently outweigh the warnings.";
+      list("plainLanguageReasons", reasons.slice(0, 3).map(plainLanguageSignal), avoidingEntry
+        ? "The score is below the entry threshold."
+        : "No supporting explanation is available.");
+      document.getElementById("positiveSignalCount").textContent = `${pros.length} positive ${pros.length === 1 ? "signal" : "signals"}`;
+      document.getElementById("negativeSignalCount").textContent = `${cons.length} ${cons.length === 1 ? "warning" : "warnings"}`;
+
+      const checks = [];
+      if (score < 75) checks.push(`Setup score reaches 75/100; it is currently ${number(score, 1)}.`);
+      if (isFiniteNumber(cash.close) && isFiniteNumber(cash.sma20)) {
+        const trendAligned = bearish ? cash.close < cash.sma20 : cash.close > cash.sma20;
+        if (!trendAligned) {
+          checks.push(`${bearish ? "Price closes below" : "Price closes above"} its 20-session average of ${currency(cash.sma20)}.`);
+        }
+      }
+      if (isFiniteNumber(cash.return_5d)) {
+        const momentumAligned = bearish ? cash.return_5d < 0 : cash.return_5d > 0;
+        if (!momentumAligned) checks.push(`The five-session price trend turns ${bearish ? "negative" : "positive"}.`);
+      }
+      if (isFiniteNumber(cash.volume_ratio) && Number(cash.volume_ratio) < 1.2) {
+        checks.push(`Trading volume reaches at least 1.2 times its normal level; it is currently ${number(cash.volume_ratio)} times.`);
+      }
+      if (!checks.length && !data.trade_plan?.entry_valid) {
+        checks.push("The remaining entry conditions in the trade plan are met.");
+      }
+      if (!checks.length) checks.push("Keep the stop-loss and invalidation level visible before sizing a position.");
+      list("reconsiderationChecks", checks.slice(0, 4), "Recheck the analysis after the next trading session.");
+    }
+
     function renderReport(data) {
       const cash = data.cash;
       const fno = data.fno;
@@ -977,19 +1283,48 @@
       const ring = document.getElementById("scoreRing");
       ring.style.setProperty("--score", Math.max(0, Math.min(100, data.score)));
       ring.style.setProperty("--score-color", scoreColor);
+      const band = scoreBand(Number(data.score));
       document.getElementById("scoreValue").textContent = number(data.score, 1);
-      document.getElementById("reportDate").textContent = `Data through ${data.data_through}`;
-      document.getElementById("reportTitle").textContent = `${data.symbol} ${data.setup_mode || setupMode} swing-trade assessment`;
-      document.getElementById("verdict").textContent = data.verdict;
+      const scoreBandElement = document.getElementById("scoreBand");
+      scoreBandElement.textContent = `${band.label} setup`;
+      scoreBandElement.className = `score-band ${band.tone}`;
+      document.getElementById("reportDate").textContent = `Market data through ${formatTradingDate(data.data_through)}`;
+      document.getElementById("reportTitle").textContent = `${data.symbol} ${sentenceCase(data.setup_mode || setupMode)} setup`;
+      document.getElementById("verdict").textContent = sentenceCase(data.verdict);
+      document.getElementById("decisionExplanation").textContent = data.score >= 75
+        ? data.trade_plan?.entry_valid
+          ? "The setup is strong enough and the model's entry conditions are currently met."
+          : "The setup is strong, but all entry conditions have not yet been met."
+        : data.score >= 60
+          ? "The setup is worth watching, but it is not strong enough for a new entry."
+          : "The setup is weak and does not currently justify a new entry.";
       const confidence = document.getElementById("confidence");
-      confidence.textContent = `${data.confidence} confidence`;
+      confidence.textContent = data.score >= 75
+        ? "Meets score threshold"
+        : `${number(75 - data.score, 1)} points below entry threshold`;
       confidence.style.setProperty("--score-color", scoreColor);
       confidence.style.setProperty("--badge-bg", badgeBackground);
+      const coverage = [
+        data.cash ? "price" : null,
+        data.fno ? "F&O" : null,
+        (data.fundamentals_available ?? data.fundamental_assessment?.score != null) ? "fundamentals" : null,
+        data.news?.event_risk && data.news.event_risk.status !== "unavailable" ? "news" : null
+      ].filter(Boolean);
+      const reliability = coverage.length === 4 ? "High" : coverage.length >= 2 ? "Moderate" : "Low";
+      document.getElementById("decisionNext").textContent = data.trade_plan?.entry_valid
+        ? "Entry conditions are met; review position size and risk before acting."
+        : data.score >= 60
+          ? data.trade_plan?.status || "Wait for the trade-plan entry conditions to be met."
+          : "Wait for the score and supporting signals to improve before reconsidering.";
+      document.getElementById("decisionInvalidation").textContent = data.trade_plan?.invalidation
+        || "No valid trade plan is available at this score.";
+      document.getElementById("decisionReliability").textContent = `${reliability} · ${coverage.length}/4 evidence groups available (${coverage.join(", ") || "limited data"}).`;
       document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
-      renderDailyChange(data.daily_change);
-      renderTradePlan(Number(data.score) >= 60 ? data.trade_plan : null);
+      renderDailyChange(data.daily_change, Number(data.score));
+      renderTradePlan(data.trade_plan, Number(data.score));
 
       const avoidingEntry = data.verdict === "AVOID NEW ENTRY";
+      renderNoviceGuidance(data, bearish, avoidingEntry);
       document.getElementById("supportingEvidenceTitle").textContent = avoidingEntry
         ? "Evidence in favor"
         : "Supporting evidence";
@@ -998,28 +1333,32 @@
         : "Risk factors";
       list("pros", Array.isArray(data.pros) ? data.pros : [], "No evidence currently supports a new entry.");
       list("cons", Array.isArray(data.cons) ? data.cons : [], avoidingEntry
-        ? "The score is below the entry threshold; review the scoring rubric for component details."
+        ? "The score is below the entry threshold; open the calculation details for the component scores."
         : "No material risk flags detected by this model.");
 
+      const oneDay = directionalInterpretation(cash.return_1d, bearish, "Latest-session");
+      const fiveDay = directionalInterpretation(cash.return_5d, bearish, "Five-session");
+      const aboveSma20 = isFiniteNumber(cash.close) && isFiniteNumber(cash.sma20) ? cash.close >= cash.sma20 : null;
+      const aboveSma50 = isFiniteNumber(cash.close) && isFiniteNumber(cash.sma50) ? cash.close >= cash.sma50 : null;
       metrics("cashMetrics", [
-        ["Close", currency(cash.close), "The latest available NSE closing price for the security."],
-        ["1-day return", signed(cash.return_1d), "The percentage change from the previous session's close to the latest close."],
-        ["5-day return", signed(cash.return_5d), "The percentage change in closing price across the latest five trading sessions."],
-        ["20-session average", currency(cash.sma20), "The average closing price over the latest 20 trading sessions, used to assess the short-term trend."],
-        ["50-session average", currency(cash.sma50), "The average closing price over the latest 50 trading sessions, used to assess the medium-term trend."],
-        ["Volume / average", `${number(cash.volume_ratio)}x`, "The latest session's traded volume divided by its prior 20-session average. Values above 1.2x indicate volume expansion."]
+        ["Latest close", currency(cash.close), "The latest available NSE closing price for the security.", "Most recent market closing price"],
+        ["Latest-session move", signed(cash.return_1d), "The percentage change from the previous session's close to the latest close.", ...oneDay],
+        ["Five-session trend", signed(cash.return_5d), "The percentage change in closing price across the latest five trading sessions.", ...fiveDay],
+        ["20-session average", currency(cash.sma20), "The average closing price over the latest 20 trading sessions, used to assess the short-term trend.", aboveSma20 == null ? "Short-term comparison unavailable" : `Price is ${aboveSma20 ? "above" : "below"} its short-term average`, aboveSma20 == null ? "" : (bearish ? !aboveSma20 : aboveSma20) ? "good" : "warning"],
+        ["50-session average", currency(cash.sma50), "The average closing price over the latest 50 trading sessions, used to assess the medium-term trend.", aboveSma50 == null ? "Medium-term comparison unavailable" : `Price is ${aboveSma50 ? "above" : "below"} its medium-term average`, aboveSma50 == null ? "" : (bearish ? !aboveSma50 : aboveSma50) ? "good" : "warning"],
+        ["Trading volume", isFiniteNumber(cash.volume_ratio) ? `${number(cash.volume_ratio)}x normal` : "N/A", "The latest session's traded volume divided by its prior 20-session average. Values above 1.2x indicate volume expansion.", !isFiniteNumber(cash.volume_ratio) ? "Volume comparison unavailable" : cash.volume_ratio >= 1.2 ? "Above-normal participation" : cash.volume_ratio < 0.8 ? "Below-normal participation" : "Near-normal participation", !isFiniteNumber(cash.volume_ratio) ? "" : cash.volume_ratio >= 1.2 ? "good" : cash.volume_ratio < 0.8 ? "caution" : ""]
       ]);
 
       metrics("fnoMetrics", fno ? [
-        ["Build-up", fno.build_up],
-        ["Futures change", signed(fno.futures_price_change)],
-        ["Open-interest change", signed(fno.oi_change_pct)],
-        ["Near-ATM PCR", number(fno.pcr)],
-        ["PCR trend", fno.pcr_trend],
-        ["Futures basis", signed(fno.basis_pct)],
-        ["Futures liquidity", fno.futures_liquidity_tier],
-        ["Call / put wall", `${number(fno.call_oi_wall, 0)} / ${number(fno.put_oi_wall, 0)}`]
-      ] : [["Availability", "No listed NSE F&O contract"]]);
+        ["Futures positioning", fno.build_up, "A summary of how futures price and open interest moved together.", fno.build_up === "Long unwinding" ? "Traders are closing bullish positions" : "Combined price and positioning signal", fno.build_up === "Long unwinding" && !bearish ? "warning" : ""],
+        ["Futures price move", signed(fno.futures_price_change), "The latest price change in the nearest liquid futures contract.", ...directionalInterpretation(fno.futures_price_change, bearish, "Futures")],
+        ["Open-interest change", signed(fno.oi_change_pct), "The change in outstanding futures positions. Interpret it together with the futures price move.", !isFiniteNumber(fno.oi_change_pct) ? "Open-interest change unavailable" : Number(fno.oi_change_pct) >= 0 ? "More futures positions are open" : "Futures positions are being closed"],
+        ["Put / call ratio", number(fno.pcr), "Near-the-money put open interest divided by call open interest. It is a positioning indicator, not a direction forecast.", fno.pcr == null ? "Options positioning unavailable" : fno.pcr < 0.7 ? "Call-heavy positioning" : fno.pcr > 1.3 ? "Put-heavy positioning" : "Relatively balanced positioning"],
+        ["Put / call trend", fno.pcr_trend, "The recent direction of the put/call ratio.", "Recent options-positioning direction"],
+        ["Futures premium", signed(fno.basis_pct), "The futures price difference from the cash price, shown as a percentage.", !isFiniteNumber(fno.basis_pct) ? "Futures premium unavailable" : fno.basis_pct >= 0 ? "Futures trade above the cash price" : "Futures trade below the cash price"],
+        ["Futures liquidity", fno.futures_liquidity_tier, "The estimated ease of entering and exiting the futures contract.", `${sentenceCase(fno.futures_liquidity_tier)} ease of execution`],
+        ["Call / put wall", `${number(fno.call_oi_wall, 0)} / ${number(fno.put_oi_wall, 0)}`, "Strikes with the largest nearby call and put open interest. They can act as resistance and support, but are not guaranteed levels.", "Possible resistance / support strikes"]
+      ] : [["Availability", "No listed NSE F&O contract", "", "Derivatives signals are excluded from this view"]]);
       renderOptionWalls(fno);
       renderFundamentals(data);
 
@@ -1058,26 +1397,41 @@
     async function analyzeTicker(ticker) {
       if (analysisLoading) return;
       analysisLoading = true;
+      lastRequestedTicker = ticker;
+      analysisRequest = new AbortController();
       updateAnalysisControls();
-      reportElement.hidden = true;
-      status.className = "status loading";
-      status.textContent = "Downloading NSE sessions and calculating the report. The first run can take up to two minutes.";
+      status.className = "status";
+      status.textContent = "";
+      startProgress(ticker);
 
       try {
-        const response = await fetch(`${API_BASE}/api/analyze/${encodeURIComponent(ticker)}?mode=${encodeURIComponent(setupMode)}`);
+        const response = await fetch(`${API_BASE}/api/analyze/${encodeURIComponent(ticker)}?mode=${encodeURIComponent(setupMode)}`, {
+          signal: analysisRequest.signal
+        });
         const data = await response.json();
         if (!response.ok) throw new Error(data.error || "Analysis failed");
+        setProgressStage(progressStages.length);
         renderReport(data);
         rememberTicker(data.symbol);
-        status.className = "status";
-        status.textContent = "";
+        stopProgress();
         history.replaceState(null, "", `?ticker=${encodeURIComponent(ticker)}&mode=${encodeURIComponent(setupMode)}`);
       } catch (error) {
-        status.className = "status error";
-        status.textContent = error.message.includes("Failed to fetch")
+        if (error.name === "AbortError") {
+          stopProgress();
+          status.className = "status";
+          status.textContent = reportElement.hidden
+            ? "Analysis cancelled."
+            : "Analysis cancelled. The previous report is still shown.";
+          return;
+        }
+        const message = error.message.includes("Failed to fetch")
           ? "The analysis service is unavailable. It may be starting up; wait a minute and try again."
           : error.message;
+        status.className = "status error";
+        status.textContent = message;
+        showProgressFailure(`${message} Your previous report, if any, remains available below.`);
       } finally {
+        analysisRequest = null;
         analysisLoading = false;
         updateAnalysisControls();
       }
@@ -1124,6 +1478,11 @@
       closeSuggestions();
       updateAnalysisControls();
       analyzeTicker(recentButton.dataset.ticker);
+    });
+
+    cancelAnalysisButton.addEventListener("click", () => analysisRequest?.abort());
+    retryAnalysisButton.addEventListener("click", () => {
+      if (lastRequestedTicker && !analysisLoading) analyzeTicker(lastRequestedTicker);
     });
 
     document.getElementById("accountCapital").addEventListener("input", calculatePositionSize);

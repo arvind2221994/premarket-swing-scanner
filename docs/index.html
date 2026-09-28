@@ -56,6 +56,21 @@
     .metric-tooltip[hidden] { display:none; }
     .condition-value { margin-top:5px; font:600 17px/1.25 "Space Grotesk",sans-serif; overflow-wrap:anywhere; } .condition-detail { margin-top:4px; color:var(--muted); font-size:11px; }
     .candidate-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:18px; }
+    .opportunity-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:14px; }
+    .opportunity-card { padding:18px; border:1px solid var(--line); border-top:4px solid var(--score-color); border-radius:8px; background:var(--surface); }
+    .opportunity-card-header { display:flex; align-items:baseline; justify-content:space-between; gap:12px; }
+    .opportunity-symbol { color:var(--ink); font:700 19px "Space Grotesk",sans-serif; text-decoration:none; }
+    .opportunity-score { color:var(--score-color); font:700 22px "Space Grotesk",sans-serif; }
+    .opportunity-reason { min-height:42px; margin:10px 0; color:var(--muted); font-size:14px; }
+    .opportunity-meta { display:flex; flex-wrap:wrap; gap:6px; }
+    .opportunity-meter { height:6px; margin:12px 0; border-radius:999px; background:var(--paper); overflow:hidden; }
+    .opportunity-meter > span { display:block; height:100%; border-radius:inherit; background:var(--score-color); }
+    .risk-alerts { display:grid; gap:8px; }
+    .risk-alert { display:grid; grid-template-columns:minmax(100px,auto) minmax(0,1fr) auto; align-items:center; gap:14px; padding:13px 15px; border-left:4px solid var(--red); border-radius:6px; background:var(--red-soft); }
+    .risk-alert-symbol { color:var(--ink); font-weight:700; text-decoration:none; }
+    .risk-alert-reason { color:#7a271a; font-size:13px; }
+    .risk-alert-score { color:var(--red); font-weight:700; }
+    .empty-state { margin:0; padding:16px; border:1px dashed var(--line); border-radius:8px; color:var(--muted); background:rgba(255,255,255,.55); }
     .mode-switch { display:inline-flex; padding:3px; border:1px solid var(--line); border-radius:6px; background:var(--surface); }
     .mode-button { min-height:34px; padding:0 12px; border:0; border-radius:4px; background:transparent; color:var(--muted); font-weight:600; }
     .mode-button[aria-pressed="true"] { background:var(--ink); color:#fff; }
@@ -75,6 +90,10 @@
     .watch-button[aria-pressed="true"] { border-color:var(--green); background:var(--green-soft); color:var(--green); }
     .compare-label { display:flex; align-items:center; gap:7px; color:var(--muted); font-size:13px; font-weight:600; } .compare-input { width:17px; height:17px; accent-color:var(--green); }
     .watchlist { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; min-height:38px; } .watchlist-empty { margin:0; color:var(--muted); }
+    .watchlist-details { border:1px solid var(--line); border-radius:8px; background:rgba(255,255,255,.55); }
+    .watchlist-details > summary { padding:14px 16px; color:var(--blue); font-weight:600; cursor:pointer; }
+    .watchlist-details[open] > summary { border-bottom:1px solid var(--line); }
+    .watchlist-details .watchlist { padding:12px; }
     .watch-item { padding:15px; border:1px solid var(--line); border-radius:8px; background:#fff; }
     .watch-heading,.watch-actions { display:flex; align-items:center; justify-content:space-between; gap:10px; }
     .watch-symbol { color:var(--ink); font-weight:700; text-decoration:none; } .watch-company { display:block; margin-top:2px; color:var(--muted); font-size:12px; }
@@ -134,18 +153,19 @@
     @keyframes skeleton-wave { to { transform:translateX(100%); } }
     @media(prefers-reduced-motion:reduce) { .skeleton::after,.refresh-button.is-refreshing .refresh-icon { animation:none; } }
     .disclaimer { margin-top:34px; color:var(--muted); font-size:13px; }
-    @media(max-width:820px) { .candidate-grid { grid-template-columns:1fr; } .cue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .universe-controls { grid-template-columns:1fr 1fr; } .universe-search { grid-column:1 / -1; } }
-    @media(max-width:620px) { main { padding-top:26px; } .header-inner,.intro-row,.status-bar,.section-header,.condition-summary { align-items:flex-start; flex-direction:column; } .condition-reasons { text-align:left; } .intro-actions,.action-button { width:100%; } .intro-actions { flex-direction:column; } #dataStatus { text-align:left; } .comparison,.calibration { overflow-x:auto; } .comparison-grid { min-width:calc(var(--count) * 210px); } .regime-table { min-width:650px; } .universe-controls { grid-template-columns:1fr; } .universe-search { grid-column:auto; } .clear-filters { width:100%; } .watchlist { grid-template-columns:1fr; } }
+    @media(max-width:820px) { .candidate-grid { grid-template-columns:1fr; } .opportunity-grid { display:flex; overflow-x:auto; scroll-snap-type:x mandatory; padding-bottom:6px; } .opportunity-card { flex:0 0 min(82vw,340px); scroll-snap-align:start; } .cue-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } .calibration-metrics { grid-template-columns:repeat(2,minmax(0,1fr)); } .universe-controls { grid-template-columns:1fr 1fr; } .universe-search { grid-column:1 / -1; } }
+    @media(max-width:620px) { main { padding-top:22px; } .header-inner,.intro-row,.status-bar,.section-header,.condition-summary { align-items:flex-start; flex-direction:column; } .section-header { margin:22px 0 10px; gap:5px; } .condition-reasons { text-align:left; } .intro-actions,.action-button { width:100%; } .intro-actions { flex-direction:column; } #dataStatus { text-align:left; } .comparison,.calibration { overflow-x:auto; } .comparison-grid { min-width:calc(var(--count) * 210px); } .regime-table { min-width:650px; } .universe-controls { grid-template-columns:1fr; } .universe-search { grid-column:auto; } .clear-filters { width:100%; } .watchlist { grid-template-columns:1fr; } .risk-alert { grid-template-columns:minmax(85px,auto) 1fr; gap:6px 10px; } .risk-alert-score { grid-column:1; grid-row:2; } .risk-alert-reason { grid-column:2; grid-row:1 / span 2; } }
   </style>
 </head>
 <body>
   <header><div class="header-inner"><div class="brand">Spiderman trading</div><nav><a href="./analyze.html">Stock analysis</a></nav></div></header>
   <main>
     <div class="intro-row"><div><h1>Market dashboard</h1><p class="intro">NSE swing-trade research assistant.</p></div><div class="intro-actions"><button id="openGlossary" class="glossary-button" type="button">Glossary</button><button id="refreshData" class="action-button refresh-button" type="button"><span class="refresh-icon" aria-hidden="true">↻</span><span class="refresh-label">Refresh market data</span></button><a class="action-button analyze-button" href="./analyze.html">Analyze another stock</a></div></div>
-    <div class="status-bar"><time id="dataTimestamp" class="data-timestamp">Loading timestamp…</time><p id="dataStatus" class="meta" role="status" aria-live="polite"></p></div>
-    <section><div class="section-header"><h2>Market mood</h2><p class="section-note">Overall trading environment</p></div><div id="marketConditionSummary"></div><details class="market-why"><summary>Why?</summary><div class="conditions-grid" id="marketConditions"></div></details></section>
-    <section><div class="section-header"><h2>Watchlist</h2><p class="section-note">Stored on this device</p></div><div id="watchlist" class="watchlist"></div></section>
-    <section><div class="section-header"><div><h2 id="candidateTitle">Bullish universe</h2><p id="universeSummary" class="section-note"></p><p id="modeHelp" class="mode-help">Bullish mode looks for stocks that may rise. It favors upward price trends, positive futures positioning, and strength versus the stock's sector.</p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div class="universe-controls"><label class="universe-control universe-search">Search<input id="universeSearch" type="search" placeholder="Company, symbol, or sector" autocomplete="off"></label><label class="universe-control">Recommendation<select id="recommendationFilter"><option value="all">All recommendations</option><option value="high">High confidence</option><option value="moderate">Moderate</option><option value="watchlist">Watchlist only</option><option value="avoid">Avoid</option></select></label><label class="universe-control">Event risk<select id="eventRiskFilter"><option value="all">All risk states</option><option value="detected">Detected</option><option value="clear">None</option><option value="unavailable">Unavailable</option></select></label><button id="clearUniverseFilters" class="clear-filters" type="button">Clear filters</button></div><p id="universeResults" class="universe-results" role="status" aria-live="polite"></p><div id="topPicks"></div></section>
+    <section aria-labelledby="marketStatusTitle"><div class="section-header"><h2 id="marketStatusTitle">Market status and freshness</h2><p class="section-note">Current environment and data quality</p></div><div class="status-bar"><time id="dataTimestamp" class="data-timestamp">Loading timestamp…</time><p id="dataStatus" class="meta" role="status" aria-live="polite"></p></div><div id="marketConditionSummary" style="margin-top:12px"></div><details class="market-why"><summary>Why is the market rated this way?</summary><div class="conditions-grid" id="marketConditions"></div></details></section>
+    <section aria-labelledby="opportunitiesTitle"><div class="section-header"><h2 id="opportunitiesTitle">Today’s best opportunities</h2><p class="section-note">Highest-scoring setups at a glance</p></div><div id="opportunityGlance" class="opportunity-grid"></div></section>
+    <section aria-labelledby="riskAlertsTitle"><div class="section-header"><h2 id="riskAlertsTitle">Critical risk alerts</h2><p class="section-note">Event, ban, freshness, and entry risks</p></div><div id="riskAlerts" class="risk-alerts"></div></section>
+    <section id="watchlistSection"><div class="section-header"><h2>Watchlist changes</h2><p class="section-note">Stored on this device</p></div><details id="watchlistDetails" class="watchlist-details"><summary id="watchlistSummary">No saved stocks yet</summary><div id="watchlist" class="watchlist"></div></details></section>
+    <section><div class="section-header"><div><h2 id="candidateTitle">Full bullish universe</h2><p id="universeSummary" class="section-note"></p><p id="modeHelp" class="mode-help">Bullish mode looks for stocks that may rise. It favors upward price trends, positive futures positioning, and strength versus the stock's sector.</p></div><div class="mode-switch" aria-label="Setup direction"><button class="mode-button" type="button" data-mode="bullish" aria-pressed="true">Bullish</button><button class="mode-button" type="button" data-mode="bearish" aria-pressed="false">Bearish</button></div></div><div class="universe-controls"><label class="universe-control universe-search">Search<input id="universeSearch" type="search" placeholder="Company, symbol, or sector" autocomplete="off"></label><label class="universe-control">Recommendation<select id="recommendationFilter"><option value="all">All recommendations</option><option value="high">High confidence</option><option value="moderate">Moderate</option><option value="watchlist">Watchlist only</option><option value="avoid">Avoid</option></select></label><label class="universe-control">Event risk<select id="eventRiskFilter"><option value="all">All risk states</option><option value="detected">Detected</option><option value="clear">None</option><option value="unavailable">Unavailable</option></select></label><button id="clearUniverseFilters" class="clear-filters" type="button">Clear filters</button></div><p id="universeResults" class="universe-results" role="status" aria-live="polite"></p><div id="topPicks"></div></section>
     <section><div class="section-header"><h2>Side-by-side comparison</h2><p id="comparisonCount" class="section-note">0 of 3 selected</p></div><div id="comparison" class="comparison"><p class="meta">Select at least two candidates to compare their scores, positioning, and signals.</p></div></section>
     <section><div class="section-header"><h2>Historical calibration</h2><p id="backtestHorizon" class="section-note">Cash technical score</p></div><div id="backtest" class="calibration"><p class="meta">Calibration data is unavailable until the next scanner refresh.</p></div></section>
     <p class="disclaimer">Educational scanner only. Market data can be delayed or unavailable. This is not financial advice.</p>
@@ -240,6 +260,8 @@
     function showRefreshSkeletons() {
       document.getElementById("marketConditionSummary").innerHTML = '<div class="skeleton skeleton-summary" aria-hidden="true"></div>';
       document.getElementById("marketConditions").innerHTML = '<div class="skeleton skeleton-conditions" aria-hidden="true"></div>';
+      document.getElementById("opportunityGlance").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
+      document.getElementById("riskAlerts").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
       document.getElementById("topPicks").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
       document.getElementById("comparison").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
       document.getElementById("backtest").innerHTML = '<div class="skeleton skeleton-panel" aria-hidden="true"></div>';
@@ -267,6 +289,11 @@
     function renderWatchlist() {
       const values = getWatchlist();
       const activeStocks = scannerData?.all_results_by_mode?.[setupMode] || scannerData?.all_results || [];
+      const details = document.getElementById("watchlistDetails");
+      document.getElementById("watchlistSummary").textContent = values.length
+        ? `${values.length} saved ${values.length === 1 ? "stock" : "stocks"} · review changes`
+        : "No saved stocks yet · add one from the universe";
+      details.open = values.length > 0;
       document.getElementById("watchlist").innerHTML = values.length ? values.map(symbol => {
         const stock = activeStocks.find(item => item.symbol === symbol);
         if (!stock) return `<div class="watch-item"><div class="watch-heading"><a class="watch-symbol" href="./analyze.html?ticker=${encodeURIComponent(symbol)}">${escapeHtml(symbol)}</a><span class="meta">Not in current universe</span></div><div class="watch-actions"><button type="button" data-remove="${escapeHtml(symbol)}">Remove</button></div></div>`;
@@ -283,6 +310,43 @@
           <div class="watch-actions"><button type="button" data-watch-compare="${escapeHtml(symbol)}">Compare</button><button type="button" data-remove="${escapeHtml(symbol)}">Remove</button></div>
         </div>`;
       }).join("") : '<p class="watchlist-empty">No stocks saved yet. Add a candidate below.</p>';
+    }
+
+    function renderAtAGlance(stocks) {
+      const opportunities = [...stocks]
+        .filter(stock => Number.isFinite(Number(stock.score)))
+        .sort((left, right) => Number(right.score) - Number(left.score))
+        .slice(0, 3);
+      document.getElementById("opportunityGlance").innerHTML = opportunities.length
+        ? opportunities.map((stock, index) => {
+            const reason = stock.reasons?.[0] || stock.recommendation || "Open the full report to review this setup.";
+            const entry = stock.entry_condition_met ? "Actionable now" : stock.entry_status || "Watch for confirmation";
+            return `<article class="opportunity-card" style="--score-color:${scoreColor(stock.score, stock.setup_mode)}">
+              <div class="opportunity-card-header"><a class="opportunity-symbol" href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}&mode=${encodeURIComponent(stock.setup_mode || setupMode)}">#${index + 1} ${escapeHtml(stock.symbol)}</a><span class="opportunity-score">${Number(stock.score).toFixed(1)}</span></div>
+              <div class="opportunity-meter" role="img" aria-label="${escapeHtml(stock.symbol)} score ${Number(stock.score).toFixed(1)} out of 100"><span style="width:${Math.max(0, Math.min(100, Number(stock.score)))}%"></span></div>
+              <p class="opportunity-reason">${escapeHtml(reason)}</p>
+              <div class="opportunity-meta"><span class="signal-pill ${stock.entry_condition_met ? "good" : ""}">${escapeHtml(entry)}</span><span class="signal-pill ${stock.event_risk || stock.in_fo_ban ? "risky" : "good"}">${stock.event_risk || stock.in_fo_ban ? "Risk review needed" : "No critical alert"}</span></div>
+            </article>`;
+          }).join("")
+        : '<p class="empty-state">No current opportunities are available for this setup mode.</p>';
+    }
+
+    function renderRiskAlerts(stocks) {
+      const alerts = stocks.flatMap(stock => {
+        const reasons = [];
+        if (stock.in_fo_ban) reasons.push("F&O ban is active");
+        if (stock.event_risk) reasons.push(readableEventWarning(stock.event_categories));
+        if (stock.gap_extended) reasons.push("Price is extended beyond the preferred entry");
+        if (tradingSessionsOld(stock.data_as_of) > 1) reasons.push("Market data is stale");
+        return reasons.length ? [{ stock, reasons }] : [];
+      }).sort((left, right) => Number(right.stock.score) - Number(left.stock.score)).slice(0, 5);
+      document.getElementById("riskAlerts").innerHTML = alerts.length
+        ? alerts.map(({ stock, reasons }) => `<article class="risk-alert">
+            <a class="risk-alert-symbol" href="./analyze.html?ticker=${encodeURIComponent(stock.symbol)}&mode=${encodeURIComponent(stock.setup_mode || setupMode)}">${escapeHtml(stock.symbol)}</a>
+            <span class="risk-alert-reason">${escapeHtml(reasons.join(" · "))}</span>
+            <span class="risk-alert-score">${Number(stock.score).toFixed(1)}/100</span>
+          </article>`).join("")
+        : '<p class="empty-state">No critical risk alerts were detected in the current universe.</p>';
     }
 
     function syncWatchButtons() {
@@ -540,6 +604,8 @@
 
       if (freshness.stale) {
         container.innerHTML = '<div class="freshness-warning">Recommendations are hidden because the scanner data is more than one trading session old.</div>';
+        document.getElementById("opportunityGlance").innerHTML = '<div class="freshness-warning">Opportunities are hidden until fresh scanner data is available.</div>';
+        document.getElementById("riskAlerts").innerHTML = '<div class="freshness-warning">Scanner data is stale. Refresh before evaluating risk alerts.</div>';
         document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable while recommendations are stale.</p>';
         return;
       }
@@ -548,7 +614,10 @@
       document.getElementById("universeSummary").textContent = universe
         ? `${universe.eligible_count ?? universe.scanned_count} eligible of ${universe.scanned_count} scanned · ${universe.source}`
         : "Select two or three to compare";
-      renderCandidates(scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || []);
+      const activeStocks = scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || [];
+      renderAtAGlance(activeStocks);
+      renderRiskAlerts(activeStocks);
+      renderCandidates(activeStocks);
     }
 
     async function loadScannerData() {
@@ -562,6 +631,8 @@
         document.getElementById("dataTimestamp").textContent = "Timestamp unavailable";
         document.getElementById("dataStatus").textContent = "Scanner data could not be verified.";
         container.innerHTML = '<div class="freshness-warning">Recommendations are unavailable because current scanner data could not be verified.</div>';
+        document.getElementById("opportunityGlance").innerHTML = '<div class="freshness-warning">Opportunities are unavailable because current scanner data could not be verified.</div>';
+        document.getElementById("riskAlerts").innerHTML = '<div class="freshness-warning">Risk alerts are unavailable because current scanner data could not be verified.</div>';
         document.getElementById("comparison").innerHTML = '<p class="meta">Comparison is unavailable.</p>';
         console.error(error);
       }
@@ -688,11 +759,14 @@
       selectedSymbols = [];
       universeSort = { key: "score", direction: "desc" };
       document.querySelectorAll("[data-mode]").forEach(item => item.setAttribute("aria-pressed", String(item === button)));
-      document.getElementById("candidateTitle").textContent = `${titleCase(setupMode)} universe`;
+      document.getElementById("candidateTitle").textContent = `Full ${setupMode} universe`;
       document.getElementById("modeHelp").textContent = setupMode === "bullish"
         ? "Bullish mode looks for stocks that may rise. It favors upward price trends, positive futures positioning, and strength versus the stock's sector."
         : "Bearish mode looks for stocks that may fall. It favors downward price trends, negative futures positioning, and weakness versus the stock's sector.";
-      renderCandidates(scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || []);
+      const activeStocks = scannerData.all_results_by_mode?.[setupMode] || (setupMode === "bullish" ? scannerData.all_results : []) || [];
+      renderAtAGlance(activeStocks);
+      renderRiskAlerts(activeStocks);
+      renderCandidates(activeStocks);
       renderWatchlist();
       renderComparison();
     });
