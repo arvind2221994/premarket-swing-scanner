@@ -74,12 +74,17 @@
       font-weight: 700;
     }
 
-    nav a {
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-nav a {
       color: var(--muted);
       font-weight: 600;
       text-decoration: none;
     }
-    .header-actions { display:flex; align-items:center; gap:14px; }
     .theme-button { min-height:36px; padding:0 12px; border:1px solid var(--line); background:var(--surface); color:var(--ink); font-size:13px; }
 
     main { padding: 38px 0 64px; }
@@ -225,9 +230,11 @@
     .progress-stage.complete::before { border-color: var(--green); background: var(--green); }
     .progress-note { margin: 0; color: var(--muted); font-size: 12px; }
     .progress-actions { justify-content: flex-start; margin-top: 14px; }
-    .progress-action { min-height: 38px; padding: 0 13px; border: 1px solid var(--line); border-radius:6px; background: var(--surface); color: var(--ink); text-decoration: none; }
+    .progress-action { display:inline-flex; align-items:center; justify-content:center; min-height:42px; padding:0 15px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); font-weight:600; line-height:1; text-decoration:none; white-space:nowrap; }
     .progress-action:hover, .progress-action:focus-visible { border-color: var(--green); color: var(--green); }
     .progress-action.retry { border-color: var(--primary-bg); background: var(--primary-bg); color: var(--primary-text); }
+    .progress-action.continue { border-color:var(--blue); color:var(--blue); }
+    .progress-action.continue:hover, .progress-action.continue:focus-visible { background:var(--blue); color:var(--surface); }
     .report-skeleton { display:grid; grid-template-columns:120px 1fr; gap:18px; margin-top:16px; padding-top:16px; border-top:1px solid var(--line); }
     .report-skeleton[hidden] { display:none; }
     .skeleton-shape { position:relative; overflow:hidden; border-radius:6px; background:var(--skeleton); }
@@ -675,7 +682,10 @@
   <header>
     <div class="header-inner">
       <div class="brand">Spiderman trading</div>
-      <div class="header-actions"><button id="themeToggle" class="theme-button" type="button" aria-pressed="false">◐ Dark mode</button><nav><a href="./index.html">Scanner dashboard</a></nav></div>
+      <nav class="header-nav" aria-label="Analysis navigation">
+        <a href="./index.html">Scanner dashboard</a>
+        <button id="themeToggle" class="theme-button" type="button" aria-pressed="false">◐ Dark mode</button>
+      </nav>
     </div>
   </header>
 
@@ -713,7 +723,7 @@
       <div class="progress-actions">
         <button id="cancelAnalysis" class="progress-action" type="button">Cancel analysis</button>
         <button id="retryAnalysis" class="progress-action retry" type="button" hidden>Retry analysis</button>
-        <a class="progress-action" href="./index.html">Continue browsing</a>
+        <a class="progress-action continue" href="./index.html">Browse dashboard <span aria-hidden="true">&nbsp;→</span></a>
       </div>
     </section>
 
