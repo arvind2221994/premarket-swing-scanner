@@ -27,6 +27,31 @@ EVENT_KEYWORDS = {
         "order win", "contract win", "promoter stake", "management change",
     ),
 }
+ANALYST_KEYWORDS = (
+    "analyst", "brokerage", "rating", "target price", "price target",
+    "upgrade", "downgrade", "buy rating", "sell rating", "hold rating",
+)
+SECTOR_KEYWORDS = (
+    "sector", "industry", "peers", "nifty it", "nifty bank",
+    "industry outlook", "sector outlook",
+)
+POSITIVE_IMPACT_KEYWORDS = (
+    "beats estimates", "record profit", "profit rises", "revenue rises",
+    "order win", "contract win", "upgrade", "raises target", "buyback",
+    "dividend", "bonus issue", "approval", "expansion",
+)
+NEGATIVE_IMPACT_KEYWORDS = (
+    "misses estimates", "profit falls", "revenue falls", "loss", "default",
+    "fraud", "investigation", "downgrade", "cuts target", "insolvency",
+    "bankruptcy", "resignation", "warning",
+)
+SETUP_RELEVANCE = {
+    "earnings": "Earnings can reset growth expectations and cause a price gap.",
+    "corporate_action": "Corporate actions can change valuation, liquidity, or near-term demand.",
+    "analyst_commentary": "Analyst revisions can influence expectations and short-term positioning.",
+    "sector_news": "Sector developments can strengthen or weaken the stock-specific setup.",
+    "other": "This coverage may affect sentiment, but it has no clearly classified catalyst.",
+}
 
 
 def classify_news_article(article, symbol, company_name=None, now=None):
@@ -44,6 +69,34 @@ def classify_news_article(article, symbol, company_name=None, now=None):
     company_match = any(token in title for token in company_tokens)
     relevance_score = 2 + (3 if symbol_match else 0) + (2 if company_match else 0)
     materiality_score = min(10, relevance_score + len(categories) * 3)
+    if "earnings" in categories:
+        presentation_category = "earnings"
+    elif {"corporate_action", "dividend"}.intersection(categories):
+        presentation_category = "corporate_action"
+    elif any(keyword in title for keyword in ANALYST_KEYWORDS):
+        presentation_category = "analyst_commentary"
+    elif any(keyword in title for keyword in SECTOR_KEYWORDS):
+        presentation_category = "sector_news"
+    else:
+        presentation_category = "other"
+
+    positive_match = next(
+        (keyword for keyword in POSITIVE_IMPACT_KEYWORDS if keyword in title),
+        None,
+    )
+    negative_match = next(
+        (keyword for keyword in NEGATIVE_IMPACT_KEYWORDS if keyword in title),
+        None,
+    )
+    if positive_match and not negative_match:
+        impact = "positive"
+        impact_reason = f'The headline contains positive catalyst language: "{positive_match}".'
+    elif negative_match and not positive_match:
+        impact = "negative"
+        impact_reason = f'The headline contains risk language: "{negative_match}".'
+    else:
+        impact = "neutral"
+        impact_reason = "The headline does not provide a clear directional impact."
     enriched = {
         **article,
         "relevance_score": relevance_score,
@@ -51,6 +104,10 @@ def classify_news_article(article, symbol, company_name=None, now=None):
         "materiality": "high" if materiality_score >= 8 else "medium" if materiality_score >= 5 else "low",
         "event_categories": categories,
         "potentially_material": materiality_score >= 5 and bool(categories),
+        "presentation_category": presentation_category,
+        "impact": impact,
+        "impact_reason": impact_reason,
+        "setup_relevance": SETUP_RELEVANCE[presentation_category],
     }
     return enriched
 

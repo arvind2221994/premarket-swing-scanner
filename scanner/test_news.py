@@ -11,6 +11,31 @@ from resilience import UpstreamUnavailableError
 
 
 class CompanyNewsFallbackTests(unittest.TestCase):
+    def test_classifies_presentation_category_impact_and_setup_relevance(self):
+        positive = news.classify_news_article(
+            {"title": "TCS quarterly results beat estimates as profit rises"},
+            "TCS",
+        )
+        analyst = news.classify_news_article(
+            {"title": "Brokerage raises target price on TCS after upgrade"},
+            "TCS",
+        )
+        sector = news.classify_news_article(
+            {"title": "Nifty IT sector outlook improves for technology peers"},
+            "TCS",
+        )
+        negative = news.classify_news_article(
+            {"title": "TCS downgraded after profit falls"},
+            "TCS",
+        )
+
+        self.assertEqual(positive["presentation_category"], "earnings")
+        self.assertEqual(positive["impact"], "positive")
+        self.assertIn("Earnings", positive["setup_relevance"])
+        self.assertEqual(analyst["presentation_category"], "analyst_commentary")
+        self.assertEqual(sector["presentation_category"], "sector_news")
+        self.assertEqual(negative["impact"], "negative")
+
     def test_stops_after_enough_articles_from_first_edition(self):
         articles = [
             {

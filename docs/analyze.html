@@ -444,12 +444,19 @@
     .plan-label { color: var(--muted); font-size: 13px; }
     .plan-value { margin-top: 4px; font: 600 18px/1.3 "Space Grotesk", sans-serif; overflow-wrap: anywhere; }
     .invalidation { margin: 18px 0 0; padding-top: 16px; border-top: 1px solid var(--line); }
-    .position-calculator { margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--line); }
-    .calculator-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 220px)) minmax(0, 1fr); gap: 14px; align-items: end; margin-top: 14px; }
+    .scenario-simulator { margin-top:18px; padding:24px; border:1px solid var(--line); border-radius:8px; background:var(--surface); }
+    .scenario-header { display:flex; align-items:flex-start; justify-content:space-between; gap:18px; margin-bottom:18px; }
+    .scenario-header p { margin:5px 0 0; color:var(--muted); font-size:13px; }
+    .scenario-direction { padding:5px 9px; border-radius:4px; background:var(--paper); color:var(--blue); font-size:12px; font-weight:700; text-transform:capitalize; }
+    .calculator-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; align-items: end; }
     .calculator-field { display: grid; gap: 6px; color: var(--muted); font-size: 12px; font-weight: 600; }
     .calculator-field input { min-height: 42px; padding: 0 12px; }
-    .position-result { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
-    .position-result > .meta { grid-column: 1 / -1; }
+    .scenario-results { display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:12px; margin-top:18px; padding-top:18px; border-top:1px solid var(--line); }
+    .scenario-result { min-width:0; padding:14px; border-left:3px solid var(--blue); background:var(--paper); }
+    .scenario-result.return { border-left-color:var(--green); }
+    .scenario-result.risk { border-left-color:var(--red); }
+    .scenario-error { grid-column:1 / -1; margin:0; padding:12px 14px; border-left:4px solid var(--red); background:var(--red-soft); color:var(--red); font-weight:600; }
+    .scenario-note { grid-column:1 / -1; margin:0; color:var(--muted); font-size:12px; }
 
     .two-column, .three-column {
       display: grid;
@@ -569,6 +576,10 @@
     }
 
     .news-list { display: grid; }
+    .news-filters { display:flex; flex-wrap:wrap; gap:7px; margin:14px 0 4px; }
+    .news-filter { min-height:34px; padding:0 11px; border:1px solid var(--line); background:var(--surface); color:var(--muted); font-size:12px; }
+    .news-filter[aria-pressed="true"] { border-color:var(--blue); background:var(--paper); color:var(--blue); }
+    .news-filter-count { margin-left:4px; font-weight:400; }
 
     .news-item {
       display: grid;
@@ -594,6 +605,13 @@
     .news-badges { display:flex; flex-wrap:wrap; gap:6px; margin-bottom:7px; }
     .materiality-badge { padding:3px 6px; border-radius:3px; background:var(--amber-soft); color:var(--amber); font-size:11px; font-weight:700; text-transform:capitalize; }
     .materiality-badge.high { background:var(--red-soft); color:var(--red); }
+    .impact-badge { padding:3px 7px; border-radius:3px; font-size:11px; font-weight:700; text-transform:capitalize; }
+    .impact-badge.positive { background:var(--green-soft); color:var(--green); }
+    .impact-badge.positive::before { content:"↑ "; }
+    .impact-badge.negative { background:var(--red-soft); color:var(--red); }
+    .impact-badge.negative::before { content:"↓ "; }
+    .impact-badge.neutral { background:var(--paper); color:var(--muted); }
+    .impact-badge.neutral::before { content:"– "; }
     :root[data-theme="dark"] .news-scope { border-color:var(--blue); background:#172d3d; color:var(--blue); }
 
     .news-title {
@@ -607,6 +625,13 @@
     }
 
     .news-meta { margin: 7px 0 0; color: var(--muted); font-size: 13px; }
+    .news-explanation { margin:8px 0 0; padding:9px 11px; border-left:3px solid var(--blue); background:var(--paper); color:var(--ink); font-size:13px; line-height:1.4; }
+    .related-stories { margin-top:10px; color:var(--blue); font-size:13px; }
+    .related-stories summary { cursor:pointer; font-weight:600; }
+    .related-list { display:grid; gap:7px; margin-top:8px; padding-left:18px; }
+    .related-list li { margin:0; }
+    .related-list a { color:var(--ink); }
+    .news-empty { margin:16px 0 0; color:var(--muted); }
     .news-errors { color: var(--red); font-size: 13px; }
 
     .disclaimer {
@@ -632,8 +657,9 @@
       .change-header { align-items: flex-start; flex-direction: column; }
       .plan-header { align-items: flex-start; flex-direction: column; }
       .plan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .calculator-grid { grid-template-columns: 1fr; }
-      .position-result { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .calculator-grid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+      .scenario-results { grid-template-columns:repeat(2,minmax(0,1fr)); }
+      .scenario-header { flex-direction:column; }
       .news-header { align-items: flex-start; flex-direction: column; }
       .news-item { grid-template-columns: 1fr; gap: 9px; }
       .header-inner { min-height:48px; padding:8px 0; }
@@ -709,6 +735,7 @@
             <div class="decision-item"><span class="decision-question">What needs to happen next?</span><span id="decisionNext" class="decision-answer"></span></div>
             <div class="decision-item"><span class="decision-question">What invalidates it?</span><span id="decisionInvalidation" class="decision-answer"></span></div>
             <div class="decision-item"><span class="decision-question">How reliable is this?</span><span id="decisionReliability" class="decision-answer"></span></div>
+            <div id="newestMaterialItem" class="decision-item" hidden><span class="decision-question">Newest material event</span><span id="newestMaterialEvent" class="decision-answer"></span></div>
           </div>
           <p id="cacheStatus" class="meta"></p>
         </div>
@@ -741,15 +768,24 @@
         <div id="tradePlanContent" class="trade-plan-content">
           <div id="planLevels" class="plan-grid"></div>
           <p id="invalidation" class="invalidation"></p>
-          <div class="position-calculator">
-            <h3>Position size calculator</h3>
-            <div class="calculator-grid">
-              <label class="calculator-field">Trading capital (₹)<input id="accountCapital" type="number" min="1" step="1000" value="100000"></label>
-              <label class="calculator-field">Risk per trade (%)<input id="riskPercent" type="number" min="0.1" max="5" step="0.1" value="1"></label>
-              <div id="positionResult" class="position-result" aria-live="polite"></div>
-            </div>
-          </div>
         </div>
+      </section>
+
+      <section id="scenarioSimulator" class="scenario-simulator" aria-labelledby="scenarioTitle">
+        <div class="scenario-header">
+          <div><h2 id="scenarioTitle">Scenario simulator</h2><p>Adjust assumptions independently from the model’s trade plan. Slippage is applied adversely at entry and exit.</p></div>
+          <span id="scenarioDirection" class="scenario-direction"></span>
+        </div>
+        <div class="calculator-grid">
+          <label class="calculator-field">Entry price (₹)<input id="scenarioEntry" type="number" min="0.01" step="0.05"></label>
+          <label class="calculator-field">Stop-loss (₹)<input id="scenarioStop" type="number" min="0.01" step="0.05"></label>
+          <label class="calculator-field">Target 1 (₹)<input id="scenarioTarget1" type="number" min="0.01" step="0.05"></label>
+          <label class="calculator-field">Target 2 (₹, optional)<input id="scenarioTarget2" type="number" min="0.01" step="0.05"></label>
+          <label class="calculator-field">Capital (₹)<input id="scenarioCapital" type="number" min="1" step="1000" value="100000"></label>
+          <label class="calculator-field">Risk per trade (%)<input id="scenarioRisk" type="number" min="0.1" max="5" step="0.1" value="1"></label>
+          <label class="calculator-field">Expected slippage per execution (%)<input id="scenarioSlippage" type="number" min="0" max="5" step="0.05" value="0.10"></label>
+        </div>
+        <div id="scenarioResults" class="scenario-results" aria-live="polite"></div>
       </section>
 
       <div class="two-column">
@@ -798,6 +834,7 @@
           <span id="newsSource" class="meta"></span>
         </div>
         <p id="newsErrors" class="news-errors"></p>
+        <div id="newsFilters" class="news-filters" aria-label="Filter recent news"></div>
         <div id="newsList" class="news-list"></div>
       </section>
 
@@ -852,7 +889,9 @@
     let analysisRequest = null;
     let progressTimer = null;
     let lastRequestedTicker = null;
-    let currentTradePlan = null;
+    let scenarioDirection = setupMode;
+    let currentNews = null;
+    let activeNewsFilter = "all";
 
     const escapeHtml = value => String(value ?? "N/A").replace(/[&<>'"]/g, character => ({
       "&": "&amp;", "<": "&lt;", ">": "&gt;", "'": "&#39;", '"': "&quot;"
@@ -1059,13 +1098,87 @@
       document.getElementById(targetId).innerHTML = values.map(value => `<li>${escapeHtml(value)}</li>`).join("");
     }
 
-    function renderNews(news) {
-      const articles = news?.articles || [];
+    const newsFilterLabels = {
+      all: "All",
+      earnings: "Earnings",
+      corporate_action: "Corporate action",
+      analyst_commentary: "Analyst commentary",
+      sector_news: "Sector news"
+    };
+    const newsStopWords = new Set(["about", "after", "amid", "from", "into", "major", "more", "over", "says", "stock", "stocks", "that", "their", "this", "with"]);
+
+    function newsTitleTokens(title) {
+      return new Set(String(title || "").toLocaleLowerCase()
+        .replace(/[^a-z0-9\s]/g, " ")
+        .split(/\s+/)
+        .filter(token => token.length > 3 && !newsStopWords.has(token)));
+    }
+
+    function newsSimilarity(left, right) {
+      const leftTokens = newsTitleTokens(left);
+      const rightTokens = newsTitleTokens(right);
+      const intersection = [...leftTokens].filter(token => rightTokens.has(token)).length;
+      const union = new Set([...leftTokens, ...rightTokens]).size;
+      return union ? intersection / union : 0;
+    }
+
+    function groupNewsArticles(articles) {
+      const groups = [];
+      articles.forEach(article => {
+        const category = article.presentation_category || "other";
+        const group = groups.find(candidate =>
+          (candidate.primary.presentation_category || "other") === category
+          && newsSimilarity(candidate.primary.title, article.title) >= 0.3
+        );
+        if (group) group.related.push(article);
+        else groups.push({ primary: article, related: [] });
+      });
+      return groups;
+    }
+
+    function newsSetupExplanation(article) {
+      const impact = article.impact || "neutral";
+      const bearish = scenarioDirection === "bearish";
+      const setupEffect = impact === "neutral"
+        ? "It does not provide clear directional confirmation for this setup."
+        : (impact === "positive") !== bearish
+          ? `Its ${impact} impact supports this ${scenarioDirection} setup.`
+          : `Its ${impact} impact challenges this ${scenarioDirection} setup.`;
+      return `${article.setup_relevance || "This coverage may affect near-term sentiment."} ${article.impact_reason || ""} ${setupEffect}`.trim();
+    }
+
+    function renderNews(news = currentNews) {
+      currentNews = news || { articles: [] };
+      const articles = [...(currentNews.articles || [])].sort((left, right) =>
+        Number(Boolean(right.potentially_material)) - Number(Boolean(left.potentially_material))
+        || Number(right.materiality_score || 0) - Number(left.materiality_score || 0)
+        || String(right.published_at || "").localeCompare(String(left.published_at || ""))
+      );
+      const newestMaterial = [...articles]
+        .filter(article => article.potentially_material)
+        .sort((left, right) => String(right.published_at || "").localeCompare(String(left.published_at || "")))[0];
+      const newestItem = document.getElementById("newestMaterialItem");
+      newestItem.hidden = !newestMaterial;
+      document.getElementById("newestMaterialEvent").textContent = newestMaterial
+        ? `${newestMaterial.title} · ${(newestMaterial.impact || "neutral")} impact`
+        : "";
+
+      const filters = Object.keys(newsFilterLabels);
+      document.getElementById("newsFilters").innerHTML = filters.map(filter => {
+        const count = filter === "all"
+          ? articles.length
+          : articles.filter(article => article.presentation_category === filter).length;
+        return `<button class="news-filter" type="button" data-news-filter="${filter}" aria-pressed="${activeNewsFilter === filter}" aria-label="${newsFilterLabels[filter]}, ${count} ${count === 1 ? "story" : "stories"}">${newsFilterLabels[filter]}<span class="news-filter-count">${count}</span></button>`;
+      }).join("");
+      const filtered = activeNewsFilter === "all"
+        ? articles
+        : articles.filter(article => article.presentation_category === activeNewsFilter);
+      const groups = groupNewsArticles(filtered);
       document.getElementById("newsSource").textContent =
-        `${articles.length} articles · Past ${news?.lookback_days || 7} days · ${news?.sources || "News feeds"}`;
-      document.getElementById("newsErrors").textContent = (news?.errors || []).join(" ");
-      document.getElementById("newsList").innerHTML = articles.length
-        ? articles.map(article => {
+        `${articles.length} articles · ${groups.length} ${groups.length === 1 ? "story group" : "story groups"} · Past ${currentNews.lookback_days || 7} days · ${currentNews.sources || "News feeds"}`;
+      document.getElementById("newsErrors").textContent = (currentNews.errors || []).join(" ");
+      document.getElementById("newsList").innerHTML = groups.length
+        ? groups.map(({ primary: article, related }) => {
             const published = article.published_at
               ? new Intl.DateTimeFormat("en-IN", { dateStyle: "medium", timeStyle: "short" }).format(new Date(article.published_at))
               : "Publication time unavailable";
@@ -1073,14 +1186,16 @@
               <article class="news-item">
                 <span class="news-scope">${escapeHtml(article.scope)}</span>
                 <div>
-                  <div class="news-badges">${article.potentially_material ? `<span class="materiality-badge ${escapeHtml(article.materiality)}">${escapeHtml(article.materiality)} materiality</span>` : ""}${(article.event_categories || []).map(category => `<span class="materiality-badge">${escapeHtml(category.replaceAll("_", " "))}</span>`).join("")}</div>
+                  <div class="news-badges"><span class="impact-badge ${escapeHtml(article.impact || "neutral")}">${escapeHtml(article.impact || "neutral")} impact</span>${article.potentially_material ? `<span class="materiality-badge ${escapeHtml(article.materiality)}">${escapeHtml(article.materiality)} materiality</span>` : ""}${(article.event_categories || []).map(category => `<span class="materiality-badge">${escapeHtml(category.replaceAll("_", " "))}</span>`).join("")}</div>
                   <a class="news-title" href="${escapeHtml(article.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(article.title)}</a>
                   <p class="news-meta">${escapeHtml(article.publisher)} · ${escapeHtml(published)} · Relevance ${article.relevance_score ?? "N/A"}/7</p>
+                  <p class="news-explanation">${escapeHtml(newsSetupExplanation(article))}</p>
+                  ${related.length ? `<details class="related-stories"><summary>${related.length} related ${related.length === 1 ? "story" : "stories"} about this event</summary><ul class="related-list">${related.map(item => `<li><a href="${escapeHtml(item.url)}" target="_blank" rel="noopener noreferrer">${escapeHtml(item.title)}</a> <span class="meta">· ${escapeHtml(item.publisher)}</span></li>`).join("")}</ul></details>` : ""}
                 </div>
               </article>
             `;
           }).join("")
-        : '<p class="meta">No matching recent articles were found.</p>';
+        : `<p class="news-empty">No ${activeNewsFilter === "all" ? "matching recent articles" : newsFilterLabels[activeNewsFilter].toLocaleLowerCase() + " stories"} were found.</p>`;
     }
 
     function renderOptionWalls(fno) {
@@ -1154,41 +1269,81 @@
         : '<p class="change-item meta">No score-driving signal changes since the previous trading session.</p>';
     }
 
-    function calculatePositionSize() {
-      const capital = Number(document.getElementById("accountCapital").value);
-      const riskPercent = Number(document.getElementById("riskPercent").value);
-      const result = document.getElementById("positionResult");
-      if (currentTradePlan && !currentTradePlan.entry_valid) {
-        result.innerHTML = '<p class="meta">Position sizing is available after the entry conditions are met.</p>';
-        return;
-      }
-      if (
-        !currentTradePlan
-        || !Number.isFinite(capital)
-        || !Number.isFinite(riskPercent)
-        || !Number.isFinite(currentTradePlan.entry_reference)
-        || !Number.isFinite(currentTradePlan.risk_per_share)
-        || capital <= 0
-        || riskPercent <= 0
-        || riskPercent > 5
-        || currentTradePlan.entry_reference <= 0
-        || currentTradePlan.risk_per_share <= 0
-      ) {
-        result.innerHTML = '<p class="meta">Enter valid capital and risk between 0.1% and 5%.</p>';
+    function scenarioValue(id) {
+      const value = document.getElementById(id).value;
+      return value === "" ? null : Number(value);
+    }
+
+    function calculateScenario() {
+      const entry = scenarioValue("scenarioEntry");
+      const stop = scenarioValue("scenarioStop");
+      const targets = [scenarioValue("scenarioTarget1"), scenarioValue("scenarioTarget2")].filter(value => value != null);
+      const capital = scenarioValue("scenarioCapital");
+      const riskPercent = scenarioValue("scenarioRisk");
+      const slippagePercent = scenarioValue("scenarioSlippage");
+      const result = document.getElementById("scenarioResults");
+      const values = [entry, stop, capital, riskPercent, slippagePercent, ...targets];
+      if (targets.length === 0 || values.some(value => !Number.isFinite(value)) || entry <= 0 || stop <= 0 || capital <= 0 || riskPercent <= 0 || riskPercent > 5 || slippagePercent < 0 || slippagePercent > 5) {
+        result.innerHTML = '<p class="scenario-error">Enter positive prices and capital, risk between 0.1% and 5%, and slippage between 0% and 5%.</p>';
         return;
       }
 
+      const bearish = scenarioDirection === "bearish";
+      const directionValid = bearish
+        ? stop > entry && targets.every(target => target < entry)
+        : stop < entry && targets.every(target => target > entry);
+      if (!directionValid) {
+        result.innerHTML = `<p class="scenario-error">For a ${bearish ? "bearish" : "bullish"} scenario, the stop must be ${bearish ? "above" : "below"} entry and every target must be ${bearish ? "below" : "above"} entry.</p>`;
+        return;
+      }
+
+      const slippage = slippagePercent / 100;
+      const effectiveEntry = entry * (bearish ? 1 - slippage : 1 + slippage);
+      const effectiveStop = stop * (bearish ? 1 + slippage : 1 - slippage);
+      const riskPerShare = Math.abs(effectiveEntry - effectiveStop);
       const riskBudget = capital * riskPercent / 100;
-      const riskSizedShares = Math.floor(riskBudget / currentTradePlan.risk_per_share);
-      const affordableShares = Math.floor(capital / currentTradePlan.entry_reference);
+      const riskSizedShares = Math.floor(riskBudget / riskPerShare);
+      const affordableShares = Math.floor(capital / effectiveEntry);
       const shares = Math.max(0, Math.min(riskSizedShares, affordableShares));
-      const positionValue = shares * currentTradePlan.entry_reference;
-      const actualRisk = shares * currentTradePlan.risk_per_share;
-      result.innerHTML = [
-        ["Shares", shares.toLocaleString("en-IN")],
-        ["Position value", currency(positionValue)],
-        ["Risk at stop", currency(actualRisk)]
-      ].map(([label, value]) => `<div><div class="plan-label">${label}</div><div class="plan-value">${value}</div></div>`).join("");
+      const capitalAtRisk = shares * riskPerShare;
+      const targetResults = targets.map((target, index) => {
+        const effectiveTarget = target * (bearish ? 1 + slippage : 1 - slippage);
+        const rewardPerShare = Math.abs(effectiveTarget - effectiveEntry);
+        const ratio = rewardPerShare / riskPerShare;
+        return {
+          label: `Target ${index + 1} return`,
+          returnValue: shares * rewardPerShare,
+          returnPercent: capital ? shares * rewardPerShare / capital * 100 : 0,
+          ratio,
+          breakEven: 100 / (1 + ratio)
+        };
+      });
+      const primary = targetResults[0];
+      const cards = [
+        ["Position size", `${shares.toLocaleString("en-IN")} shares`, ""],
+        ["Capital at risk", currency(capitalAtRisk), "risk"],
+        ["Risk / reward", `1 : ${number(primary.ratio, 2)}`, ""],
+        ["Break-even win rate", `${number(primary.breakEven, 1)}%`, ""],
+        ...targetResults.map(target => [target.label, `${currency(target.returnValue)} (${number(target.returnPercent, 2)}%)`, "return"])
+      ];
+      result.innerHTML = cards.map(([label, value, tone]) => `<div class="scenario-result ${tone}"><div class="plan-label">${label}</div><div class="plan-value">${value}</div></div>`).join("")
+        + `<p class="scenario-note">Sized to the lower of the risk budget (${currency(riskBudget)}) and available capital. Risk/reward and break-even use Target 1. Estimated entry after slippage: ${currency(effectiveEntry)}.</p>`;
+    }
+
+    function renderScenario(data) {
+      const plan = data.trade_plan;
+      scenarioDirection = (data.setup_mode || setupMode) === "bearish" ? "bearish" : "bullish";
+      document.getElementById("scenarioDirection").textContent = `${scenarioDirection} scenario`;
+      const defaults = {
+        scenarioEntry: plan?.entry_reference ?? data.cash?.close,
+        scenarioStop: plan?.stop_loss,
+        scenarioTarget1: plan?.targets?.[0],
+        scenarioTarget2: plan?.targets?.[1]
+      };
+      Object.entries(defaults).forEach(([id, value]) => {
+        document.getElementById(id).value = isFiniteNumber(value) ? Number(value).toFixed(2) : "";
+      });
+      calculateScenario();
     }
 
     function renderTradePlan(plan, score) {
@@ -1205,14 +1360,12 @@
         unavailable.textContent = Number(score) < 60
           ? `No trade levels are shown because this setup scored ${number(score, 1)}/100. A score of at least 60 is required before entry, stop-loss, and target levels are displayed.`
           : "Trade levels are unavailable because the required market inputs could not be calculated.";
-        currentTradePlan = null;
         return;
       }
 
       content.hidden = false;
       unavailable.hidden = true;
       planStatus.hidden = false;
-      currentTradePlan = plan;
       planStatus.textContent = plan.status;
       planStatus.className = `plan-status ${plan.entry_valid ? "valid" : "wait"}`;
       document.getElementById("planLevels").innerHTML = [
@@ -1222,7 +1375,6 @@
         ["Risk / reward", `1 : ${number(plan.risk_reward_ratio, 1)}`]
       ].map(([label, value]) => `<div class="plan-item"><div class="plan-label">${label}</div><div class="plan-value">${value}</div></div>`).join("");
       document.getElementById("invalidation").innerHTML = `<strong>Setup invalidation:</strong> ${escapeHtml(plan.invalidation)}`;
-      calculatePositionSize();
     }
 
     function renderFundamentals(data) {
@@ -1384,6 +1536,7 @@
       document.getElementById("cacheStatus").textContent = data.cached ? "Loaded from the one-hour report cache" : "Fresh live analysis";
       renderDailyChange(data.daily_change, Number(data.score));
       renderTradePlan(data.trade_plan, Number(data.score));
+      renderScenario(data);
 
       const avoidingEntry = data.verdict === "AVOID NEW ENTRY";
       renderNoviceGuidance(data, bearish, avoidingEntry);
@@ -1552,8 +1705,13 @@
       applyTheme(theme);
     });
 
-    document.getElementById("accountCapital").addEventListener("input", calculatePositionSize);
-    document.getElementById("riskPercent").addEventListener("input", calculatePositionSize);
+    document.getElementById("scenarioSimulator").addEventListener("input", calculateScenario);
+    document.getElementById("newsFilters").addEventListener("click", event => {
+      const button = event.target.closest("[data-news-filter]");
+      if (!button) return;
+      activeNewsFilter = button.dataset.newsFilter;
+      renderNews();
+    });
 
     document.addEventListener("click", event => {
       if (!event.target.closest(".ticker-field")) closeSuggestions();
