@@ -1,5 +1,5 @@
 {
-  "generated_at_ist": "2026-10-03 14:26:27",
+  "generated_at_ist": "2026-10-04 14:56:49",
   "data_as_of": "2026-10-01",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
@@ -12,31 +12,31 @@
       "nasdaq": {
         "change_pct": 1.19,
         "observed_at": "2026-10-02T00:00:00",
-        "fetched_at": "2026-10-03T08:56:27.490976+00:00",
+        "fetched_at": "2026-10-04T09:26:49.890088+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
         "change_pct": 0.73,
         "observed_at": "2026-10-02T00:00:00",
-        "fetched_at": "2026-10-03T08:56:28.089084+00:00",
+        "fetched_at": "2026-10-04T09:26:50.188726+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
         "change_pct": 0.49,
         "observed_at": "2026-10-02T00:00:00",
-        "fetched_at": "2026-10-03T08:56:28.315587+00:00",
+        "fetched_at": "2026-10-04T09:26:50.283263+00:00",
         "source": "Yahoo Finance"
       },
       "gift_nifty": {
         "change_pct": 0.59,
         "observed_at": "02-Oct-2026 02:42:33",
-        "fetched_at": "2026-10-03T08:56:28.522717+00:00",
+        "fetched_at": "2026-10-04T09:26:50.393414+00:00",
         "source": "NSE International Exchange"
       }
     }
   },
   "market_context": {
-    "generated_at": "2026-10-03T08:56:58.838731+00:00",
+    "generated_at": "2026-10-04T09:27:18.307811+00:00",
     "nifty_50": {
       "ticker": "^NSEI",
       "close": 22421.9492,
@@ -46,7 +46,7 @@
       "sma50": 23870.097,
       "trend": "bearish",
       "observed_at": "2026-10-01T00:00:00",
-      "fetched_at": "2026-10-03T08:56:40.102809+00:00",
+      "fetched_at": "2026-10-04T09:26:59.308778+00:00",
       "source": "Yahoo Finance"
     },
     "india_vix": {
@@ -58,7 +58,7 @@
       "sma50": 11.9208,
       "trend": "bullish",
       "observed_at": "2026-10-01T00:00:00",
-      "fetched_at": "2026-10-03T08:56:40.102809+00:00",
+      "fetched_at": "2026-10-04T09:26:59.308778+00:00",
       "source": "Yahoo Finance"
     },
     "market_breadth": {
@@ -69,7 +69,7 @@
       "advance_decline_ratio": 0.28,
       "advance_pct": 22.0,
       "observed_at": "01-Oct-2026 15:30",
-      "fetched_at": "2026-10-03T08:56:58.128010+00:00",
+      "fetched_at": "2026-10-04T09:27:17.607224+00:00",
       "source": "NSE India allIndices"
     },
     "sector_indices": {
@@ -82,7 +82,7 @@
         "sma50": 56897.0568,
         "trend": "bearish",
         "observed_at": "2026-10-01T00:00:00",
-        "fetched_at": "2026-10-03T08:56:40.102809+00:00",
+        "fetched_at": "2026-10-04T09:26:59.308778+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty IT": {
@@ -94,7 +94,7 @@
         "sma50": 30066.6121,
         "trend": "bearish",
         "observed_at": "2026-10-01T00:00:00",
-        "fetched_at": "2026-10-03T08:56:40.102809+00:00",
+        "fetched_at": "2026-10-04T09:26:59.308778+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Auto": {
@@ -106,7 +106,7 @@
         "sma50": 28117.249,
         "trend": "bearish",
         "observed_at": "2026-10-01",
-        "fetched_at": "2026-10-03T08:56:40.827000+00:00",
+        "fetched_at": "2026-10-04T09:26:59.738678+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Pharma": {
@@ -118,7 +118,7 @@
         "sma50": 26560.7052,
         "trend": "mixed",
         "observed_at": "2026-10-01T00:00:00",
-        "fetched_at": "2026-10-03T08:56:40.102809+00:00",
+        "fetched_at": "2026-10-04T09:26:59.308778+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty FMCG": {
@@ -130,7 +130,7 @@
         "sma50": 47169.683,
         "trend": "bearish",
         "observed_at": "2026-10-01",
-        "fetched_at": "2026-10-03T08:56:40.827000+00:00",
+        "fetched_at": "2026-10-04T09:26:59.738678+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Metal": {
@@ -142,7 +142,7 @@
         "sma50": 13025.246,
         "trend": "bearish",
         "observed_at": "2026-10-01",
-        "fetched_at": "2026-10-03T08:56:40.827000+00:00",
+        "fetched_at": "2026-10-04T09:26:59.738678+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Energy": {
@@ -154,7 +154,7 @@
         "sma50": 38091.517,
         "trend": "bearish",
         "observed_at": "2026-10-01",
-        "fetched_at": "2026-10-03T08:56:40.827000+00:00",
+        "fetched_at": "2026-10-04T09:26:59.738678+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Realty": {
@@ -166,7 +166,7 @@
         "sma50": 884.599,
         "trend": "bearish",
         "observed_at": "2026-10-01",
-        "fetched_at": "2026-10-03T08:56:40.827000+00:00",
+        "fetched_at": "2026-10-04T09:26:59.738678+00:00",
         "source": "NSE India index archives"
       }
     },
@@ -179,8 +179,8 @@
         "sma20": 95.7252,
         "sma50": 95.4641,
         "trend": "bullish",
-        "observed_at": "2026-10-03T00:00:00",
-        "fetched_at": "2026-10-03T08:56:40.102809+00:00",
+        "observed_at": "2026-10-04T00:00:00",
+        "fetched_at": "2026-10-04T09:26:59.308778+00:00",
         "source": "Yahoo Finance"
       },
       "wti_crude": {
@@ -192,7 +192,7 @@
         "sma50": 88.5762,
         "trend": "mixed",
         "observed_at": "2026-10-02T00:00:00",
-        "fetched_at": "2026-10-03T08:56:40.102809+00:00",
+        "fetched_at": "2026-10-04T09:26:59.308778+00:00",
         "source": "Yahoo Finance"
       }
     },
@@ -205,25 +205,25 @@
         "nasdaq": {
           "change_pct": 1.19,
           "observed_at": "2026-10-02T00:00:00",
-          "fetched_at": "2026-10-03T08:56:27.490976+00:00",
+          "fetched_at": "2026-10-04T09:26:49.890088+00:00",
           "source": "Yahoo Finance"
         },
         "spx": {
           "change_pct": 0.73,
           "observed_at": "2026-10-02T00:00:00",
-          "fetched_at": "2026-10-03T08:56:28.089084+00:00",
+          "fetched_at": "2026-10-04T09:26:50.188726+00:00",
           "source": "Yahoo Finance"
         },
         "dow": {
           "change_pct": 0.49,
           "observed_at": "2026-10-02T00:00:00",
-          "fetched_at": "2026-10-03T08:56:28.315587+00:00",
+          "fetched_at": "2026-10-04T09:26:50.283263+00:00",
           "source": "Yahoo Finance"
         },
         "gift_nifty": {
           "change_pct": 0.59,
           "observed_at": "02-Oct-2026 02:42:33",
-          "fetched_at": "2026-10-03T08:56:28.522717+00:00",
+          "fetched_at": "2026-10-04T09:26:50.393414+00:00",
           "source": "NSE International Exchange"
         }
       },
@@ -720,7 +720,7 @@
     }
   ],
   "backtest": {
-    "generated_at": "2026-10-03T08:57:14.845777+00:00",
+    "generated_at": "2026-10-04T09:27:37.813419+00:00",
     "score_scope": "cash_technical_heuristic_only",
     "source": "Yahoo Finance history with NSE and Stooq fallback",
     "symbols": [
@@ -752,8 +752,8 @@
       "win_rate_pct": 53.9,
       "expectancy_pct": 0.42,
       "average_max_drawdown_pct": -3.19,
-      "breakout_observations": 507,
-      "false_breakout_rate_pct": 44.8
+      "breakout_observations": 506,
+      "false_breakout_rate_pct": 44.9
     },
     "by_regime": {
       "bullish": {
@@ -761,8 +761,8 @@
         "win_rate_pct": 53.2,
         "expectancy_pct": 0.43,
         "average_max_drawdown_pct": -2.91,
-        "breakout_observations": 298,
-        "false_breakout_rate_pct": 43.6
+        "breakout_observations": 297,
+        "false_breakout_rate_pct": 43.8
       },
       "mixed": {
         "observations": 2680,
@@ -840,8 +840,8 @@
           "win_rate_pct": 51.7,
           "expectancy_pct": 0.37,
           "average_max_drawdown_pct": -3.03,
-          "breakout_observations": 287,
-          "false_breakout_rate_pct": 43.2
+          "breakout_observations": 286,
+          "false_breakout_rate_pct": 43.4
         },
         "mixed": {
           "observations": 737,
@@ -878,11 +878,11 @@
       "symbol": "KOTAKBANK",
       "company_name": "Kotak Mahindra Bank Ltd",
       "fundamental_score_raw": 5.0,
-      "fundamentals_updated_at": "2026-10-03T08:56:36.433807+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:56.013225+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
-      "score": 72.86,
-      "recommendation": "Moderate bullish swing candidate",
+      "score": 76.91,
+      "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 1.1393619573039082,
       "futures_oi_change_pct": -2.6785149979143275,
       "pcr": 0.46899243959084846,
@@ -899,13 +899,11 @@
       "evidence_available": 23,
       "evidence_total": 23,
       "evidence_completeness_pct": 100,
-      "event_risk": true,
-      "event_risk_status": "detected",
-      "event_categories": [
-        "material_event"
-      ],
+      "event_risk": false,
+      "event_risk_status": "clear",
+      "event_categories": [],
       "entry_condition_met": false,
-      "entry_status": "Review the company event before entering",
+      "entry_status": "Wait for breakout",
       "call_oi_wall": 410.0,
       "put_oi_wall": 400.0,
       "reasons": [
@@ -917,8 +915,7 @@
         "Positive 5-day momentum",
         "Outperforming sector by 5.1% over five sessions",
         "NASDAQ strongly positive",
-        "GIFT Nifty positive",
-        "Event risk detected"
+        "GIFT Nifty positive"
       ],
       "calculation": {
         "fno_score": 52.0,
@@ -931,11 +928,11 @@
         "global_weight": 0.09000000000000001,
         "relative_score": 100,
         "relative_weight": 0.09000000000000001,
-        "risk_score": 70,
+        "risk_score": 100,
         "risk_weight": 0.135,
         "fundamental_score": 50.0,
         "fundamental_weight": 0.1,
-        "weighted_total": 72.86,
+        "weighted_total": 76.91,
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
@@ -949,7 +946,7 @@
       "symbol": "INFY",
       "company_name": "Infosys Ltd",
       "fundamental_score_raw": 8.2,
-      "fundamentals_updated_at": "2026-10-03T08:56:36.610434+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:56.218595+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 69.38,
@@ -1016,7 +1013,7 @@
       "symbol": "BHEL",
       "company_name": "Bharat Heavy Electricals Ltd",
       "fundamental_score_raw": 4.8,
-      "fundamentals_updated_at": "2026-10-03T08:56:40.098596+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:59.304266+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 65.59,
@@ -1089,11 +1086,11 @@
         "symbol": "KOTAKBANK",
         "company_name": "Kotak Mahindra Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.433807+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.013225+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
-        "score": 72.86,
-        "recommendation": "Moderate bullish swing candidate",
+        "score": 76.91,
+        "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 1.1393619573039082,
         "futures_oi_change_pct": -2.6785149979143275,
         "pcr": 0.46899243959084846,
@@ -1110,13 +1107,11 @@
         "evidence_available": 23,
         "evidence_total": 23,
         "evidence_completeness_pct": 100,
-        "event_risk": true,
-        "event_risk_status": "detected",
-        "event_categories": [
-          "material_event"
-        ],
+        "event_risk": false,
+        "event_risk_status": "clear",
+        "event_categories": [],
         "entry_condition_met": false,
-        "entry_status": "Review the company event before entering",
+        "entry_status": "Wait for breakout",
         "call_oi_wall": 410.0,
         "put_oi_wall": 400.0,
         "reasons": [
@@ -1128,8 +1123,7 @@
           "Positive 5-day momentum",
           "Outperforming sector by 5.1% over five sessions",
           "NASDAQ strongly positive",
-          "GIFT Nifty positive",
-          "Event risk detected"
+          "GIFT Nifty positive"
         ],
         "calculation": {
           "fno_score": 52.0,
@@ -1142,11 +1136,11 @@
           "global_weight": 0.09000000000000001,
           "relative_score": 100,
           "relative_weight": 0.09000000000000001,
-          "risk_score": 70,
+          "risk_score": 100,
           "risk_weight": 0.135,
           "fundamental_score": 50.0,
           "fundamental_weight": 0.1,
-          "weighted_total": 72.86,
+          "weighted_total": 76.91,
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
@@ -1160,7 +1154,7 @@
         "symbol": "INFY",
         "company_name": "Infosys Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.610434+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.218595+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 69.38,
@@ -1227,7 +1221,7 @@
         "symbol": "BHEL",
         "company_name": "Bharat Heavy Electricals Ltd",
         "fundamental_score_raw": 4.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:40.098596+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:59.304266+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 65.59,
@@ -1299,7 +1293,7 @@
         "symbol": "IDEA",
         "company_name": "Vodafone Idea Ltd",
         "fundamental_score_raw": null,
-        "fundamentals_updated_at": "2026-10-03T08:56:39.230730+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.454029+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 76.9,
@@ -1370,7 +1364,7 @@
         "symbol": "BSE",
         "company_name": "BSE Ltd",
         "fundamental_score_raw": 4.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.730530+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.240179+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 70.84,
@@ -1443,7 +1437,7 @@
         "symbol": "ICICIBANK",
         "company_name": "ICICI Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.525641+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.024622+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 70.53,
@@ -1515,11 +1509,11 @@
       "symbol": "KOTAKBANK",
       "company_name": "Kotak Mahindra Bank Ltd",
       "fundamental_score_raw": 5.0,
-      "fundamentals_updated_at": "2026-10-03T08:56:36.433807+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:56.013225+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
-      "score": 72.86,
-      "recommendation": "Moderate bullish swing candidate",
+      "score": 76.91,
+      "recommendation": "High confidence bullish swing candidate",
       "futures_price_change_pct": 1.1393619573039082,
       "futures_oi_change_pct": -2.6785149979143275,
       "pcr": 0.46899243959084846,
@@ -1536,13 +1530,11 @@
       "evidence_available": 23,
       "evidence_total": 23,
       "evidence_completeness_pct": 100,
-      "event_risk": true,
-      "event_risk_status": "detected",
-      "event_categories": [
-        "material_event"
-      ],
+      "event_risk": false,
+      "event_risk_status": "clear",
+      "event_categories": [],
       "entry_condition_met": false,
-      "entry_status": "Review the company event before entering",
+      "entry_status": "Wait for breakout",
       "call_oi_wall": 410.0,
       "put_oi_wall": 400.0,
       "reasons": [
@@ -1554,8 +1546,7 @@
         "Positive 5-day momentum",
         "Outperforming sector by 5.1% over five sessions",
         "NASDAQ strongly positive",
-        "GIFT Nifty positive",
-        "Event risk detected"
+        "GIFT Nifty positive"
       ],
       "calculation": {
         "fno_score": 52.0,
@@ -1568,11 +1559,11 @@
         "global_weight": 0.09000000000000001,
         "relative_score": 100,
         "relative_weight": 0.09000000000000001,
-        "risk_score": 70,
+        "risk_score": 100,
         "risk_weight": 0.135,
         "fundamental_score": 50.0,
         "fundamental_weight": 0.1,
-        "weighted_total": 72.86,
+        "weighted_total": 76.91,
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
@@ -1586,7 +1577,7 @@
       "symbol": "INFY",
       "company_name": "Infosys Ltd",
       "fundamental_score_raw": 8.2,
-      "fundamentals_updated_at": "2026-10-03T08:56:36.610434+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:56.218595+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 69.38,
@@ -1653,7 +1644,7 @@
       "symbol": "BHEL",
       "company_name": "Bharat Heavy Electricals Ltd",
       "fundamental_score_raw": 4.8,
-      "fundamentals_updated_at": "2026-10-03T08:56:40.098596+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:59.304266+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 65.59,
@@ -1723,7 +1714,7 @@
       "symbol": "HDFCBANK",
       "company_name": "HDFC Bank Ltd",
       "fundamental_score_raw": 6.8,
-      "fundamentals_updated_at": "2026-10-03T08:56:36.716331+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:56.218628+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 57.76,
@@ -1792,7 +1783,7 @@
       "symbol": "TCS",
       "company_name": "Tata Consultancy Services Ltd",
       "fundamental_score_raw": 8.2,
-      "fundamentals_updated_at": "2026-10-03T08:56:39.751010+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:59.020418+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 55.8,
@@ -1863,7 +1854,7 @@
       "symbol": "TVSMOTOR",
       "company_name": "TVS Motor Company Ltd",
       "fundamental_score_raw": 3.8,
-      "fundamentals_updated_at": "2026-10-03T08:56:38.978326+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:58.355905+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 53.77,
@@ -1928,7 +1919,7 @@
       "symbol": "HEROMOTOCO",
       "company_name": "Hero MotoCorp Ltd",
       "fundamental_score_raw": 9.0,
-      "fundamentals_updated_at": "2026-10-03T08:56:38.901182+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:58.252307+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 53.74,
@@ -1993,7 +1984,7 @@
       "symbol": "AXISBANK",
       "company_name": "Axis Bank Ltd",
       "fundamental_score_raw": 6.8,
-      "fundamentals_updated_at": "2026-10-03T08:56:38.126160+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:57.436669+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 52.17,
@@ -2063,7 +2054,7 @@
       "symbol": "TATASTEEL",
       "company_name": "Tata Steel Ltd",
       "fundamental_score_raw": 5.5,
-      "fundamentals_updated_at": "2026-10-03T08:56:40.023875+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:59.210734+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 51.02,
@@ -2132,7 +2123,7 @@
       "symbol": "ICICIBANK",
       "company_name": "ICICI Bank Ltd",
       "fundamental_score_raw": 5.0,
-      "fundamentals_updated_at": "2026-10-03T08:56:37.525641+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:57.024622+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 50.22,
@@ -2197,7 +2188,7 @@
       "symbol": "RELIANCE",
       "company_name": "Reliance Industries Ltd",
       "fundamental_score_raw": 5.8,
-      "fundamentals_updated_at": "2026-10-03T08:56:37.808654+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:57.352368+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 46.46,
@@ -2223,8 +2214,7 @@
       "event_categories": [
         "corporate_action",
         "dividend",
-        "earnings",
-        "material_event"
+        "earnings"
       ],
       "entry_condition_met": false,
       "entry_status": "Review the company event before entering",
@@ -2268,7 +2258,7 @@
       "symbol": "M&M",
       "company_name": "Mahindra & Mahindra Ltd",
       "fundamental_score_raw": 6.2,
-      "fundamentals_updated_at": "2026-10-03T08:56:38.642582+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:58.040935+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 45.77,
@@ -2337,7 +2327,7 @@
       "symbol": "BAJAJ-AUTO",
       "company_name": "Bajaj Auto Ltd",
       "fundamental_score_raw": 7.0,
-      "fundamentals_updated_at": "2026-10-03T08:56:37.049496+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:56.322955+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 45.03,
@@ -2405,7 +2395,7 @@
       "symbol": "BSE",
       "company_name": "BSE Ltd",
       "fundamental_score_raw": 4.0,
-      "fundamentals_updated_at": "2026-10-03T08:56:37.730530+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:57.240179+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 39.15,
@@ -2474,7 +2464,7 @@
       "symbol": "IDEA",
       "company_name": "Vodafone Idea Ltd",
       "fundamental_score_raw": null,
-      "fundamentals_updated_at": "2026-10-03T08:56:39.230730+00:00",
+      "fundamentals_updated_at": "2026-10-04T09:26:58.454029+00:00",
       "data_as_of": "2026-10-01",
       "setup_mode": "bullish",
       "score": 36.55,
@@ -2545,11 +2535,11 @@
         "symbol": "KOTAKBANK",
         "company_name": "Kotak Mahindra Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.433807+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.013225+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
-        "score": 72.86,
-        "recommendation": "Moderate bullish swing candidate",
+        "score": 76.91,
+        "recommendation": "High confidence bullish swing candidate",
         "futures_price_change_pct": 1.1393619573039082,
         "futures_oi_change_pct": -2.6785149979143275,
         "pcr": 0.46899243959084846,
@@ -2566,13 +2556,11 @@
         "evidence_available": 23,
         "evidence_total": 23,
         "evidence_completeness_pct": 100,
-        "event_risk": true,
-        "event_risk_status": "detected",
-        "event_categories": [
-          "material_event"
-        ],
+        "event_risk": false,
+        "event_risk_status": "clear",
+        "event_categories": [],
         "entry_condition_met": false,
-        "entry_status": "Review the company event before entering",
+        "entry_status": "Wait for breakout",
         "call_oi_wall": 410.0,
         "put_oi_wall": 400.0,
         "reasons": [
@@ -2584,8 +2572,7 @@
           "Positive 5-day momentum",
           "Outperforming sector by 5.1% over five sessions",
           "NASDAQ strongly positive",
-          "GIFT Nifty positive",
-          "Event risk detected"
+          "GIFT Nifty positive"
         ],
         "calculation": {
           "fno_score": 52.0,
@@ -2598,11 +2585,11 @@
           "global_weight": 0.09000000000000001,
           "relative_score": 100,
           "relative_weight": 0.09000000000000001,
-          "risk_score": 70,
+          "risk_score": 100,
           "risk_weight": 0.135,
           "fundamental_score": 50.0,
           "fundamental_weight": 0.1,
-          "weighted_total": 72.86,
+          "weighted_total": 76.91,
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
@@ -2616,7 +2603,7 @@
         "symbol": "INFY",
         "company_name": "Infosys Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.610434+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.218595+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 69.38,
@@ -2683,7 +2670,7 @@
         "symbol": "BHEL",
         "company_name": "Bharat Heavy Electricals Ltd",
         "fundamental_score_raw": 4.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:40.098596+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:59.304266+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 65.59,
@@ -2753,7 +2740,7 @@
         "symbol": "HDFCBANK",
         "company_name": "HDFC Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.716331+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.218628+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 57.76,
@@ -2822,7 +2809,7 @@
         "symbol": "TCS",
         "company_name": "Tata Consultancy Services Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-03T08:56:39.751010+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:59.020418+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 55.8,
@@ -2893,7 +2880,7 @@
         "symbol": "TVSMOTOR",
         "company_name": "TVS Motor Company Ltd",
         "fundamental_score_raw": 3.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.978326+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.355905+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 53.77,
@@ -2958,7 +2945,7 @@
         "symbol": "HEROMOTOCO",
         "company_name": "Hero MotoCorp Ltd",
         "fundamental_score_raw": 9.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.901182+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.252307+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 53.74,
@@ -3023,7 +3010,7 @@
         "symbol": "AXISBANK",
         "company_name": "Axis Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.126160+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.436669+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 52.17,
@@ -3093,7 +3080,7 @@
         "symbol": "TATASTEEL",
         "company_name": "Tata Steel Ltd",
         "fundamental_score_raw": 5.5,
-        "fundamentals_updated_at": "2026-10-03T08:56:40.023875+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:59.210734+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 51.02,
@@ -3162,7 +3149,7 @@
         "symbol": "ICICIBANK",
         "company_name": "ICICI Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.525641+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.024622+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 50.22,
@@ -3227,7 +3214,7 @@
         "symbol": "RELIANCE",
         "company_name": "Reliance Industries Ltd",
         "fundamental_score_raw": 5.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.808654+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.352368+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 46.46,
@@ -3253,8 +3240,7 @@
         "event_categories": [
           "corporate_action",
           "dividend",
-          "earnings",
-          "material_event"
+          "earnings"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -3298,7 +3284,7 @@
         "symbol": "M&M",
         "company_name": "Mahindra & Mahindra Ltd",
         "fundamental_score_raw": 6.2,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.642582+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.040935+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 45.77,
@@ -3367,7 +3353,7 @@
         "symbol": "BAJAJ-AUTO",
         "company_name": "Bajaj Auto Ltd",
         "fundamental_score_raw": 7.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.049496+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.322955+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 45.03,
@@ -3435,7 +3421,7 @@
         "symbol": "BSE",
         "company_name": "BSE Ltd",
         "fundamental_score_raw": 4.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.730530+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.240179+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 39.15,
@@ -3504,7 +3490,7 @@
         "symbol": "IDEA",
         "company_name": "Vodafone Idea Ltd",
         "fundamental_score_raw": null,
-        "fundamentals_updated_at": "2026-10-03T08:56:39.230730+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.454029+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bullish",
         "score": 36.55,
@@ -3574,7 +3560,7 @@
         "symbol": "IDEA",
         "company_name": "Vodafone Idea Ltd",
         "fundamental_score_raw": null,
-        "fundamentals_updated_at": "2026-10-03T08:56:39.230730+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.454029+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 76.9,
@@ -3645,7 +3631,7 @@
         "symbol": "BSE",
         "company_name": "BSE Ltd",
         "fundamental_score_raw": 4.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.730530+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.240179+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 70.84,
@@ -3718,7 +3704,7 @@
         "symbol": "ICICIBANK",
         "company_name": "ICICI Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.525641+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.024622+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 70.53,
@@ -3787,7 +3773,7 @@
         "symbol": "HEROMOTOCO",
         "company_name": "Hero MotoCorp Ltd",
         "fundamental_score_raw": 9.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.901182+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.252307+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 69.3,
@@ -3855,7 +3841,7 @@
         "symbol": "RELIANCE",
         "company_name": "Reliance Industries Ltd",
         "fundamental_score_raw": 5.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.808654+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.352368+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 69.11,
@@ -3881,8 +3867,7 @@
         "event_categories": [
           "corporate_action",
           "dividend",
-          "earnings",
-          "material_event"
+          "earnings"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -3929,7 +3914,7 @@
         "symbol": "M&M",
         "company_name": "Mahindra & Mahindra Ltd",
         "fundamental_score_raw": 6.2,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.642582+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.040935+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 69.04,
@@ -4001,7 +3986,7 @@
         "symbol": "TVSMOTOR",
         "company_name": "TVS Motor Company Ltd",
         "fundamental_score_raw": 3.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.978326+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:58.355905+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 68.96,
@@ -4069,7 +4054,7 @@
         "symbol": "TATASTEEL",
         "company_name": "Tata Steel Ltd",
         "fundamental_score_raw": 5.5,
-        "fundamentals_updated_at": "2026-10-03T08:56:40.023875+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:59.210734+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 66.3,
@@ -4141,7 +4126,7 @@
         "symbol": "BAJAJ-AUTO",
         "company_name": "Bajaj Auto Ltd",
         "fundamental_score_raw": 7.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:37.049496+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.322955+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 65.59,
@@ -4214,7 +4199,7 @@
         "symbol": "AXISBANK",
         "company_name": "Axis Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:38.126160+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:57.436669+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 58.59,
@@ -4284,7 +4269,7 @@
         "symbol": "TCS",
         "company_name": "Tata Consultancy Services Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-03T08:56:39.751010+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:59.020418+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 54.19,
@@ -4357,7 +4342,7 @@
         "symbol": "HDFCBANK",
         "company_name": "HDFC Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.716331+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.218628+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 52.99,
@@ -4428,7 +4413,7 @@
         "symbol": "INFY",
         "company_name": "Infosys Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.610434+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.218595+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 52.31,
@@ -4495,7 +4480,7 @@
         "symbol": "BHEL",
         "company_name": "Bharat Heavy Electricals Ltd",
         "fundamental_score_raw": 4.8,
-        "fundamentals_updated_at": "2026-10-03T08:56:40.098596+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:59.304266+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
         "score": 47.87,
@@ -4565,10 +4550,10 @@
         "symbol": "KOTAKBANK",
         "company_name": "Kotak Mahindra Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-03T08:56:36.433807+00:00",
+        "fundamentals_updated_at": "2026-10-04T09:26:56.013225+00:00",
         "data_as_of": "2026-10-01",
         "setup_mode": "bearish",
-        "score": 41.95,
+        "score": 46.0,
         "recommendation": "Avoid",
         "futures_price_change_pct": 1.1393619573039082,
         "futures_oi_change_pct": -2.6785149979143275,
@@ -4586,13 +4571,11 @@
         "evidence_available": 23,
         "evidence_total": 23,
         "evidence_completeness_pct": 100,
-        "event_risk": true,
-        "event_risk_status": "detected",
-        "event_categories": [
-          "material_event"
-        ],
+        "event_risk": false,
+        "event_risk_status": "clear",
+        "event_categories": [],
         "entry_condition_met": false,
-        "entry_status": "Review the company event before entering",
+        "entry_status": "No qualifying setup",
         "call_oi_wall": 410.0,
         "put_oi_wall": 400.0,
         "reasons": [
@@ -4601,8 +4584,7 @@
           "Strong volume expansion",
           "Sector-relative momentum opposes bearish setup",
           "NASDAQ strongly positive opposes bearish setup",
-          "GIFT Nifty positive opposes bearish setup",
-          "Event risk detected"
+          "GIFT Nifty positive opposes bearish setup"
         ],
         "calculation": {
           "fno_score": 55.0,
@@ -4615,11 +4597,11 @@
           "global_weight": 0.09000000000000001,
           "relative_score": 0,
           "relative_weight": 0.09000000000000001,
-          "risk_score": 70,
+          "risk_score": 100,
           "risk_weight": 0.135,
           "fundamental_score": 50.0,
           "fundamental_weight": 0.1,
-          "weighted_total": 41.95,
+          "weighted_total": 46.0,
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
