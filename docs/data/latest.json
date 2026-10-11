@@ -1,5 +1,5 @@
 {
-  "generated_at_ist": "2026-10-10 15:02:51",
+  "generated_at_ist": "2026-10-11 15:15:43",
   "data_as_of": "2026-10-09",
   "scanner_type": "pre_market_swing_scanner",
   "disclaimer": "Educational scanner only. Not financial advice.",
@@ -12,31 +12,31 @@
       "nasdaq": {
         "change_pct": 0.64,
         "observed_at": "2026-10-09T00:00:00",
-        "fetched_at": "2026-10-10T09:32:51.166901+00:00",
+        "fetched_at": "2026-10-11T09:45:43.389955+00:00",
         "source": "Yahoo Finance"
       },
       "spx": {
         "change_pct": 0.59,
         "observed_at": "2026-10-09T00:00:00",
-        "fetched_at": "2026-10-10T09:32:51.475645+00:00",
+        "fetched_at": "2026-10-11T09:45:44.295788+00:00",
         "source": "Yahoo Finance"
       },
       "dow": {
         "change_pct": 0.83,
         "observed_at": "2026-10-09T00:00:00",
-        "fetched_at": "2026-10-10T09:32:51.576593+00:00",
+        "fetched_at": "2026-10-11T09:45:44.599694+00:00",
         "source": "Yahoo Finance"
       },
       "gift_nifty": {
         "change_pct": -0.12,
         "observed_at": "10-Oct-2026 02:30:09",
-        "fetched_at": "2026-10-10T09:32:51.697260+00:00",
+        "fetched_at": "2026-10-11T09:45:44.896608+00:00",
         "source": "NSE International Exchange"
       }
     }
   },
   "market_context": {
-    "generated_at": "2026-10-10T09:33:33.134936+00:00",
+    "generated_at": "2026-10-11T09:46:15.191970+00:00",
     "nifty_50": {
       "ticker": "^NSEI",
       "close": 22520.4492,
@@ -46,7 +46,7 @@
       "sma50": 23726.469,
       "trend": "bearish",
       "observed_at": "2026-10-09T00:00:00",
-      "fetched_at": "2026-10-10T09:33:14.253772+00:00",
+      "fetched_at": "2026-10-11T09:45:54.888810+00:00",
       "source": "Yahoo Finance"
     },
     "india_vix": {
@@ -58,7 +58,7 @@
       "sma50": 12.0648,
       "trend": "bullish",
       "observed_at": "2026-10-09T00:00:00",
-      "fetched_at": "2026-10-10T09:33:14.253772+00:00",
+      "fetched_at": "2026-10-11T09:45:54.888810+00:00",
       "source": "Yahoo Finance"
     },
     "market_breadth": {
@@ -69,7 +69,7 @@
       "advance_decline_ratio": 2.17,
       "advance_pct": 68.4,
       "observed_at": "09-Oct-2026 15:30",
-      "fetched_at": "2026-10-10T09:33:32.784913+00:00",
+      "fetched_at": "2026-10-11T09:46:14.557218+00:00",
       "source": "NSE India allIndices"
     },
     "sector_indices": {
@@ -82,7 +82,7 @@
         "sma50": 56703.7678,
         "trend": "bearish",
         "observed_at": "2026-10-09T00:00:00",
-        "fetched_at": "2026-10-10T09:33:14.253772+00:00",
+        "fetched_at": "2026-10-11T09:45:54.888810+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty IT": {
@@ -94,7 +94,7 @@
         "sma50": 29911.0571,
         "trend": "mixed",
         "observed_at": "2026-10-09T00:00:00",
-        "fetched_at": "2026-10-10T09:33:14.253772+00:00",
+        "fetched_at": "2026-10-11T09:45:54.888810+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty Auto": {
@@ -106,7 +106,7 @@
         "sma50": 27865.516,
         "trend": "bearish",
         "observed_at": "2026-10-09",
-        "fetched_at": "2026-10-10T09:33:14.705288+00:00",
+        "fetched_at": "2026-10-11T09:45:55.826278+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Pharma": {
@@ -118,7 +118,7 @@
         "sma50": 26588.0832,
         "trend": "bearish",
         "observed_at": "2026-10-09T00:00:00",
-        "fetched_at": "2026-10-10T09:33:14.253772+00:00",
+        "fetched_at": "2026-10-11T09:45:54.888810+00:00",
         "source": "Yahoo Finance"
       },
       "Nifty FMCG": {
@@ -130,7 +130,7 @@
         "sma50": 46712.183,
         "trend": "bearish",
         "observed_at": "2026-10-09",
-        "fetched_at": "2026-10-10T09:33:14.705288+00:00",
+        "fetched_at": "2026-10-11T09:45:55.826278+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Metal": {
@@ -142,7 +142,7 @@
         "sma50": 13002.056,
         "trend": "bearish",
         "observed_at": "2026-10-09",
-        "fetched_at": "2026-10-10T09:33:14.705288+00:00",
+        "fetched_at": "2026-10-11T09:45:55.826278+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Energy": {
@@ -154,7 +154,7 @@
         "sma50": 37863.06,
         "trend": "bearish",
         "observed_at": "2026-10-09",
-        "fetched_at": "2026-10-10T09:33:14.705288+00:00",
+        "fetched_at": "2026-10-11T09:45:55.826278+00:00",
         "source": "NSE India index archives"
       },
       "Nifty Realty": {
@@ -166,7 +166,7 @@
         "sma50": 876.399,
         "trend": "bearish",
         "observed_at": "2026-10-09",
-        "fetched_at": "2026-10-10T09:33:14.705288+00:00",
+        "fetched_at": "2026-10-11T09:45:55.826278+00:00",
         "source": "NSE India index archives"
       }
     },
@@ -179,8 +179,8 @@
         "sma20": 96.1199,
         "sma50": 95.5613,
         "trend": "bullish",
-        "observed_at": "2026-10-10T00:00:00",
-        "fetched_at": "2026-10-10T09:33:14.253772+00:00",
+        "observed_at": "2026-10-11T00:00:00",
+        "fetched_at": "2026-10-11T09:45:54.888810+00:00",
         "source": "Yahoo Finance"
       },
       "wti_crude": {
@@ -192,7 +192,7 @@
         "sma50": 89.2014,
         "trend": "mixed",
         "observed_at": "2026-10-09T00:00:00",
-        "fetched_at": "2026-10-10T09:33:14.253772+00:00",
+        "fetched_at": "2026-10-11T09:45:54.888810+00:00",
         "source": "Yahoo Finance"
       }
     },
@@ -205,25 +205,25 @@
         "nasdaq": {
           "change_pct": 0.64,
           "observed_at": "2026-10-09T00:00:00",
-          "fetched_at": "2026-10-10T09:32:51.166901+00:00",
+          "fetched_at": "2026-10-11T09:45:43.389955+00:00",
           "source": "Yahoo Finance"
         },
         "spx": {
           "change_pct": 0.59,
           "observed_at": "2026-10-09T00:00:00",
-          "fetched_at": "2026-10-10T09:32:51.475645+00:00",
+          "fetched_at": "2026-10-11T09:45:44.295788+00:00",
           "source": "Yahoo Finance"
         },
         "dow": {
           "change_pct": 0.83,
           "observed_at": "2026-10-09T00:00:00",
-          "fetched_at": "2026-10-10T09:32:51.576593+00:00",
+          "fetched_at": "2026-10-11T09:45:44.599694+00:00",
           "source": "Yahoo Finance"
         },
         "gift_nifty": {
           "change_pct": -0.12,
           "observed_at": "10-Oct-2026 02:30:09",
-          "fetched_at": "2026-10-10T09:32:51.697260+00:00",
+          "fetched_at": "2026-10-11T09:45:44.896608+00:00",
           "source": "NSE International Exchange"
         }
       },
@@ -622,37 +622,6 @@
       "sector_relative_strength_pct": -1.6477294685990391
     },
     {
-      "symbol": "ADANIENT",
-      "data_as_of": "2026-10-09",
-      "futures_price_change_pct": 2.1877532121773458,
-      "futures_oi_change_pct": 0.888365824490811,
-      "pcr": 0.6610638997136016,
-      "close": 2634.4,
-      "dma20": 2896.1099999999997,
-      "dma50": 2963.9539999999997,
-      "return_5d": -6.475433115592166,
-      "volume": 1611868.0,
-      "avg_volume": 1797359.3,
-      "in_fo_ban": false,
-      "gap_pct": 0.3505392912172445,
-      "gap_atr": 0.0974304068522474,
-      "atr14": 93.40000000000002,
-      "session_move_atr": 0.41113490364025784,
-      "distance_from_breakout_atr": -5.434689507494644,
-      "distance_from_sma20_atr": -2.802034261241965,
-      "prior_twenty_day_low": 2547.0,
-      "liquidity_tier": "good",
-      "estimated_slippage_bps": 8,
-      "liquidity_filter_pass": true,
-      "cash_turnover_crore": 462.30758651049996,
-      "futures_volume": 7420.0,
-      "call_oi_wall": 2900.0,
-      "put_oi_wall": 2600.0,
-      "sector": "Nifty 50 benchmark",
-      "sector_return_5d_pct": 0.44,
-      "sector_relative_strength_pct": -6.915433115592166
-    },
-    {
       "symbol": "SAIL",
       "data_as_of": "2026-10-09",
       "futures_price_change_pct": 1.6785440838682941,
@@ -713,10 +682,41 @@
       "sector": "Nifty IT",
       "sector_return_5d_pct": 0.95,
       "sector_relative_strength_pct": -3.07372295068779
+    },
+    {
+      "symbol": "ADANIENT",
+      "data_as_of": "2026-10-09",
+      "futures_price_change_pct": 2.1877532121773458,
+      "futures_oi_change_pct": 0.888365824490811,
+      "pcr": 0.6610638997136016,
+      "close": 2634.4,
+      "dma20": 2896.1099999999997,
+      "dma50": 2963.9539999999997,
+      "return_5d": -6.475433115592166,
+      "volume": 1611868.0,
+      "avg_volume": 1797359.3,
+      "in_fo_ban": false,
+      "gap_pct": 0.3505392912172445,
+      "gap_atr": 0.0974304068522474,
+      "atr14": 93.40000000000002,
+      "session_move_atr": 0.41113490364025784,
+      "distance_from_breakout_atr": -5.434689507494644,
+      "distance_from_sma20_atr": -2.802034261241965,
+      "prior_twenty_day_low": 2547.0,
+      "liquidity_tier": "good",
+      "estimated_slippage_bps": 8,
+      "liquidity_filter_pass": true,
+      "cash_turnover_crore": 462.30758651049996,
+      "futures_volume": 7420.0,
+      "call_oi_wall": 2900.0,
+      "put_oi_wall": 2600.0,
+      "sector": "Nifty 50 benchmark",
+      "sector_return_5d_pct": 0.44,
+      "sector_relative_strength_pct": -6.915433115592166
     }
   ],
   "backtest": {
-    "generated_at": "2026-10-10T09:33:52.732772+00:00",
+    "generated_at": "2026-10-11T09:46:35.753255+00:00",
     "score_scope": "cash_technical_heuristic_only",
     "source": "Yahoo Finance history with NSE and Stooq fallback",
     "symbols": [
@@ -748,8 +748,8 @@
       "win_rate_pct": 51.8,
       "expectancy_pct": 0.15,
       "average_max_drawdown_pct": -3.22,
-      "breakout_observations": 487,
-      "false_breakout_rate_pct": 42.5
+      "breakout_observations": 485,
+      "false_breakout_rate_pct": 42.7
     },
     "by_regime": {
       "bullish": {
@@ -757,8 +757,8 @@
         "win_rate_pct": 52.8,
         "expectancy_pct": 0.34,
         "average_max_drawdown_pct": -2.9,
-        "breakout_observations": 304,
-        "false_breakout_rate_pct": 41.4
+        "breakout_observations": 302,
+        "false_breakout_rate_pct": 41.7
       },
       "mixed": {
         "observations": 2680,
@@ -836,8 +836,8 @@
           "win_rate_pct": 51.8,
           "expectancy_pct": 0.36,
           "average_max_drawdown_pct": -2.93,
-          "breakout_observations": 294,
-          "false_breakout_rate_pct": 41.5
+          "breakout_observations": 292,
+          "false_breakout_rate_pct": 41.8
         },
         "mixed": {
           "observations": 584,
@@ -874,7 +874,7 @@
       "symbol": "KOTAKBANK",
       "company_name": "Kotak Mahindra Bank Ltd",
       "fundamental_score_raw": 5.0,
-      "fundamentals_updated_at": "2026-10-10T09:33:11.867280+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:52.583285+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 72.17,
@@ -940,7 +940,7 @@
       "symbol": "BHEL",
       "company_name": "Bharat Heavy Electricals Ltd",
       "fundamental_score_raw": 4.8,
-      "fundamentals_updated_at": "2026-10-10T09:33:12.705190+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:53.561180+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 70.46,
@@ -999,8 +999,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 64.47,
-      "score_change": 6.0,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -1009,7 +1009,7 @@
       "symbol": "TCS",
       "company_name": "Tata Consultancy Services Ltd",
       "fundamental_score_raw": 8.2,
-      "fundamentals_updated_at": "2026-10-10T09:33:10.671256+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:51.349923+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 69.27,
@@ -1069,12 +1069,10 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 51.52,
-      "score_change": 17.7,
-      "new_event_categories": [
-        "corporate_action"
-      ],
-      "new_risk": true,
+      "previous_score": null,
+      "score_change": null,
+      "new_event_categories": [],
+      "new_risk": false,
       "entry_condition_reached": false
     }
   ],
@@ -1084,7 +1082,7 @@
         "symbol": "KOTAKBANK",
         "company_name": "Kotak Mahindra Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.867280+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.583285+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 72.17,
@@ -1150,7 +1148,7 @@
         "symbol": "BHEL",
         "company_name": "Bharat Heavy Electricals Ltd",
         "fundamental_score_raw": 4.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:12.705190+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.561180+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 70.46,
@@ -1209,8 +1207,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 64.47,
-        "score_change": 6.0,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -1219,7 +1217,7 @@
         "symbol": "TCS",
         "company_name": "Tata Consultancy Services Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.671256+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.349923+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 69.27,
@@ -1279,12 +1277,10 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 51.52,
-        "score_change": 17.7,
-        "new_event_categories": [
-          "corporate_action"
-        ],
-        "new_risk": true,
+        "previous_score": null,
+        "score_change": null,
+        "new_event_categories": [],
+        "new_risk": false,
         "entry_condition_reached": false
       }
     ],
@@ -1293,7 +1289,7 @@
         "symbol": "ADANIENT",
         "company_name": "Adani Enterprises Ltd",
         "fundamental_score_raw": 3.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.762945+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:54.884499+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 66.04,
@@ -1353,8 +1349,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 77.83,
-        "score_change": -11.8,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -1363,7 +1359,7 @@
         "symbol": "HDFCBANK",
         "company_name": "HDFC Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.671291+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.468857+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 65.9,
@@ -1420,8 +1416,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 75.74,
-        "score_change": -9.8,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -1430,10 +1426,10 @@
         "symbol": "APOLLOHOSP",
         "company_name": "Apollo Hospitals Enterprise Ltd",
         "fundamental_score_raw": 5.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.174127+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.824432+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
-        "score": 65.9,
+        "score": 61.85,
         "recommendation": "Moderate bearish swing candidate",
         "futures_price_change_pct": 4.734268014346266,
         "futures_oi_change_pct": -6.091699519360583,
@@ -1451,11 +1447,13 @@
         "evidence_available": 23,
         "evidence_total": 23,
         "evidence_completeness_pct": 100,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings"
+        ],
         "entry_condition_met": false,
-        "entry_status": "Wait for breakdown",
+        "entry_status": "Review the company event before entering",
         "call_oi_wall": 8000.0,
         "put_oi_wall": 8000.0,
         "reasons": [
@@ -1466,6 +1464,7 @@
           "Price below 50 DMA",
           "Negative 5-day momentum",
           "Underperforming sector by 1.7% over five sessions",
+          "Event risk detected",
           "Nearby put OI wall may limit downside"
         ],
         "calculation": {
@@ -1479,11 +1478,11 @@
           "global_weight": 0.09000000000000001,
           "relative_score": 67.43,
           "relative_weight": 0.09000000000000001,
-          "risk_score": 90,
+          "risk_score": 60,
           "risk_weight": 0.135,
           "fundamental_score": 48.0,
           "fundamental_weight": 0.1,
-          "weighted_total": 65.9,
+          "weighted_total": 61.85,
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
@@ -1500,7 +1499,7 @@
       "symbol": "KOTAKBANK",
       "company_name": "Kotak Mahindra Bank Ltd",
       "fundamental_score_raw": 5.0,
-      "fundamentals_updated_at": "2026-10-10T09:33:11.867280+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:52.583285+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 72.17,
@@ -1566,7 +1565,7 @@
       "symbol": "BHEL",
       "company_name": "Bharat Heavy Electricals Ltd",
       "fundamental_score_raw": 4.8,
-      "fundamentals_updated_at": "2026-10-10T09:33:12.705190+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:53.561180+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 70.46,
@@ -1625,8 +1624,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 64.47,
-      "score_change": 6.0,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -1635,7 +1634,7 @@
       "symbol": "TCS",
       "company_name": "Tata Consultancy Services Ltd",
       "fundamental_score_raw": 8.2,
-      "fundamentals_updated_at": "2026-10-10T09:33:10.671256+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:51.349923+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 69.27,
@@ -1695,19 +1694,17 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 51.52,
-      "score_change": 17.7,
-      "new_event_categories": [
-        "corporate_action"
-      ],
-      "new_risk": true,
+      "previous_score": null,
+      "score_change": null,
+      "new_event_categories": [],
+      "new_risk": false,
       "entry_condition_reached": false
     },
     {
       "symbol": "ITC",
       "company_name": "ITC Ltd",
       "fundamental_score_raw": 9.0,
-      "fundamentals_updated_at": "2026-10-10T09:33:11.654413+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:52.434917+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 67.41,
@@ -1732,8 +1729,7 @@
       "event_risk_status": "detected",
       "event_categories": [
         "dividend",
-        "earnings",
-        "material_event"
+        "earnings"
       ],
       "entry_condition_met": false,
       "entry_status": "Review the company event before entering",
@@ -1767,8 +1763,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 41.33,
-      "score_change": 26.1,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -1777,7 +1773,7 @@
       "symbol": "AXISBANK",
       "company_name": "Axis Bank Ltd",
       "fundamental_score_raw": 6.8,
-      "fundamentals_updated_at": "2026-10-10T09:33:13.012374+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:53.671161+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 65.0,
@@ -1801,8 +1797,7 @@
       "event_risk": true,
       "event_risk_status": "detected",
       "event_categories": [
-        "dividend",
-        "earnings"
+        "dividend"
       ],
       "entry_condition_met": false,
       "entry_status": "Review the company event before entering",
@@ -1838,69 +1833,6 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 60.1,
-      "score_change": 4.9,
-      "new_event_categories": [],
-      "new_risk": false,
-      "entry_condition_reached": false
-    },
-    {
-      "symbol": "APOLLOHOSP",
-      "company_name": "Apollo Hospitals Enterprise Ltd",
-      "fundamental_score_raw": 5.2,
-      "fundamentals_updated_at": "2026-10-10T09:33:13.174127+00:00",
-      "data_as_of": "2026-10-09",
-      "setup_mode": "bullish",
-      "score": 58.17,
-      "recommendation": "Watchlist only",
-      "futures_price_change_pct": 4.734268014346266,
-      "futures_oi_change_pct": -6.091699519360583,
-      "pcr": 0.9549360320794348,
-      "return_5d": -1.3032519825413424,
-      "sector": "Nifty 50 benchmark",
-      "sector_relative_strength_pct": -1.7432519825413424,
-      "gap_pct": 3.704669971301855,
-      "gap_atr": 1.2075930144267275,
-      "atr14": 235.17857142857142,
-      "gap_extended": false,
-      "liquidity_tier": "high",
-      "estimated_slippage_bps": 4,
-      "in_fo_ban": false,
-      "evidence_available": 23,
-      "evidence_total": 23,
-      "evidence_completeness_pct": 100,
-      "event_risk": false,
-      "event_risk_status": "clear",
-      "event_categories": [],
-      "entry_condition_met": false,
-      "entry_status": "Wait for breakout",
-      "call_oi_wall": 8000.0,
-      "put_oi_wall": 8000.0,
-      "reasons": [
-        "Short covering",
-        "Healthy bullish PCR",
-        "Strong volume expansion",
-        "Sector-relative momentum opposes bullish setup"
-      ],
-      "calculation": {
-        "fno_score": 76.0,
-        "fno_weight": 0.315,
-        "trend_score": 0,
-        "trend_weight": 0.18000000000000002,
-        "volume_score": 90,
-        "volume_weight": 0.09000000000000001,
-        "global_score": 50,
-        "global_weight": 0.09000000000000001,
-        "relative_score": 32.57,
-        "relative_weight": 0.09000000000000001,
-        "risk_score": 100,
-        "risk_weight": 0.135,
-        "fundamental_score": 52.0,
-        "fundamental_weight": 0.1,
-        "weighted_total": 58.17,
-        "total_weight": 1.0,
-        "formula": "weighted component total"
-      },
       "previous_score": null,
       "score_change": null,
       "new_event_categories": [],
@@ -1911,7 +1843,7 @@
       "symbol": "ICICIBANK",
       "company_name": "ICICI Bank Ltd",
       "fundamental_score_raw": 5.0,
-      "fundamentals_updated_at": "2026-10-10T09:33:11.867322+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:52.687229+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 56.4,
@@ -1969,8 +1901,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 50.66,
-      "score_change": 5.7,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -1979,7 +1911,7 @@
       "symbol": "SAIL",
       "company_name": "Steel Authority of India Ltd",
       "fundamental_score_raw": 5.2,
-      "fundamentals_updated_at": "2026-10-10T09:33:14.095137+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:54.635085+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 56.23,
@@ -2003,6 +1935,7 @@
       "event_risk": true,
       "event_risk_status": "detected",
       "event_categories": [
+        "earnings",
         "material_event"
       ],
       "entry_condition_met": false,
@@ -2045,7 +1978,7 @@
       "symbol": "INFY",
       "company_name": "Infosys Ltd",
       "fundamental_score_raw": 8.2,
-      "fundamentals_updated_at": "2026-10-10T09:33:10.702761+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:51.612763+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 55.48,
@@ -2069,8 +2002,7 @@
       "event_risk": true,
       "event_risk_status": "detected",
       "event_categories": [
-        "earnings",
-        "material_event"
+        "earnings"
       ],
       "entry_condition_met": false,
       "entry_status": "Review the company event before entering",
@@ -2102,19 +2034,83 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 62.42,
-      "score_change": -6.9,
-      "new_event_categories": [
-        "material_event"
+      "previous_score": null,
+      "score_change": null,
+      "new_event_categories": [],
+      "new_risk": false,
+      "entry_condition_reached": false
+    },
+    {
+      "symbol": "APOLLOHOSP",
+      "company_name": "Apollo Hospitals Enterprise Ltd",
+      "fundamental_score_raw": 5.2,
+      "fundamentals_updated_at": "2026-10-11T09:45:53.824432+00:00",
+      "data_as_of": "2026-10-09",
+      "setup_mode": "bullish",
+      "score": 54.12,
+      "recommendation": "Watchlist only",
+      "futures_price_change_pct": 4.734268014346266,
+      "futures_oi_change_pct": -6.091699519360583,
+      "pcr": 0.9549360320794348,
+      "return_5d": -1.3032519825413424,
+      "sector": "Nifty 50 benchmark",
+      "sector_relative_strength_pct": -1.7432519825413424,
+      "gap_pct": 3.704669971301855,
+      "gap_atr": 1.2075930144267275,
+      "atr14": 235.17857142857142,
+      "gap_extended": false,
+      "liquidity_tier": "high",
+      "estimated_slippage_bps": 4,
+      "in_fo_ban": false,
+      "evidence_available": 23,
+      "evidence_total": 23,
+      "evidence_completeness_pct": 100,
+      "event_risk": true,
+      "event_risk_status": "detected",
+      "event_categories": [
+        "earnings"
       ],
-      "new_risk": true,
+      "entry_condition_met": false,
+      "entry_status": "Review the company event before entering",
+      "call_oi_wall": 8000.0,
+      "put_oi_wall": 8000.0,
+      "reasons": [
+        "Short covering",
+        "Healthy bullish PCR",
+        "Strong volume expansion",
+        "Sector-relative momentum opposes bullish setup",
+        "Event risk detected"
+      ],
+      "calculation": {
+        "fno_score": 76.0,
+        "fno_weight": 0.315,
+        "trend_score": 0,
+        "trend_weight": 0.18000000000000002,
+        "volume_score": 90,
+        "volume_weight": 0.09000000000000001,
+        "global_score": 50,
+        "global_weight": 0.09000000000000001,
+        "relative_score": 32.57,
+        "relative_weight": 0.09000000000000001,
+        "risk_score": 70,
+        "risk_weight": 0.135,
+        "fundamental_score": 52.0,
+        "fundamental_weight": 0.1,
+        "weighted_total": 54.12,
+        "total_weight": 1.0,
+        "formula": "weighted component total"
+      },
+      "previous_score": null,
+      "score_change": null,
+      "new_event_categories": [],
+      "new_risk": false,
       "entry_condition_reached": false
     },
     {
       "symbol": "HCLTECH",
       "company_name": "HCL Technologies Ltd",
       "fundamental_score_raw": 9.0,
-      "fundamentals_updated_at": "2026-10-10T09:33:14.249305+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:54.790637+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 52.22,
@@ -2181,7 +2177,7 @@
       "symbol": "PAYTM",
       "company_name": "One 97 Communications Ltd",
       "fundamental_score_raw": 2.5,
-      "fundamentals_updated_at": "2026-10-10T09:33:13.174163+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:53.910532+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 52.14,
@@ -2237,8 +2233,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 50.59,
-      "score_change": 1.5,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -2247,7 +2243,7 @@
       "symbol": "RELIANCE",
       "company_name": "Reliance Industries Ltd",
       "fundamental_score_raw": 5.8,
-      "fundamentals_updated_at": "2026-10-10T09:33:10.851886+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:51.657801+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 50.78,
@@ -2307,8 +2303,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 45.7,
-      "score_change": 5.1,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -2317,7 +2313,7 @@
       "symbol": "BSE",
       "company_name": "BSE Ltd",
       "fundamental_score_raw": 4.0,
-      "fundamentals_updated_at": "2026-10-10T09:33:11.969839+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:52.783194+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 48.73,
@@ -2376,8 +2372,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 49.0,
-      "score_change": -0.3,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -2386,7 +2382,7 @@
       "symbol": "HDFCBANK",
       "company_name": "HDFC Bank Ltd",
       "fundamental_score_raw": 6.8,
-      "fundamentals_updated_at": "2026-10-10T09:33:10.671291+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:51.468857+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 45.76,
@@ -2439,8 +2435,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 40.86,
-      "score_change": 4.9,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -2449,7 +2445,7 @@
       "symbol": "ADANIENT",
       "company_name": "Adani Enterprises Ltd",
       "fundamental_score_raw": 3.0,
-      "fundamentals_updated_at": "2026-10-10T09:33:13.762945+00:00",
+      "fundamentals_updated_at": "2026-10-11T09:45:54.884499+00:00",
       "data_as_of": "2026-10-09",
       "setup_mode": "bullish",
       "score": 42.06,
@@ -2505,8 +2501,8 @@
         "total_weight": 1.0,
         "formula": "weighted component total"
       },
-      "previous_score": 38.87,
-      "score_change": 3.2,
+      "previous_score": null,
+      "score_change": null,
       "new_event_categories": [],
       "new_risk": false,
       "entry_condition_reached": false
@@ -2518,7 +2514,7 @@
         "symbol": "KOTAKBANK",
         "company_name": "Kotak Mahindra Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.867280+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.583285+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 72.17,
@@ -2584,7 +2580,7 @@
         "symbol": "BHEL",
         "company_name": "Bharat Heavy Electricals Ltd",
         "fundamental_score_raw": 4.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:12.705190+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.561180+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 70.46,
@@ -2643,8 +2639,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 64.47,
-        "score_change": 6.0,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -2653,7 +2649,7 @@
         "symbol": "TCS",
         "company_name": "Tata Consultancy Services Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.671256+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.349923+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 69.27,
@@ -2713,19 +2709,17 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 51.52,
-        "score_change": 17.7,
-        "new_event_categories": [
-          "corporate_action"
-        ],
-        "new_risk": true,
+        "previous_score": null,
+        "score_change": null,
+        "new_event_categories": [],
+        "new_risk": false,
         "entry_condition_reached": false
       },
       {
         "symbol": "ITC",
         "company_name": "ITC Ltd",
         "fundamental_score_raw": 9.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.654413+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.434917+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 67.41,
@@ -2750,8 +2744,7 @@
         "event_risk_status": "detected",
         "event_categories": [
           "dividend",
-          "earnings",
-          "material_event"
+          "earnings"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -2785,8 +2778,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 41.33,
-        "score_change": 26.1,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -2795,7 +2788,7 @@
         "symbol": "AXISBANK",
         "company_name": "Axis Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.012374+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.671161+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 65.0,
@@ -2819,8 +2812,7 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
-          "dividend",
-          "earnings"
+          "dividend"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -2856,69 +2848,6 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 60.1,
-        "score_change": 4.9,
-        "new_event_categories": [],
-        "new_risk": false,
-        "entry_condition_reached": false
-      },
-      {
-        "symbol": "APOLLOHOSP",
-        "company_name": "Apollo Hospitals Enterprise Ltd",
-        "fundamental_score_raw": 5.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.174127+00:00",
-        "data_as_of": "2026-10-09",
-        "setup_mode": "bullish",
-        "score": 58.17,
-        "recommendation": "Watchlist only",
-        "futures_price_change_pct": 4.734268014346266,
-        "futures_oi_change_pct": -6.091699519360583,
-        "pcr": 0.9549360320794348,
-        "return_5d": -1.3032519825413424,
-        "sector": "Nifty 50 benchmark",
-        "sector_relative_strength_pct": -1.7432519825413424,
-        "gap_pct": 3.704669971301855,
-        "gap_atr": 1.2075930144267275,
-        "atr14": 235.17857142857142,
-        "gap_extended": false,
-        "liquidity_tier": "high",
-        "estimated_slippage_bps": 4,
-        "in_fo_ban": false,
-        "evidence_available": 23,
-        "evidence_total": 23,
-        "evidence_completeness_pct": 100,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
-        "entry_condition_met": false,
-        "entry_status": "Wait for breakout",
-        "call_oi_wall": 8000.0,
-        "put_oi_wall": 8000.0,
-        "reasons": [
-          "Short covering",
-          "Healthy bullish PCR",
-          "Strong volume expansion",
-          "Sector-relative momentum opposes bullish setup"
-        ],
-        "calculation": {
-          "fno_score": 76.0,
-          "fno_weight": 0.315,
-          "trend_score": 0,
-          "trend_weight": 0.18000000000000002,
-          "volume_score": 90,
-          "volume_weight": 0.09000000000000001,
-          "global_score": 50,
-          "global_weight": 0.09000000000000001,
-          "relative_score": 32.57,
-          "relative_weight": 0.09000000000000001,
-          "risk_score": 100,
-          "risk_weight": 0.135,
-          "fundamental_score": 52.0,
-          "fundamental_weight": 0.1,
-          "weighted_total": 58.17,
-          "total_weight": 1.0,
-          "formula": "weighted component total"
-        },
         "previous_score": null,
         "score_change": null,
         "new_event_categories": [],
@@ -2929,7 +2858,7 @@
         "symbol": "ICICIBANK",
         "company_name": "ICICI Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.867322+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.687229+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 56.4,
@@ -2987,8 +2916,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 50.66,
-        "score_change": 5.7,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -2997,7 +2926,7 @@
         "symbol": "SAIL",
         "company_name": "Steel Authority of India Ltd",
         "fundamental_score_raw": 5.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:14.095137+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:54.635085+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 56.23,
@@ -3021,6 +2950,7 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
+          "earnings",
           "material_event"
         ],
         "entry_condition_met": false,
@@ -3063,7 +2993,7 @@
         "symbol": "INFY",
         "company_name": "Infosys Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.702761+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.612763+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 55.48,
@@ -3087,8 +3017,7 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
-          "earnings",
-          "material_event"
+          "earnings"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -3120,19 +3049,83 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 62.42,
-        "score_change": -6.9,
-        "new_event_categories": [
-          "material_event"
+        "previous_score": null,
+        "score_change": null,
+        "new_event_categories": [],
+        "new_risk": false,
+        "entry_condition_reached": false
+      },
+      {
+        "symbol": "APOLLOHOSP",
+        "company_name": "Apollo Hospitals Enterprise Ltd",
+        "fundamental_score_raw": 5.2,
+        "fundamentals_updated_at": "2026-10-11T09:45:53.824432+00:00",
+        "data_as_of": "2026-10-09",
+        "setup_mode": "bullish",
+        "score": 54.12,
+        "recommendation": "Watchlist only",
+        "futures_price_change_pct": 4.734268014346266,
+        "futures_oi_change_pct": -6.091699519360583,
+        "pcr": 0.9549360320794348,
+        "return_5d": -1.3032519825413424,
+        "sector": "Nifty 50 benchmark",
+        "sector_relative_strength_pct": -1.7432519825413424,
+        "gap_pct": 3.704669971301855,
+        "gap_atr": 1.2075930144267275,
+        "atr14": 235.17857142857142,
+        "gap_extended": false,
+        "liquidity_tier": "high",
+        "estimated_slippage_bps": 4,
+        "in_fo_ban": false,
+        "evidence_available": 23,
+        "evidence_total": 23,
+        "evidence_completeness_pct": 100,
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings"
         ],
-        "new_risk": true,
+        "entry_condition_met": false,
+        "entry_status": "Review the company event before entering",
+        "call_oi_wall": 8000.0,
+        "put_oi_wall": 8000.0,
+        "reasons": [
+          "Short covering",
+          "Healthy bullish PCR",
+          "Strong volume expansion",
+          "Sector-relative momentum opposes bullish setup",
+          "Event risk detected"
+        ],
+        "calculation": {
+          "fno_score": 76.0,
+          "fno_weight": 0.315,
+          "trend_score": 0,
+          "trend_weight": 0.18000000000000002,
+          "volume_score": 90,
+          "volume_weight": 0.09000000000000001,
+          "global_score": 50,
+          "global_weight": 0.09000000000000001,
+          "relative_score": 32.57,
+          "relative_weight": 0.09000000000000001,
+          "risk_score": 70,
+          "risk_weight": 0.135,
+          "fundamental_score": 52.0,
+          "fundamental_weight": 0.1,
+          "weighted_total": 54.12,
+          "total_weight": 1.0,
+          "formula": "weighted component total"
+        },
+        "previous_score": null,
+        "score_change": null,
+        "new_event_categories": [],
+        "new_risk": false,
         "entry_condition_reached": false
       },
       {
         "symbol": "HCLTECH",
         "company_name": "HCL Technologies Ltd",
         "fundamental_score_raw": 9.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:14.249305+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:54.790637+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 52.22,
@@ -3199,7 +3192,7 @@
         "symbol": "PAYTM",
         "company_name": "One 97 Communications Ltd",
         "fundamental_score_raw": 2.5,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.174163+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.910532+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 52.14,
@@ -3255,8 +3248,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 50.59,
-        "score_change": 1.5,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3265,7 +3258,7 @@
         "symbol": "RELIANCE",
         "company_name": "Reliance Industries Ltd",
         "fundamental_score_raw": 5.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.851886+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.657801+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 50.78,
@@ -3325,8 +3318,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 45.7,
-        "score_change": 5.1,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3335,7 +3328,7 @@
         "symbol": "BSE",
         "company_name": "BSE Ltd",
         "fundamental_score_raw": 4.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.969839+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.783194+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 48.73,
@@ -3394,8 +3387,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 49.0,
-        "score_change": -0.3,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3404,7 +3397,7 @@
         "symbol": "HDFCBANK",
         "company_name": "HDFC Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.671291+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.468857+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 45.76,
@@ -3457,8 +3450,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 40.86,
-        "score_change": 4.9,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3467,7 +3460,7 @@
         "symbol": "ADANIENT",
         "company_name": "Adani Enterprises Ltd",
         "fundamental_score_raw": 3.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.762945+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:54.884499+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bullish",
         "score": 42.06,
@@ -3523,8 +3516,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 38.87,
-        "score_change": 3.2,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3535,7 +3528,7 @@
         "symbol": "ADANIENT",
         "company_name": "Adani Enterprises Ltd",
         "fundamental_score_raw": 3.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.762945+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:54.884499+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 66.04,
@@ -3595,8 +3588,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 77.83,
-        "score_change": -11.8,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3605,7 +3598,7 @@
         "symbol": "HDFCBANK",
         "company_name": "HDFC Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.671291+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.468857+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 65.9,
@@ -3662,8 +3655,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 75.74,
-        "score_change": -9.8,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3672,10 +3665,10 @@
         "symbol": "APOLLOHOSP",
         "company_name": "Apollo Hospitals Enterprise Ltd",
         "fundamental_score_raw": 5.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.174127+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.824432+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
-        "score": 65.9,
+        "score": 61.85,
         "recommendation": "Moderate bearish swing candidate",
         "futures_price_change_pct": 4.734268014346266,
         "futures_oi_change_pct": -6.091699519360583,
@@ -3693,11 +3686,13 @@
         "evidence_available": 23,
         "evidence_total": 23,
         "evidence_completeness_pct": 100,
-        "event_risk": false,
-        "event_risk_status": "clear",
-        "event_categories": [],
+        "event_risk": true,
+        "event_risk_status": "detected",
+        "event_categories": [
+          "earnings"
+        ],
         "entry_condition_met": false,
-        "entry_status": "Wait for breakdown",
+        "entry_status": "Review the company event before entering",
         "call_oi_wall": 8000.0,
         "put_oi_wall": 8000.0,
         "reasons": [
@@ -3708,6 +3703,7 @@
           "Price below 50 DMA",
           "Negative 5-day momentum",
           "Underperforming sector by 1.7% over five sessions",
+          "Event risk detected",
           "Nearby put OI wall may limit downside"
         ],
         "calculation": {
@@ -3721,11 +3717,11 @@
           "global_weight": 0.09000000000000001,
           "relative_score": 67.43,
           "relative_weight": 0.09000000000000001,
-          "risk_score": 90,
+          "risk_score": 60,
           "risk_weight": 0.135,
           "fundamental_score": 48.0,
           "fundamental_weight": 0.1,
-          "weighted_total": 65.9,
+          "weighted_total": 61.85,
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
@@ -3739,7 +3735,7 @@
         "symbol": "RELIANCE",
         "company_name": "Reliance Industries Ltd",
         "fundamental_score_raw": 5.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.851886+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.657801+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 59.84,
@@ -3801,8 +3797,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 66.27,
-        "score_change": -6.4,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3811,7 +3807,7 @@
         "symbol": "PAYTM",
         "company_name": "One 97 Communications Ltd",
         "fundamental_score_raw": 2.5,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.174163+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.910532+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 59.83,
@@ -3870,8 +3866,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 66.73,
-        "score_change": -6.9,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -3880,7 +3876,7 @@
         "symbol": "INFY",
         "company_name": "Infosys Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.702761+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.612763+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 59.46,
@@ -3904,8 +3900,7 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
-          "earnings",
-          "material_event"
+          "earnings"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -3940,19 +3935,17 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 52.52,
-        "score_change": 6.9,
-        "new_event_categories": [
-          "material_event"
-        ],
-        "new_risk": true,
+        "previous_score": null,
+        "score_change": null,
+        "new_event_categories": [],
+        "new_risk": false,
         "entry_condition_reached": false
       },
       {
         "symbol": "BSE",
         "company_name": "BSE Ltd",
         "fundamental_score_raw": 4.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.969839+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.783194+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 57.12,
@@ -4010,8 +4003,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 56.85,
-        "score_change": 0.3,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -4020,7 +4013,7 @@
         "symbol": "HCLTECH",
         "company_name": "HCL Technologies Ltd",
         "fundamental_score_raw": 9.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:14.249305+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:54.790637+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 56.42,
@@ -4090,7 +4083,7 @@
         "symbol": "SAIL",
         "company_name": "Steel Authority of India Ltd",
         "fundamental_score_raw": 5.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:14.095137+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:54.635085+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 53.13,
@@ -4114,6 +4107,7 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
+          "earnings",
           "material_event"
         ],
         "entry_condition_met": false,
@@ -4160,7 +4154,7 @@
         "symbol": "ICICIBANK",
         "company_name": "ICICI Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.867322+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.687229+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 48.51,
@@ -4217,8 +4211,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 57.84,
-        "score_change": -9.3,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -4227,7 +4221,7 @@
         "symbol": "TCS",
         "company_name": "Tata Consultancy Services Ltd",
         "fundamental_score_raw": 8.2,
-        "fundamentals_updated_at": "2026-10-10T09:33:10.671256+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:51.349923+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 47.43,
@@ -4286,19 +4280,17 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 61.12,
-        "score_change": -13.7,
-        "new_event_categories": [
-          "corporate_action"
-        ],
-        "new_risk": true,
+        "previous_score": null,
+        "score_change": null,
+        "new_event_categories": [],
+        "new_risk": false,
         "entry_condition_reached": false
       },
       {
         "symbol": "KOTAKBANK",
         "company_name": "Kotak Mahindra Bank Ltd",
         "fundamental_score_raw": 5.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.867280+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.583285+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 46.68,
@@ -4362,7 +4354,7 @@
         "symbol": "ITC",
         "company_name": "ITC Ltd",
         "fundamental_score_raw": 9.0,
-        "fundamentals_updated_at": "2026-10-10T09:33:11.654413+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:52.434917+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 46.59,
@@ -4387,8 +4379,7 @@
         "event_risk_status": "detected",
         "event_categories": [
           "dividend",
-          "earnings",
-          "material_event"
+          "earnings"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -4421,8 +4412,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 73.07,
-        "score_change": -26.5,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -4431,7 +4422,7 @@
         "symbol": "BHEL",
         "company_name": "Bharat Heavy Electricals Ltd",
         "fundamental_score_raw": 4.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:12.705190+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.561180+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 42.59,
@@ -4487,8 +4478,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 49.52,
-        "score_change": -6.9,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
@@ -4497,7 +4488,7 @@
         "symbol": "AXISBANK",
         "company_name": "Axis Bank Ltd",
         "fundamental_score_raw": 6.8,
-        "fundamentals_updated_at": "2026-10-10T09:33:13.012374+00:00",
+        "fundamentals_updated_at": "2026-10-11T09:45:53.671161+00:00",
         "data_as_of": "2026-10-09",
         "setup_mode": "bearish",
         "score": 42.15,
@@ -4521,8 +4512,7 @@
         "event_risk": true,
         "event_risk_status": "detected",
         "event_categories": [
-          "dividend",
-          "earnings"
+          "dividend"
         ],
         "entry_condition_met": false,
         "entry_status": "Review the company event before entering",
@@ -4554,8 +4544,8 @@
           "total_weight": 1.0,
           "formula": "weighted component total"
         },
-        "previous_score": 52.01,
-        "score_change": -9.9,
+        "previous_score": null,
+        "score_change": null,
         "new_event_categories": [],
         "new_risk": false,
         "entry_condition_reached": false
